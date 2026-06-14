@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Budget Management System — FY27</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--pri:#1a3a5c;--prl:#2563a8;--acc:#e8b84b;--acl:#fdf3d8;--suc:#1e7e4a;--scl:#d4edda;--dan:#c0392b;--war:#f39c12;--ret:#7b2d8b;--bg:#f0f4f8;--card:#fff;--bdr:#cdd5e0;--txt:#1a2332;--muted:#5a6a7e;--side:#0f2540;--sw:260px;--hh:62px;--rad:6px;--sh:0 2px 8px rgba(0,0,0,.08);--shm:0 4px 16px rgba(0,0,0,.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+.overlay{min-height:100vh;display:none;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f2540,#1a3a5c);position:fixed;inset:0;z-index:1000}
+.overlay.active{display:flex}
+#loginScreen{z-index:1004}#profileScreen{z-index:1003}#contextScreen{z-index:1002}#editScreen{z-index:1001}
+.ocard{background:#fff;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.lcard{padding:40px 34px;width:440px}.pcard{padding:34px 30px;width:480px}
+.cxcard{padding:32px 28px;width:430px}.ecard{padding:32px 28px;width:640px;max-height:94vh;overflow-y:auto}
+.llogo{text-align:center;margin-bottom:20px}
+.llogo .icon{width:48px;height:48px;background:var(--pri);border-radius:11px;display:inline-flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:8px}
+.llogo h2{font-size:17px;font-weight:700;color:var(--pri)}.llogo p{font-size:12px;color:var(--muted);margin-top:2px}
+.sec-title{font-size:16px;font-weight:700;color:var(--pri);margin-bottom:3px}
+.sec-sub{font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.5}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.fg label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.fg input,.fg select,.fg textarea{padding:8px 11px;border:1.5px solid var(--bdr);border-radius:5px;font-family:inherit;font-size:13px;color:var(--txt);transition:border-color .2s;background:#fff}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--prl);box-shadow:0 0 0 3px rgba(37,99,168,.1)}
+.fg select:disabled{background:#f5f7fa;color:var(--muted)}.fg input[readonly]{background:#f5f7fa}
+.fg textarea{resize:vertical}.fg .wc{font-size:10px;color:var(--muted);text-align:right;margin-top:2px}
+.btn-login{width:100%;padding:11px;background:var(--pri);color:#fff;border:none;border-radius:var(--rad);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s;margin-top:4px}
+.btn-login:hover{background:var(--prl)}
+.demo-box{margin-top:12px;padding:10px;background:var(--acl);border-radius:var(--rad);border:1px solid #f0d080}
+.demo-box p{font-size:11px;color:#7a5900;font-weight:600;margin-bottom:5px}
+.demo-btns{display:flex;flex-wrap:wrap;gap:4px}
+.dbtn{padding:3px 8px;font-size:11px;border:1px solid #c8a020;background:#fff;border-radius:4px;cursor:pointer;color:#5a4000;font-family:inherit;transition:all .15s}
+.dbtn:hover{background:var(--acc);color:#fff}
+.fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
+.fgrid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+#appScreen{display:none;min-height:100vh}#appScreen.active{display:flex}
+.sidebar{width:var(--sw);background:var(--side);min-height:100vh;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100}
+.sb-hdr{padding:14px 14px 11px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo{display:flex;align-items:center;gap:9px}
+.sb-logo .icon{width:32px;height:32px;background:var(--acc);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.sb-logo .brand{font-size:13px;font-weight:700;color:#fff;line-height:1.2}
+.sb-logo .brand small{display:block;font-size:10px;font-weight:400;color:rgba(255,255,255,.5)}
+.ucard{margin:10px;padding:10px;background:rgba(255,255,255,.06);border-radius:7px;border:1px solid rgba(255,255,255,.1)}
+.uav{width:32px;height:32px;border-radius:50%;background:var(--acc);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#1a2332}
+.uinfo{margin-top:7px}.uname{font-size:13px;font-weight:600;color:#fff}.urole{font-size:11px;color:rgba(255,255,255,.5);margin-top:1px}.uloc{font-size:11px;color:var(--acc);margin-top:1px}
+.nav-lbl{font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;padding:7px 14px 3px}
+.ni{display:flex;align-items:center;gap:8px;padding:9px 14px;color:rgba(255,255,255,.6);cursor:pointer;font-size:13px;font-weight:500;transition:all .15s;border-left:3px solid transparent}
+.ni:hover{color:#fff;background:rgba(255,255,255,.06)}.ni.active{color:var(--acc);border-left-color:var(--acc);background:rgba(232,184,75,.08)}
+.ni .ico{font-size:14px;width:17px;text-align:center}
+.nbadge{margin-left:auto;background:var(--dan);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px}
+.sb-ftr{margin-top:auto;padding:11px;border-top:1px solid rgba(255,255,255,.08)}
+.btn-lo{width:100%;padding:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;color:rgba(255,255,255,.6);font-family:inherit;font-size:12px;cursor:pointer;transition:all .15s}
+.btn-lo:hover{background:rgba(255,255,255,.12);color:#fff}
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column}
+.topbar{height:var(--hh);background:#fff;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:50;box-shadow:var(--sh)}
+.tb-title{font-size:14px;font-weight:700;color:var(--pri)}.tb-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.page{display:none;padding:18px}.page.active{display:block}
+.card{background:var(--card);border-radius:var(--rad);border:1px solid var(--bdr);box-shadow:var(--sh);margin-bottom:15px}
+.card-hdr{padding:10px 15px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#f8fafc,#fff);border-radius:var(--rad) var(--rad) 0 0}
+.card-hdr h3{font-size:11px;font-weight:700;color:var(--pri);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.step-b{background:var(--pri);color:#fff;font-size:11px;font-weight:700;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
+.cbody{padding:14px}
+.auto-field{background:#f0f6ff!important;border-color:#c3d9f5!important;color:var(--pri)!important;font-weight:500}
+.toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.toggle-wrap{display:flex;background:#e9ecef;border-radius:20px;padding:2px;gap:2px}
+.toggle-btn{padding:4px 12px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .2s;background:transparent;color:var(--muted)}
+.toggle-btn.active{background:var(--pri);color:#fff}
+.qgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.qcard{border:2px solid var(--bdr);border-radius:7px;overflow:hidden;transition:border-color .2s;cursor:pointer}
+.qcard:hover{border-color:var(--prl)}.qcard.exp{border-color:var(--pri)}
+.qh{padding:9px 11px;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:space-between;user-select:none}
+.ql{font-size:13px;font-weight:700}.qm{font-size:10px;opacity:.7;margin-top:1px}
+.qt{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--acc)}
+.qp{font-size:10px;color:rgba(255,255,255,.6)}.ti{transition:transform .2s}.qcard.exp .ti{transform:rotate(180deg)}
+.qbody{display:none;padding:10px;background:#f8fafc}.qcard.exp .qbody{display:block}
+.me{display:flex;align-items:center;gap:7px;margin-bottom:7px}.me:last-child{margin-bottom:0}
+.ml{font-size:12px;font-weight:600;color:var(--pri);width:74px}
+.mi{flex:1;padding:5px 8px;border:1.5px solid var(--bdr);border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--txt)}
+.mi:focus{outline:none;border-color:var(--prl)}
+.mp{font-size:10px;color:var(--muted);width:36px;text-align:right;font-family:'IBM Plex Mono',monospace}
+.item-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.item-tbl th{background:var(--pri);color:#fff;padding:8px 10px;text-align:left;font-size:11px;font-weight:600;white-space:nowrap}
+.item-tbl td{padding:6px 8px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+.item-tbl tfoot td{background:var(--acl);font-weight:700;padding:8px 10px}
+.itbl-inp{width:100%;padding:5px 7px;border:1.5px solid var(--bdr);border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--txt);background:#fff}
+.itbl-inp:focus{outline:none;border-color:var(--prl)}
+.blist-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.blist-tbl th{background:#f0f4f8;color:var(--muted);padding:7px 10px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;border-bottom:2px solid var(--bdr)}
+.blist-tbl td{padding:8px 10px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+.blist-tbl tr:hover td{background:#f8fafc}
+.astep{display:flex;align-items:flex-start;gap:10px;padding:9px 11px;border-radius:7px;margin-bottom:5px;border:1.5px solid var(--bdr);background:#fff}
+.astep.cur{border-color:var(--prl);background:#f0f6ff}.astep.app{border-color:var(--suc);background:var(--scl)}
+.astep.rej{border-color:var(--dan);background:#fdf0ee}.astep.ret{border-color:var(--ret);background:#f9f0ff}
+.snum{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;background:var(--bdr);color:var(--muted)}
+.astep.cur .snum{background:var(--prl);color:#fff}.astep.app .snum{background:var(--suc);color:#fff}
+.astep.rej .snum{background:var(--dan);color:#fff}.astep.ret .snum{background:var(--ret);color:#fff}
+.si{flex:1}.sr-r{font-size:13px;font-weight:600}.su{font-size:11px;color:var(--muted);margin-top:1px}.st{font-size:10px;color:var(--muted)}
+.sp-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:#f0f0f0;color:var(--muted);flex-shrink:0}
+.astep.cur .sp-badge{background:#dbeafe;color:var(--prl)}.astep.app .sp-badge{background:var(--scl);color:var(--suc)}
+.astep.rej .sp-badge{background:#fde8e8;color:var(--dan)}.astep.ret .sp-badge{background:#f3e5f5;color:var(--ret)}
+.aact{display:flex;gap:7px;padding:11px 15px;background:#f8fafc;border-top:1px solid var(--bdr);border-radius:0 0 var(--rad) var(--rad);flex-wrap:wrap}
+.btn{padding:7px 14px;border-radius:5px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;border:none;display:inline-flex;align-items:center;gap:4px}
+.bp{background:var(--pri);color:#fff}.bp:hover{background:var(--prl)}
+.bs{background:var(--suc);color:#fff}.bs:hover{background:#158a3e}
+.bd{background:var(--dan);color:#fff}.bd:hover{background:#a93226}
+.br{background:var(--ret);color:#fff}.br:hover{background:#6a2578}
+.bo{background:#fff;color:var(--pri);border:1.5px solid var(--bdr)}.bo:hover{border-color:var(--pri);background:#f0f4f8}
+.ba{background:var(--acc);color:#1a2332}.ba:hover{background:#d4a43a}
+.bsm{padding:5px 10px;font-size:11px}.bxs{padding:3px 8px;font-size:11px}
+.stbl{width:100%;border-collapse:collapse;font-size:12px}
+.stbl th{background:var(--pri);color:#fff;padding:8px 11px;text-align:left;font-size:11px;font-weight:600}
+.stbl td{padding:8px 11px;border-bottom:1px solid var(--bdr)}
+.stbl tr:last-child td{font-weight:700;background:var(--acl)}
+.stats-g{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:15px}
+.stat{background:#fff;border-radius:var(--rad);padding:13px;border:1px solid var(--bdr);box-shadow:var(--sh)}
+.s-ico{font-size:20px;margin-bottom:6px}.s-val{font-size:22px;font-weight:700;color:var(--pri);font-family:'IBM Plex Mono',monospace}.s-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+.spill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:11px;display:inline-block}
+.sp-p{background:#fff3cd;color:#856404}.sp-a{background:var(--scl);color:var(--suc)}
+.sp-r{background:#fde8e8;color:var(--dan)}.sp-ret{background:#f3e5f5;color:var(--ret)}
+.vbadge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 6px;border-radius:9px;background:#f3e5f5;color:var(--ret);border:1px solid #d1a3e0;margin-left:5px}
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center}
+.modal-ov.active{display:flex}
+.modal{background:#fff;border-radius:10px;width:700px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:mIn .2s ease}
+@keyframes mIn{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.mhdr{padding:13px 16px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2}
+.mhdr h3{font-size:14px;font-weight:700;color:var(--pri)}.mcls{background:none;border:none;font-size:17px;cursor:pointer;color:var(--muted)}
+.mbody{padding:15px}.mftr{padding:10px 15px;border-top:1px solid var(--bdr);display:flex;gap:7px;justify-content:flex-end;position:sticky;bottom:0;background:#fff;flex-wrap:wrap}
+.toast-c{position:fixed;bottom:18px;right:18px;z-index:600;display:flex;flex-direction:column;gap:5px}
+.toast{padding:10px 14px;border-radius:7px;font-size:12px;font-weight:500;box-shadow:var(--shm);animation:tIn .3s ease;max-width:300px}
+.toast.success{background:var(--suc);color:#fff}.toast.error{background:var(--dan);color:#fff}.toast.info{background:var(--pri);color:#fff}.toast.warn{background:var(--war);color:#fff}
+@keyframes tIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+.ctabs{display:flex;border-bottom:2px solid var(--bdr);margin-bottom:14px}
+.ctab{padding:8px 14px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
+.ctab.active{color:var(--prl);border-color:var(--prl)}
+.ibox{padding:9px 12px;background:#e8f4fd;border:1px solid #bde0f5;border-radius:6px;font-size:12px;color:#1565c0;margin-bottom:11px}
+.wbox{padding:9px 12px;background:#fff8e1;border:1px solid #ffe082;border-radius:6px;font-size:12px;color:#e65100;margin-bottom:11px}
+.cnote{padding:8px 11px;background:var(--acl);border:1px solid #f0d080;border-radius:6px;font-size:12px;color:#7a5900;margin-bottom:10px}
+.rnote{padding:8px 11px;background:#f3e5f5;border:1px solid #d1a3e0;border-radius:6px;font-size:12px;color:var(--ret);margin-bottom:10px}
+.req{color:var(--dan)}.tmuted{color:var(--muted);font-size:11px}
+.upload-box{border:2px dashed var(--bdr);border-radius:7px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;background:#fafbfc}
+.upload-box:hover{border-color:var(--prl);background:#f0f6ff}.upload-box.has-file{border-color:var(--suc);background:var(--scl)}
+.amt{font-family:'IBM Plex Mono',monospace;text-align:right}
+.fa-inp{width:100%;padding:5px 7px;border:1.5px solid var(--bdr);border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--txt)}
+.fa-inp:focus{outline:none;border-color:var(--prl)}
+.fa-inp.ro{background:#f0f6ff;color:var(--pri);font-weight:500;border-color:#c3d9f5}
+.fa-sel{width:100%;padding:5px 7px;border:1.5px solid var(--bdr);border-radius:4px;font-family:inherit;font-size:12px;background:#fff}
+.util-bar{height:7px;border-radius:4px;background:#e0e0e0;overflow:hidden;margin-top:3px}
+.util-fill{height:100%;border-radius:4px}
+.ver-chip{padding:3px 9px;border-radius:5px;font-size:11px;font-weight:600;border:1px solid var(--bdr);background:#fff;font-family:'IBM Plex Mono',monospace;display:inline-block;margin:2px}
+</style>
+  <script>
+// Minimal inline Supabase REST client - no CDN needed
+const supabase = {
+  _url: null, _key: null,
+  createClient(url, key){ this._url=url; this._key=key; return this; },
+  from(table){
+    const base=this;
+    return {
+      _table:table, _filters:[], _data:null, _conflict:null,
+      select(cols='*'){this._sel=cols;return this;},
+      eq(col,val){this._filters.push({col,val});return this;},
+      upsert(row,opts){this._data=row;this._conflict=opts?.onConflict;return this;},
+      delete(){this._del=true;return this;},
+      async _exec(method,body){
+        try{
+          let url=`${base._url}/rest/v1/${this._table}`;
+          const headers={'Content-Type':'application/json','apikey':base._key,'Authorization':'Bearer '+base._key,'Prefer':method==='upsert'?'resolution=merge-duplicates,return=minimal':'return=minimal'};
+          const params=[];
+          if(this._sel) params.push('select='+this._sel);
+          this._filters.forEach(f=>params.push(`${f.col}=eq.${f.val}`));
+          if(params.length) url+='?'+params.join('&');
+          const opts={method:method==='select'?'GET':method==='upsert'?'POST':method==='delete'?'DELETE':'POST',headers};
+          if(body) opts.body=JSON.stringify(body);
+          const r=await fetch(url,opts);
+          const txt=await r.text();
+          const data=txt?JSON.parse(txt):[];
+          return {data:Array.isArray(data)?data:[data],error:r.ok?null:{message:txt}};
+        }catch(e){return {data:[],error:{message:e.message}};}
+      },
+      async then(resolve){
+        let res;
+        if(this._del) res=await this._exec('delete');
+        else if(this._data) res=await this._exec('upsert',this._data);
+        else res=await this._exec('select');
+        resolve(res);
+        return res;
+      }
+    };
+  }
+};
+</script>
+</head>
+<body>
+<script>
+// ============================================================
+// SUPABASE CONFIGURATION — Replace with your actual values
+// ============================================================
+const SUPABASE_URL     = 'https://hijjndsihiksrjdbegjv.supabase.co/rest/v1/';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpampuZHNpaGlrc3JqZGJlZ2p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NDUzOTMsImV4cCI6MjA5NzAyMTM5M30.ZPe14MIihsF3HljRWIOlcUkOap7hEdNnJWwDSef77p8';
+
+// Safe lazy init — works even if CDN fails or not configured
+let _sb = null;
+function getSB(){
+  if(_sb) return _sb;
+  try{
+    if(isSBConfigured()){
+      _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+  } catch(e){ console.warn('Supabase init:', e); }
+  return _sb;
+}
+
+// ── Check if Supabase is configured ──────────────────────────
+function isSBConfigured(){
+  try{
+    return SUPABASE_URL !== 'YOUR_SUPABASE_URL' &&
+           SUPABASE_URL.startsWith('https://') &&
+           SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY' &&
+           SUPABASE_ANON_KEY.length > 20;
+  }catch(e){return false;}
+}
+
+// ── DB HELPERS ────────────────────────────────────────────────
+async function dbGet(table, filters={}){
+  const sb=getSB();if(!sb)return[];let q=sb.from(table).select('*');
+  Object.entries(filters).forEach(([k,v])=>{ q = q.eq(k,v); });
+  const {data,error} = await q;
+  if(error){ console.error(table,error); return []; }
+  return data||[];
+}
+async function dbUpsert(table, row){
+  const sb2=getSB();if(!sb2)return false;const {error}=await sb2.from(table).upsert(row,{onConflict:Object.keys(row)[0]});
+  if(error) console.error('upsert',table,error);
+  return !error;
+}
+async function dbDelete(table, id_col, id_val){
+  const sb3=getSB();if(!sb3)return false;const {error}=await sb3.from(table).delete().eq(id_col,id_val);
+  if(error) console.error('delete',table,error);
+  return !error;
+}
+
+// ── LOAD ALL DATA FROM SUPABASE ───────────────────────────────
+async function loadAllData(){
+  // Always load from localStorage first (offline fallback)
+  REQS = JSON.parse(localStorage.getItem('bps_reqs')||'[]');
+  SR_R = JSON.parse(localStorage.getItem('bps_sr')||'[]');
+  IO_R = JSON.parse(localStorage.getItem('bps_io')||'[]');
+  AC_R = JSON.parse(localStorage.getItem('bps_act')||'[]');
+
+  if(!isSBConfigured()){
+    console.log('Supabase not configured — using localStorage mode');
+    return;
+  }
+  if(false){
+    console.warn('Supabase CDN not loaded — using localStorage mode');
+    return;
+  }
+  showLoader('Loading data from Supabase...');
+  try {
+    const [reqs, srs, ios, acts] = await Promise.all([
+      dbGet('budget_requests'),
+      dbGet('sr_records'),
+      dbGet('io_records'),
+      dbGet('actual_spends'),
+    ]);
+    if(reqs && reqs.length >= 0) REQS = reqs.map(mapReq);
+    if(srs  && srs.length  >= 0) SR_R = srs.map(mapSR);
+    if(ios  && ios.length  >= 0) IO_R = ios.map(mapIO);
+    if(acts && acts.length >= 0) AC_R = acts.map(mapAct);
+    hideLoader();
+    console.log('Loaded from Supabase:', REQS.length,'requests');
+  } catch(e){
+    console.error('Supabase load error:',e);
+    toast('Using local data. Check Supabase connection.','warn');
+    hideLoader();
+  }
+}
+
+// ── DATA MAPPERS (DB → App format) ───────────────────────────
+function mapReq(r){ return {ref:r.ref,type:r.type,version:r.version,gl:r.gl,theme:r.theme,dept:r.dept,pt:r.pt,da:r.da,bt:r.bt,founder:r.founder,loc:r.loc,cluster:r.cluster,unit:r.unit,fy:r.fy,projName:r.proj_name,projDesc:r.proj_desc,attachedFile:r.attached_file,bud:parseFloat(r.bud)||0,md:r.md||{},qMode:r.q_mode,items:r.items||[],budVersions:r.bud_versions||[],status:r.status,curLvl:r.cur_lvl,retBy:r.ret_by,retRole:r.ret_role,retRmk:r.ret_rmk,appr:r.appr||[],hist:r.hist||[],by:r.submitted_by,byName:r.submitted_by_name,at:r.submitted_at}; }
+function mapSR(s){ return {id:s.id,budRef:s.bud_ref,projName:s.proj_name,gl:s.gl,theme:s.theme,dept:s.dept,pt:s.pt,da:s.da,bt:s.bt,loc:s.loc,srNo:s.sr_no,srVal:parseFloat(s.sr_val)||0,date:s.date,by:s.added_by}; }
+function mapIO(i){ return {id:i.id,budRef:i.bud_ref,projName:i.proj_name,gl:i.gl,theme:i.theme,dept:i.dept,pt:i.pt,da:i.da,bt:i.bt,loc:i.loc,ioNo:i.io_no,ioVal:parseFloat(i.io_val)||0,date:i.date,by:i.added_by}; }
+function mapAct(a){ return {id:a.id,ioId:a.io_id,ioNo:a.io_no,budRef:a.bud_ref,projName:a.proj_name,gl:a.gl,loc:a.loc,amount:parseFloat(a.amount)||0,date:a.date,voucher:a.voucher,desc:a.description,by:a.added_by}; }
+
+// ── SAVE FUNCTIONS (App → DB) ─────────────────────────────────
+async function saveReq(r){
+  localStorage.setItem('bps_reqs',JSON.stringify(REQS));localStorage.setItem('bps_rc',RC);
+  if(!isSBConfigured()) return;
+  await dbUpsert('budget_requests',{
+    ref:r.ref, type:r.type, version:r.version, gl:r.gl, theme:r.theme, dept:r.dept, pt:r.pt,
+    da:r.da, bt:r.bt, founder:r.founder, loc:r.loc, cluster:r.cluster, unit:r.unit, fy:r.fy,
+    proj_name:r.projName, proj_desc:r.projDesc, attached_file:r.attachedFile||null,
+    bud:r.bud, md:r.md, q_mode:r.qMode||'pct', items:r.items||[], bud_versions:r.budVersions||[],
+    status:r.status, cur_lvl:r.curLvl, ret_by:r.retBy||null, ret_role:r.retRole||null, ret_rmk:r.retRmk||null,
+    appr:r.appr, hist:r.hist, submitted_by:r.by, submitted_by_name:r.byName, submitted_at:r.at,
+    updated_at: new Date().toISOString()
+  });
+}
+async function saveSR(s){
+  localStorage.setItem('bps_sr',JSON.stringify(SR_R));
+  if(!isSBConfigured()) return;
+  await dbUpsert('sr_records',{id:s.id,bud_ref:s.budRef,proj_name:s.projName,gl:s.gl,theme:s.theme,dept:s.dept,pt:s.pt,da:s.da,bt:s.bt,loc:s.loc,sr_no:s.srNo,sr_val:s.srVal,date:s.date,added_by:s.by});
+}
+async function saveIO(i){
+  localStorage.setItem('bps_io',JSON.stringify(IO_R));
+  if(!isSBConfigured()) return;
+  await dbUpsert('io_records',{id:i.id,bud_ref:i.budRef,proj_name:i.projName,gl:i.gl,theme:i.theme,dept:i.dept,pt:i.pt,da:i.da,bt:i.bt,loc:i.loc,io_no:i.ioNo,io_val:i.ioVal,date:i.date,added_by:i.by});
+}
+async function saveAct(a){
+  localStorage.setItem('bps_act',JSON.stringify(AC_R));
+  if(!isSBConfigured()) return;
+  await dbUpsert('actual_spends',{id:a.id,io_id:a.ioId,io_no:a.ioNo,bud_ref:a.budRef,proj_name:a.projName,gl:a.gl,loc:a.loc,amount:a.amount,date:a.date,voucher:a.voucher||null,description:a.desc||null,added_by:a.by});
+}
+async function delSR(id){
+  SR_R = SR_R.filter(x=>x.id!==id);
+  localStorage.setItem('bps_sr',JSON.stringify(SR_R));
+  if(!isSBConfigured()) return;
+  await dbDelete('sr_records','id',id);
+}
+async function delIO(id){
+  IO_R = IO_R.filter(x=>x.id!==id);
+  AC_R = AC_R.filter(x=>x.ioId!==id);
+  localStorage.setItem('bps_io',JSON.stringify(IO_R));localStorage.setItem('bps_act',JSON.stringify(AC_R));
+  if(!isSBConfigured()) return;
+  await dbDelete('io_records','id',id);
+}
+async function delAct(id){
+  AC_R = AC_R.filter(x=>x.id!==id);
+  localStorage.setItem('bps_act',JSON.stringify(AC_R));
+  if(!isSBConfigured()) return;
+  await dbDelete('actual_spends','id',id);
+}
+async function saveProfile(id, profile){
+  UP[id] = profile;
+  localStorage.setItem('bps_up',JSON.stringify(UP));
+  if(!isSBConfigured()) return;
+  await dbUpsert('user_profiles',{id, name:profile.name, email:profile.email, location:profile.location, department:profile.department, unit:profile.unit, cluster:profile.cluster, role:'Initiator', level:1});
+}
+
+// ── LOADER UI ─────────────────────────────────────────────────
+function showLoader(msg='Loading...'){
+  let el=document.getElementById('sbLoader');
+  if(!el){el=document.createElement('div');el.id='sbLoader';el.style.cssText='position:fixed;inset:0;background:rgba(15,37,64,.85);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff';document.body.appendChild(el);}
+  el.innerHTML=`<div style="font-size:32px;margin-bottom:14px;animation:spin 1s linear infinite">⟳</div><div style="font-size:14px;font-weight:600">${msg}</div>`;
+  el.style.display='flex';
+}
+function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.style.display='none';}
+</script>
+
+<!-- LOGIN -->
+<div class="overlay active" id="loginScreen">
+  <div class="ocard lcard">
+    <div class="llogo"><div class="icon">📊</div><h2>Budget Management System</h2><p>FY 2026-27</p></div>
+    <div class="fg"><label>Login ID</label><input type="text" id="loginId" placeholder="Enter Login ID"/></div>
+    <div class="fg"><label>Password</label><input type="password" id="loginPass" placeholder="Password"/></div>
+    <button class="btn-login" onclick="doLogin()">Sign In →</button>
+    <div class="demo-box"><p>Quick Login</p>
+      <div class="demo-btns">
+        <button class="dbtn" onclick="ql('newuser1')">New User</button>
+        <button class="dbtn" onclick="ql('unitpa1')">Unit P&amp;A</button>
+        <button class="dbtn" onclick="ql('unitlead1')">Unit Lead</button>
+        <button class="dbtn" onclick="ql('cluster1')">Cluster Head</button>
+        <button class="dbtn" onclick="ql('thematic1')">Thematic Head</button>
+        <button class="dbtn" onclick="ql('pateam1')">P&amp;A Team</button>
+        <button class="dbtn" onclick="ql('coo1')">COO/CEO</button>
+        <button class="dbtn" onclick="ql('fa1')">F&amp;A Staff</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="overlay" id="profileScreen">
+  <div class="ocard pcard">
+    <div class="sec-title">👋 Complete Your Profile</div>
+    <div class="sec-sub">First-time setup. You will be the Initiator.</div>
+    <div class="fgrid2">
+      <div class="fg"><label>Full Name <span class="req">*</span></label><input id="pName" placeholder="Full name"/></div>
+      <div class="fg"><label>Email <span class="req">*</span></label><input type="email" id="pEmail" placeholder="name@org.com"/></div>
+      <div class="fg"><label>Location <span class="req">*</span></label><select id="pLoc" onchange="onProfLoc()"><option value="">— Select —</option></select></div>
+      <div class="fg"><label>Department</label><select id="pDept"><option value="">— Select —</option></select></div>
+    </div>
+    <div class="fgrid2">
+      <div class="fg"><label>Unit / State</label><input id="pUnit" readonly class="auto-field"/></div>
+      <div class="fg"><label>Cluster</label><input id="pCluster" readonly class="auto-field"/></div>
+    </div>
+    <div style="margin-top:13px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn bo" onclick="cancelProfile()">Cancel</button>
+      <button class="btn bp" onclick="saveProfile()">Save &amp; Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTEXT -->
+<div class="overlay" id="contextScreen">
+  <div class="ocard cxcard">
+    <div class="sec-title" id="cxTitle">Select Context</div>
+    <div class="sec-sub" id="cxSub">Filter your approval queue.</div>
+    <div class="fg"><label id="cxLbl">Select</label><select id="cxSel"><option value="">— Select —</option></select></div>
+    <div style="margin-top:13px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn bo" onclick="doLogout()">Cancel</button>
+      <button class="btn bp" onclick="saveCtx()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT/RETURN -->
+<div class="overlay" id="editScreen">
+  <div class="ocard ecard">
+    <div class="sec-title">✏️ Edit &amp; Resubmit</div>
+    <div class="sec-sub" id="editSub">Returned for corrections. Edit and resubmit.</div>
+    <input type="hidden" id="editRef"/>
+    <div class="fgrid2" style="margin-bottom:10px">
+      <div class="fg" style="grid-column:1/-1"><label>GL</label><input id="eGL" readonly class="auto-field"/></div>
+      <div class="fg"><label>Theme</label><input id="eTheme" readonly class="auto-field"/></div>
+      <div class="fg"><label>Department</label><input id="eDept" readonly class="auto-field"/></div>
+      <div class="fg"><label>Programme Type</label><input id="ePT" readonly class="auto-field"/></div>
+      <div class="fg"><label>Founder</label><input id="eFounder" readonly class="auto-field"/></div>
+    </div>
+    <div class="fg"><label>Project Name <span class="req">*</span></label><input id="eProjName" maxlength="150"/></div>
+    <div class="fg"><label>Project Description <span class="req">*</span></label><textarea id="eDesc" style="min-height:80px"></textarea></div>
+    <div style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <strong style="font-size:12px;color:var(--pri)">Budget Items</strong>
+        <button class="btn ba bsm" onclick="addEditItem()">+ Add Item</button>
+      </div>
+      <div style="overflow-x:auto"><table class="item-tbl" id="editItemTbl">
+        <thead><tr><th>#</th><th>Item Description</th><th>Unit</th><th>Qty</th><th>Rate (₹)</th><th>Amount (₹)</th><th></th></tr></thead>
+        <tbody id="editItemBody"></tbody>
+        <tfoot><tr><td colspan="4" style="text-align:right;padding:8px 10px">Total:</td><td colspan="2" id="editItemTotal" style="font-family:'IBM Plex Mono';padding:8px 10px;font-weight:700">₹ 0</td><td></td></tr></tfoot>
+      </table></div>
+    </div>
+    <div id="editQWrap"></div>
+    <div class="fg" style="margin-top:8px"><label>Note to Approver</label><textarea id="eNote" style="min-height:56px" placeholder="Changes made..."></textarea></div>
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn bo" onclick="closeEdit()">Cancel</button>
+      <button class="btn bp" onclick="resubmit()">📤 Resubmit</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen">
+  <div class="sidebar">
+    <div class="sb-hdr"><div class="sb-logo"><div class="icon">📊</div><div class="brand">BudgetMS <small>FY 2026-27</small></div></div></div>
+    <div class="ucard">
+      <div class="uav" id="sbAv">U</div>
+      <div class="uinfo"><div class="uname" id="sbNm">—</div><div class="urole" id="sbRl">—</div><div class="uloc" id="sbLc">—</div><div style="font-size:10px;margin-top:3px;color:rgba(255,255,255,.4)" id="sbMode">🟡 Local Storage</div></div>
+    </div>
+    <div class="nav-lbl">Navigation</div>
+    <div class="ni active" onclick="nav('dashboard',this)"><span class="ico">🏠</span> Dashboard</div>
+    <div class="ni" id="navBM" onclick="nav('budgetMgmt',this)"><span class="ico">💼</span> Budget Management</div>
+    <div class="ni" id="navMine" onclick="nav('myReqs',this)"><span class="ico">📋</span> My Requests</div>
+    <div class="ni" id="navApp" onclick="nav('approvals',this)" style="display:none"><span class="ico">✅</span> Pending Approvals <span class="nbadge" id="aBadge">0</span></div>
+    <div class="ni" id="navCon" onclick="nav('consolidated',this)" style="display:none"><span class="ico">📈</span> Consolidated View</div>
+    <div class="ni" id="navFA" onclick="nav('faModule',this)" style="display:none"><span class="ico">💰</span> F&amp;A / Actual Spend</div>
+    <div class="ni" onclick="nav('report',this)"><span class="ico">📥</span> Export Report</div>
+    <div class="sb-ftr"><button class="btn-lo" onclick="doLogout()">⎋ Sign Out</button></div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div><div class="tb-title" id="pgTitle">Dashboard</div><div class="tb-sub">Budget Management System — FY 2026-27</div></div>
+      <span class="tmuted" id="topUser">—</span>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="stats-g">
+        <div class="stat"><div class="s-ico">📝</div><div class="s-val" id="stTot">0</div><div class="s-lbl">Total Requests</div></div>
+        <div class="stat"><div class="s-ico">⏳</div><div class="s-val" id="stPnd">0</div><div class="s-lbl">Pending</div></div>
+        <div class="stat"><div class="s-ico">↩️</div><div class="s-val" id="stRet">0</div><div class="s-lbl">Returned</div></div>
+        <div class="stat"><div class="s-ico">💰</div><div class="s-val" id="stBud">₹0</div><div class="s-lbl">Total Budget</div></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><h3>📋 Recent Requests</h3></div>
+        <div style="overflow-x:auto">
+          <table class="blist-tbl" style="width:100%">
+            <thead><tr><th>Ref #</th><th>Ver</th><th>Project Name</th><th>GL</th><th>Location</th><th>Budget(₹)</th><th>Status</th><th></th></tr></thead>
+            <tbody id="dashTb"><tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">No requests yet.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUDGET MANAGEMENT -->
+    <div id="page-budgetMgmt" class="page">
+      <div class="card" id="bmSummaryCard">
+        <div class="card-hdr">
+          <h3>📍 Location Budget Overview</h3>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="bmLocFilter" onchange="renderBMSummary()" style="padding:5px 8px;font-size:12px;border:1px solid var(--bdr);border-radius:4px">
+              <option value="">All Locations</option>
+            </select>
+            <button class="btn bp bsm" onclick="showNewBudget()">➕ New Budget</button>
+            <button class="btn ba bsm" onclick="showChangeBudget()">🔄 Budget Change</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="blist-tbl" style="width:100%;min-width:900px">
+            <thead><tr><th>Ref #</th><th>Ver</th><th>Project Name</th><th>GL</th><th>Theme</th><th>Dept</th><th>Location</th><th>Budget(₹)</th><th>SR(₹)</th><th>IO(₹)</th><th>Actual(₹)</th><th>Balance(₹)</th><th>Util%</th><th>Status</th><th></th></tr></thead>
+            <tbody id="bmSummaryTb"><tr><td colspan="15" style="text-align:center;padding:24px;color:var(--muted)">No requests yet.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- NEW BUDGET FORM -->
+      <div id="newBudgetForm" style="display:none">
+        <div class="card">
+          <div class="card-hdr"><h3><span class="step-b">1</span> GL &amp; Classification</h3><button class="btn bo bsm" onclick="hideAllBMForms()">✕ Cancel</button></div>
+          <div class="cbody">
+            <div class="fgrid2">
+              <div class="fg" style="grid-column:1/-1"><label>GL (Description) <span class="req">*</span></label><select id="selGL" onchange="onGLSelect()"><option value="">— Select GL —</option></select></div>
+              <div class="fg"><label>Theme (Auto)</label><input id="autoTheme" readonly class="auto-field"/></div>
+              <div class="fg"><label>Department (Auto)</label><input id="autoDept" readonly class="auto-field"/></div>
+              <div class="fg"><label>Programme Type (Auto)</label><input id="autoPT" readonly class="auto-field"/></div>
+              <div class="fg"><label>Delivery Arm <span class="req">*</span></label><select id="selDA"><option value="">— Select —</option></select></div>
+            </div>
+            <div class="fgrid2" style="margin-top:10px">
+              <div class="fg"><label>Budget Type <span class="req">*</span></label><select id="selBT"><option value="">— Select —</option></select></div>
+              <div class="fg"><label>Founder <span class="req">*</span></label><select id="selFounder"><option value="">— Select —</option><option>TATA Steel Foundation</option><option>TATA Steel Limited</option><option>HDFC Bank</option><option>Bill &amp; Melinda Gates Foundation</option><option>AIF</option><option>Govt. of India</option><option>State Government</option><option>CSR Contribution</option><option>Other</option></select></div>
+              <div class="fg"><label>Financial Year</label><select id="selFY"><option>FY 2026-27</option><option>FY 2027-28</option></select></div>
+              <div class="fg"><label>Location <span class="req">*</span></label><select id="selLoc" onchange="onLocSelect()"><option value="">— Select —</option></select></div>
+              <div class="fg"><label>Location Cluster (Auto)</label><input id="autoCluster" readonly class="auto-field"/></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><h3><span class="step-b">2</span> Project Details</h3></div>
+          <div class="cbody">
+            <div class="fg">
+              <label>Project Name <span class="req">*</span> <span class="tmuted">(max 150 chars)</span></label>
+              <input type="text" id="projName" maxlength="150" placeholder="Project name — used as approval title" oninput="wc('projName','pnc',150)"/>
+              <div class="wc" id="pnc">0 / 150</div>
+            </div>
+            <div class="fg">
+              <label>Project Description <span class="req">*</span> <span class="tmuted">(max 500 words)</span></label>
+              <textarea id="projDesc" style="min-height:90px" maxlength="3500" placeholder="Project objectives, expected outcomes, justification..." oninput="wcW('projDesc','pdc',500)"></textarea>
+              <div class="wc" id="pdc">0 / 500 words</div>
+            </div>
+            <div class="fg">
+              <label>Supporting Document <span class="tmuted">(Word/Excel/PDF/Image, max 2MB)</span></label>
+              <div class="upload-box" id="uploadBox" onclick="document.getElementById('fileInput').click()">
+                <div style="font-size:22px;margin-bottom:5px">📎</div>
+                <div style="font-size:13px;font-weight:600;color:var(--pri)">Click to upload</div>
+                <div class="tmuted">.doc .docx .xls .xlsx .pdf .jpg .png — max 2MB</div>
+                <div id="fileChip"></div>
+              </div>
+              <input type="file" id="fileInput" style="display:none" accept=".doc,.docx,.xls,.xlsx,.pdf,.jpg,.jpeg,.png" onchange="handleFile(this)"/>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><h3><span class="step-b">3</span> Budget Items</h3><button class="btn ba bsm" onclick="addBudgetItem()">+ Add Item</button></div>
+          <div class="cbody">
+            <div class="ibox">Enter budget item-wise. Total of all items becomes the project budget.</div>
+            <div style="overflow-x:auto">
+              <table class="item-tbl" id="budgetItemTbl">
+                <thead><tr><th>#</th><th>Item Description <span class="req">*</span></th><th>Unit</th><th>Qty</th><th>Rate (₹)</th><th>Amount (₹) <span class="req">*</span></th><th></th></tr></thead>
+                <tbody id="budgetItemBody"></tbody>
+                <tfoot><tr><td colspan="4" style="text-align:right;padding:8px 10px;font-weight:600">Total Project Budget:</td><td colspan="2" id="itemTotal" style="font-family:'IBM Plex Mono';font-size:16px;font-weight:700;color:var(--pri);padding:8px 10px">₹ 0</td><td></td></tr></tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr">
+            <h3><span class="step-b">4</span> Quarterly &amp; Monthly Plan</h3>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div class="toggle-wrap">
+                <button class="toggle-btn active" id="btnPct" onclick="setQMode('pct')">% Mode</button>
+                <button class="toggle-btn" id="btnAmt" onclick="setQMode('amt')">₹ Amount</button>
+              </div>
+              <div class="toggle-wrap">
+                <button class="toggle-btn active" id="btnEqual" onclick="setQDist('equal')">⚖ Equal</button>
+                <button class="toggle-btn" id="btnManual" onclick="setQDist('manual')">✍ Manual</button>
+              </div>
+            </div>
+          </div>
+          <div class="cbody">
+            <div id="qModeInfo" class="ibox">% Mode + Equal: Budget auto-distributed equally across all months as percentage.</div>
+            <div class="qgrid" id="qGrid"></div>
+            <div style="margin-top:10px;padding:9px;background:#f8fafc;border:1px solid var(--bdr);border-radius:6px;display:flex;gap:16px;flex-wrap:wrap">
+              <div><span class="tmuted">Total Budget:</span> <strong id="qBudDisplay" style="font-family:'IBM Plex Mono';color:var(--pri)">₹ 0</strong></div>
+              <div><span class="tmuted">Q Total:</span> <strong id="qTotDisplay" style="font-family:'IBM Plex Mono';color:var(--suc)">₹ 0</strong></div>
+              <div><span class="tmuted">Remaining:</span> <strong id="qRemDisplay" style="font-family:'IBM Plex Mono';color:var(--dan)">₹ 0</strong></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><h3><span class="step-b">5</span> Approval Path Preview</h3></div>
+          <div class="cbody" style="padding:11px"><div id="prevApp"></div></div>
+          <div class="aact">
+            <button class="btn bo" onclick="resetNewBudget()">🗑 Clear</button>
+            <button class="btn bp" onclick="submitReq()">📤 Submit for Approval</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHANGE BUDGET FORM -->
+      <div id="changeBudgetForm" style="display:none">
+        <div class="card">
+          <div class="card-hdr"><h3>🔄 Budget Change / Revision</h3><button class="btn bo bsm" onclick="hideAllBMForms()">✕ Cancel</button></div>
+          <div class="cbody">
+            <div class="wbox">Select an approved request. Current budget items load automatically — edit as needed. Each change creates a new version (V1→V2→V3...).</div>
+            <div class="fg"><label>Select Approved Request <span class="req">*</span></label>
+              <select id="chgReqSel" onchange="loadChangeReq()"><option value="">— Select —</option></select>
+            </div>
+          </div>
+        </div>
+        <div id="chgDetails" style="display:none">
+          <div class="card">
+            <div class="card-hdr"><h3>Request Details (Auto-filled)</h3></div>
+            <div class="cbody">
+              <div class="fgrid4">
+                <div class="fg"><label>GL</label><input id="chgGL" readonly class="auto-field" style="font-size:11px"/></div>
+                <div class="fg"><label>Theme</label><input id="chgTheme" readonly class="auto-field"/></div>
+                <div class="fg"><label>Dept</label><input id="chgDept" readonly class="auto-field"/></div>
+                <div class="fg"><label>Location</label><input id="chgLoc" readonly class="auto-field"/></div>
+              </div>
+              <div id="chgVerHistory" style="margin-top:8px"></div>
+              <div id="chgFASummary" style="margin-top:8px"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><h3>Budget Items (Edit)</h3><button class="btn ba bsm" onclick="addChgItem()">+ Add Item</button></div>
+            <div class="cbody">
+              <div style="overflow-x:auto">
+                <table class="item-tbl" id="chgItemTbl">
+                  <thead><tr><th>#</th><th>Item Description</th><th>Unit</th><th>Qty</th><th>Rate (₹)</th><th>Amount (₹)</th><th></th></tr></thead>
+                  <tbody id="chgItemBody"></tbody>
+                  <tfoot><tr><td colspan="4" style="text-align:right;padding:8px 10px;font-weight:600">Revised Total:</td><td colspan="2" id="chgItemTotal" style="font-family:'IBM Plex Mono';font-size:16px;font-weight:700;color:var(--pri);padding:8px 10px">₹ 0</td><td></td></tr></tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hdr">
+              <h3>Revised Quarterly Plan</h3>
+              <div style="display:flex;gap:8px">
+                <div class="toggle-wrap">
+                  <button class="toggle-btn active" id="chgBtnPct" onclick="setChgQMode('pct')">% Mode</button>
+                  <button class="toggle-btn" id="chgBtnAmt" onclick="setChgQMode('amt')">₹ Amount</button>
+                </div>
+                <div class="toggle-wrap">
+                  <button class="toggle-btn active" id="chgBtnEq" onclick="setChgQDist('equal')">⚖ Equal</button>
+                  <button class="toggle-btn" id="chgBtnMn" onclick="setChgQDist('manual')">✍ Manual</button>
+                </div>
+              </div>
+            </div>
+            <div class="cbody">
+              <div class="qgrid" id="chgQGrid"></div>
+              <div style="margin-top:10px;padding:9px;background:#f8fafc;border:1px solid var(--bdr);border-radius:6px;display:flex;gap:16px;flex-wrap:wrap">
+                <div><span class="tmuted">Revised Budget:</span> <strong id="chgQBudDisp" style="font-family:'IBM Plex Mono';color:var(--pri)">₹ 0</strong></div>
+                <div><span class="tmuted">Entered:</span> <strong id="chgQTotDisp" style="font-family:'IBM Plex Mono';color:var(--suc)">₹ 0</strong></div>
+                <div><span class="tmuted">Remaining:</span> <strong id="chgQRemDisp" style="font-family:'IBM Plex Mono';color:var(--dan)">₹ 0</strong></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><h3>Reason &amp; Approval Path</h3></div>
+            <div class="cbody">
+              <div class="fg"><label>Reason for Change <span class="req">*</span></label><textarea id="chgReason" style="min-height:80px" placeholder="Justify the budget revision..."></textarea></div>
+              <div id="chgAppPrev"></div>
+            </div>
+            <div class="aact">
+              <button class="btn bo" onclick="resetChangeBudget()">🗑 Clear</button>
+              <button class="btn bp" onclick="submitChange()">📤 Submit Budget Change</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MY REQUESTS -->
+    <div id="page-myReqs" class="page">
+      <div class="card">
+        <div class="card-hdr"><h3>📋 My Budget Requests</h3></div>
+        <div style="overflow-x:auto">
+          <table class="blist-tbl" style="width:100%">
+            <thead><tr><th>Ref #</th><th>Ver</th><th>Type</th><th>Project Name</th><th>GL</th><th>Location</th><th>Budget(₹)</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="mineTb"><tr><td colspan="10" style="text-align:center;padding:24px;color:var(--muted)">No requests yet.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- APPROVALS -->
+    <div id="page-approvals" class="page">
+      <div class="card">
+        <div class="card-hdr"><h3>✅ Pending Approvals</h3><span class="tmuted" id="appNote"></span></div>
+        <div id="appList" style="padding:12px"><div style="text-align:center;padding:24px;color:var(--muted)">No pending approvals.</div></div>
+      </div>
+    </div>
+
+    <!-- CONSOLIDATED -->
+    <div id="page-consolidated" class="page">
+      <div class="card">
+        <div class="card-hdr"><h3>📈 Consolidated View</h3></div>
+        <div class="cbody">
+          <div class="cnote">P&amp;A Team and COO/CEO can do consolidated bulk approval.</div>
+          <div class="ctabs">
+            <div class="ctab active" onclick="swCon('theme',this)">By Theme</div>
+            <div class="ctab" onclick="swCon('dept',this)">By Department</div>
+            <div class="ctab" onclick="swCon('gl',this)">By GL</div>
+            <div class="ctab" onclick="swCon('location',this)">By Location</div>
+          </div>
+          <table class="stbl" style="width:100%">
+            <thead><tr><th>Category</th><th>Requests</th><th>Total(₹)</th><th>Approved(₹)</th><th>Actual(₹)</th><th>Pending</th></tr></thead>
+            <tbody id="conTb"></tbody>
+          </table>
+          <div id="conAppSec" style="margin-top:11px;display:none">
+            <button class="btn bs" onclick="conApprove()">✅ Approve All Pending</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F&A MODULE -->
+    <div id="page-faModule" class="page">
+      <div class="stats-g">
+        <div class="stat"><div class="s-ico">📋</div><div class="s-val" id="faSR">0</div><div class="s-lbl">Total SRs</div></div>
+        <div class="stat"><div class="s-ico">📄</div><div class="s-val" id="faIO">0</div><div class="s-lbl">Total IOs</div></div>
+        <div class="stat"><div class="s-ico">💸</div><div class="s-val" id="faAct">₹0</div><div class="s-lbl">Actual Spend</div></div>
+        <div class="stat"><div class="s-ico">📊</div><div class="s-val" id="faUtil">0%</div><div class="s-lbl">Utilisation</div></div>
+      </div>
+      <!-- ADD SR -->
+      <div class="card">
+        <div class="card-hdr"><h3>📋 Add SR (Sanction Request)</h3>
+          <div style="display:flex;gap:7px">
+            <button class="btn ba bsm" onclick="document.getElementById('srBulk').click()">⬆ Bulk Upload</button>
+            <input type="file" id="srBulk" style="display:none" accept=".csv" onchange="bulkSR(this)"/>
+            <button class="btn bo bsm" onclick="dlTpl(['Budget Ref','SR Number','SR Value','Delivery Arm','Budget Type','Date'],'SR_Template.csv')">⬇ Template</button>
+          </div>
+        </div>
+        <div class="cbody">
+          <div class="fgrid2" style="margin-bottom:10px">
+            <div class="fg"><label>Select Approved Request <span class="req">*</span></label><select id="srReqSel" onchange="onSRSel()"><option value="">— Select —</option></select></div>
+            <div class="fg"><label>SR Date</label><input type="date" id="srDate"/></div>
+          </div>
+          <div id="srTableWrap" style="display:none">
+            <div style="overflow-x:auto;margin-bottom:8px">
+              <table class="item-tbl" style="min-width:860px">
+                <thead><tr><th>GL</th><th>Theme</th><th>Department</th><th>Prog Type</th><th>Delivery Arm</th><th>Budget Type</th><th>Location</th><th>SR Number</th><th>SR Value (₹)</th><th></th></tr></thead>
+                <tbody id="srTBody"></tbody>
+              </table>
+            </div>
+            <button class="btn bp bsm" onclick="addSRRow()">+ Add Row</button>
+          </div>
+        </div>
+        <div class="aact" id="srAct" style="display:none">
+          <button class="btn bo" onclick="resetSR()">Clear</button>
+          <button class="btn bp" onclick="submitSR()">💾 Save SR</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><h3>SR Records</h3></div>
+        <div style="overflow-x:auto">
+          <table class="blist-tbl" style="width:100%">
+            <thead><tr><th>SR Ref</th><th>Budget Ref</th><th>Project</th><th>GL</th><th>Location</th><th>SR Number</th><th>SR Value(₹)</th><th>Date</th><th>By</th><th></th></tr></thead>
+            <tbody id="srRecTb"><tr><td colspan="10" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <!-- ADD IO -->
+      <div class="card">
+        <div class="card-hdr"><h3>📄 Add IO (Internal Order)</h3>
+          <div style="display:flex;gap:7px">
+            <button class="btn ba bsm" onclick="document.getElementById('ioBulk').click()">⬆ Bulk Upload</button>
+            <input type="file" id="ioBulk" style="display:none" accept=".csv" onchange="bulkIO(this)"/>
+            <button class="btn bo bsm" onclick="dlTpl(['Budget Ref','IO Number','IO Value','Delivery Arm','Budget Type','Date'],'IO_Template.csv')">⬇ Template</button>
+          </div>
+        </div>
+        <div class="cbody">
+          <div class="fgrid2" style="margin-bottom:10px">
+            <div class="fg"><label>Select Approved Request <span class="req">*</span></label><select id="ioReqSel" onchange="onIOSel()"><option value="">— Select —</option></select></div>
+            <div class="fg"><label>IO Date</label><input type="date" id="ioDate"/></div>
+          </div>
+          <div id="ioTableWrap" style="display:none">
+            <div style="overflow-x:auto;margin-bottom:8px">
+              <table class="item-tbl" style="min-width:860px">
+                <thead><tr><th>GL</th><th>Theme</th><th>Department</th><th>Prog Type</th><th>Delivery Arm</th><th>Budget Type</th><th>Location</th><th>IO Number</th><th>IO Value (₹)</th><th></th></tr></thead>
+                <tbody id="ioTBody"></tbody>
+              </table>
+            </div>
+            <button class="btn bp bsm" onclick="addIORow()">+ Add Row</button>
+          </div>
+        </div>
+        <div class="aact" id="ioAct" style="display:none">
+          <button class="btn bo" onclick="resetIO()">Clear</button>
+          <button class="btn bp" onclick="submitIO()">💾 Save IO</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><h3>IO Records</h3></div>
+        <div style="overflow-x:auto">
+          <table class="blist-tbl" style="width:100%">
+            <thead><tr><th>IO Ref</th><th>Budget Ref</th><th>Project</th><th>GL</th><th>Location</th><th>IO Number</th><th>IO Value(₹)</th><th>Date</th><th>By</th><th></th></tr></thead>
+            <tbody id="ioRecTb"><tr><td colspan="10" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <!-- ACTUAL SPEND -->
+      <div class="card">
+        <div class="card-hdr"><h3>📊 Update Actual Spend</h3>
+          <div style="display:flex;gap:7px">
+            <button class="btn ba bsm" onclick="document.getElementById('actBulk').click()">⬆ Bulk Upload</button>
+            <input type="file" id="actBulk" style="display:none" accept=".csv" onchange="bulkAct(this)"/>
+            <button class="btn bo bsm" onclick="dlTpl(['IO Number','Spend Amount','Date','Voucher','Description'],'Actual_Template.csv')">⬇ Template</button>
+          </div>
+        </div>
+        <div class="cbody">
+          <div class="fgrid2">
+            <div class="fg"><label>Select IO <span class="req">*</span></label><select id="actIOSel" onchange="onActIO()"><option value="">— Select IO —</option></select></div>
+            <div class="fg"><label>Spend Date <span class="req">*</span></label><input type="date" id="actDate"/></div>
+          </div>
+          <div id="actWrap" style="display:none">
+            <div style="padding:10px;background:#f8fafc;border:1px solid var(--bdr);border-radius:6px;margin-bottom:10px;font-size:12px" id="actInfo"></div>
+            <div class="fgrid2">
+              <div class="fg"><label>IO Value(₹)</label><input id="actIOV" readonly class="auto-field"/></div>
+              <div class="fg"><label>Already Spent(₹)</label><input id="actSpent" readonly class="auto-field"/></div>
+              <div class="fg"><label>Spend Amount(₹) <span class="req">*</span></label><input type="number" id="actAmt" oninput="calcActBal()"/></div>
+              <div class="fg"><label>Remaining Balance(₹)</label><input id="actBal" readonly class="auto-field"/></div>
+            </div>
+            <div class="fgrid2">
+              <div class="fg"><label>Voucher / Ref No.</label><input id="actVoucher" placeholder="Voucher reference"/></div>
+              <div class="fg"><label>Description</label><input id="actDesc" placeholder="Spend description"/></div>
+            </div>
+          </div>
+        </div>
+        <div class="aact" id="actAct" style="display:none">
+          <button class="btn bo" onclick="resetAct()">Clear</button>
+          <button class="btn bp" onclick="submitAct()">💾 Save Actual Spend</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><h3>Actual Spend Records</h3>
+          <select id="actFilterIO" onchange="renderActRec()" style="padding:5px 8px;font-size:12px;border:1px solid var(--bdr);border-radius:4px"><option value="">All IOs</option></select>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="blist-tbl" style="width:100%">
+            <thead><tr><th>Ref</th><th>IO Number</th><th>Budget Ref</th><th>GL</th><th>Spend(₹)</th><th>Date</th><th>Voucher</th><th>Description</th><th>By</th><th></th></tr></thead>
+            <tbody id="actRecTb"><tr><td colspan="10" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORT -->
+    <div id="page-report" class="page">
+      <div class="card">
+        <div class="card-hdr"><h3>📥 Export Report</h3></div>
+        <div class="cbody">
+          <div class="ibox">Version-wise budget columns auto-added per number of revisions.</div>
+          <div class="fgrid2">
+            <div class="fg"><label>Theme</label><select id="rptTh"><option value="">All</option></select></div>
+            <div class="fg"><label>Department</label><select id="rptDp"><option value="">All</option></select></div>
+            <div class="fg"><label>Location</label><select id="rptLc"><option value="">All</option></select></div>
+            <div class="fg"><label>Status</label><select id="rptSt"><option value="">All</option><option>pending</option><option>approved</option><option>rejected</option><option>returned</option></select></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="btn bp" onclick="genReport()">📊 Download CSV</button>
+            <button class="btn bo" onclick="prevReport()">👁 Preview</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" id="rptPrevCard" style="display:none">
+        <div class="card-hdr"><h3>Preview</h3></div>
+        <div style="overflow-x:auto"><table class="blist-tbl" style="width:100%;white-space:nowrap" id="rptTbl"></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-ov" id="mainModal">
+  <div class="modal">
+    <div class="mhdr"><h3 id="mTitle">Detail</h3><button class="mcls" onclick="closeMod()">✕</button></div>
+    <div class="mbody" id="mBody"></div>
+    <div class="mftr" id="mFtr"></div>
+  </div>
+</div>
+<div class="toast-c" id="toastC"></div>
+<script>
+const MD={"gl_list":["5140001 - Travelling Exp. (TA/DA to administrativ","5140002 - Meeting Exp(including get together ,ret","5140003 - Postage , Printing & Stationery","5140004 - Bank Charges","5140005 - Insurance, Rent & Taxes","5140010 - Transportation-General","5140013 - Administrative exp.","5140014 - Insurance, Rent & Taxes","5140015 - Power & Fuel","5140016 - Audit expences","5140020 - Transportation-General","5140023 - Auditors Remuneration-Audit Fees","5140024 - Auditors Remuneration-Taxation Matters","5140025 - Auditors Out-Of-Pocket Expenses","5140201 - Security  Services","5140202 - Office Maintenance Expenses","5140203 - General Repair & Maintt. (including cen","5140502 - Admin- Urban Devlopment","5140012 - Communication (Common)","5040013 - Disability linked programmes","5040023 - Support to Organisation working for PwDs","5110001 - Disaster Relief Management","5010003 - Installation of piped drinking water supply system","5010004 - Installation and repair of deep bores","5010005 - Installation and repair of hand tube wells","5010007 - Supply of drinking water through tanker","5010008 - Other Sources of Drinking water","5010009 - Solar powered drinking water project","5050001 - Pre-Matric Coaching","5050002 - Fellowship programme (Jyoti Fellowship)","5050005 - Support for Schools/Institutions (educational infrastructure)","5050008 - Learning Support Program","5050009 - Masti Ki Pathshala","5050011 - Support to SC/ST students in education (Akankhya Project)","5050012 - Support to SC/ST students in Higher education (TSS)","5050013 - Spoken English & Soft Skill Development","5050014 - ICT intervention in schools","5050017 - Financial support to selected schools","5050018 - Other Intervention Education (technology, pilots etc.)","5050021 - Green School Project","5050022 - Support to SC/ST Youths for Educational Coaching","5050029 - Running community center libraries","5050031 - Mainstreaming BPL Children","5050032 - Bridge Course - Learning Initiative (NRBCs/FLN/AWD/STEM)","5050033 - Center for Equitable Learning","5050020 - SP Education (Quality secondary education Project)","5051002 - SP Education (ESP)","5070001 - Plantation","5070002 - Roof Rain Water Harvesting","5070003 - Renewable Energy (Solar Light)","5070004 - Protection of flora and fauna","5070007 - Naturenomics - Ecology is Economy","5071001 - Jamshedpur Zoo (TSZS)","5140206 - Admin Exp. for Ethics Program","5060001 - Gender Programmes (includes DISHA)","5060003 - Youth Empowerment MRA","5060006 - Digital literacy training","5135001 - Development Corridor Project","5135002 - Panchayat Governance and Fellowship","5140006 - Legal Exp.","5140009 - Staff Recruitment cost","5150002 - Staff Training","5150003 - Medical exp. for staff","5150004 - Uniform","5150006 - Employee Engagement & Welfare Expenses","FY26GL14 - Impact Assessment","5140011 - I T Development Expenses","5030002 - Agriculture Activities (SRI and dryland farming)","5030003 - Promote second crops","5030004 - Livelihood Agri allied, Livo, Diary, Poult","5030005 - Capacity Building of Farmers Institutions","5030006 - Agri resource centres, training and info. centres.","5030007 - Enterprise Development Programmes","5030008 - Promote horticulture in wastelands and dry land crops","5030016 - Integrated Farming System TSBS","5030020 - Livelihood Agri allied Tassr","5030021 - Livelihood Infrastructure","5030026 - Formation & Strengthening of FPC","5060002 - Community Enterprises (SHG and Women Entrepreneur)","5060005 - Mission Shakti","5040001 - Sponsorship to Trainees for various vocational courses","5040002 - Skill Development Programmes (short term courses linked to placement / self employment / capacity building)","5040004 - O&M of ITI Jagannathpur","5040005 - O&M of TSTI Burmamines","5040006 - Setting up O&M of Multiskill centre(MSC)","5040008 - Support girls in Nursing training TCS","5040009 - Capacity building/coaching programmes W TCS","5040010 - O&M of ITI Tamar","5040011 - O&M of MCC","5040012 - Entrepreneurship Development","5040014 - O&M of JN Tata Technical Education Center Gopalpur (JNTTEC)","5040017 - O&M of ITI Chandil","5040019 - O&M of ITI Banspal","5040021 - Motor driving training","5040022 - Kaushalyan Project - Class Room On Wheel","5040024 - O&M of RD Tata Technical Eduction Centre","5041001 - PM Internship","5141001 - TSL overheads (restricted to 5% of overall CSR budget)","5140501 - Inward Grant Partnership Management","FY26GL12 - Knowledge Partnership Management","FY26GL11 - Outward Grant Partnership Management","5140205 - Total Quality Management","5020003 - Healthcare infrastructure","5020009 - Provide fin assist-waivers for needy, case-to-case","5020013 - Health Camps","5020014 - Research in health","5020023 - VBD Vector Borne Diseases Control Programme","5020025 - Support in response to Govt./External request (Public Health)","5020027 - Support to Unpriveledged Community","5020029 - NCD Non-Communicable Diseases Control Program","5020030 - mPHUs (Mobile Public Heath Units)","5020031 - Project DRISHTI ( Comprehensive Community Eye Health Programme )","5020035 - Rare & Neglected Congenital Diseases","5020036 - Project Poshan - A Nutrition Project","5020038 - Basic Life Support training","5020050 - Mobile Cancer Screening Programme","5020502 - RISHTA","5020018 - SP Health (MANSI+) Prog TSF 65%","5020037 - SP Health (MANSI+) Prog TSF 100%","5020041 - SP Health (MANSI+) Wage TSF 65%","5020042 - SP Health (MANSI+) Wage TSF 100%","5051003 - Rural Immersion Program","5130001 - Infrastructural support for Rural Development","5130002 - Construction and maintenance of drain and roads","5130003 - Community Safety Initiatives","5135003 - Technical Support Unit for Holistic Development","5140204 - Safety Expenses","5020201 - SANITATION (DOMESTIC TOILETS)","FY26GL13 - Secretarial costs","5020017 - Homi Bhabha Cancer Hospital, Odisha","5021001 - Health Insurance Premium to Govt of Jharkhand","5050034 - Indian Institute of Science Grant","5100002 - Support to Sportsman & associations","5100004 - Sports infrastructures","5100005 - Organising sports tournaments and coaching camps","5100007 - Running Sports Centres","5100009 - Organising outdoor and leadership camps","5101001 - Running Sports Centres","5080002 - Preserve & Promote Art and Culture","5080005 - Soci economic development of PVTG villagers","5080009 - Infrastructure Support (for Tribal Identity)","5080012 - support to SC community","5080013 - Support to different ST/SC organisation for assets & amenities","5080015 - Preserve & Promote , Literature , Art & Culture","5080019 - Community Socio Cultural Enhancement","5080001 - Tribal language and literature","5080003 - Tribal Sports","5080007 - Tribal Meet ( Samvaad Conclave & Regional Samvaad)","5080010 - Signature Programme (Tribal Identity)","5080016 - Johar Haat (Promotion of Tribal Art, Culture & Cuisine)","5080017 - Strengthening of TCC as centre for Tribal Excellence","5080018 - Samvaad Ecosystem Elements","5080020 - Tribal Music Centres (Empowering Creativity & Passion through Tribal Music)","5170001 - Slum Area Development(Jaga Mission)","5170003 - Youth leadership programme","5140022 - Employee Volunteerism","Enterprise_wage - Salary & Wages Enterprise","Program_wage - Salary & Wages Programme","5030001 - Water Harvesting structures Agri","5030015 - Watershed Projects","5030023 - Watershed Project Dangdung (NABARD)","5031008 - Watershed Project Dangdung (NABARD)","5130004 - Water Harvesting structures W&CI","5140401 - Capital Items","5040025 - Disability linked programmes","5040026 - Disability linked programmes","5140701 - HRDP -Admin & HR -HDFC","5010502 - HRDP-Drinking Water -HDFC","5050508 - Quality Higher Education fr Youth - Axis","5050509 - Quality Higher Education fr Youth - Axis","5070501 - HRDP -Environment -HDFC","5070502 - Citi Bank N.A.-Energy for Progress","5060502 - HRDP - Empowerment","5020501 - SP Health (MANSI+) Prog AIF 35%","5020505 - SP Health (MANSI+) Wage AIF 35%","5020506 - SP Health Gates Foundation (Prog)","5020507 - SP Health Gates Foundation (Wages)","5030025 - Integrated Watershed &Climate Proofing-SC","5030028 - Integrated Watershed &Climate Proofing-SC","5030506 - Integ.MicroWS Mgt.Climate Proofing-Kalahandi-HDFC","5030507 - Integ.MicroWS Mgt.Climate Proofing-Tundi-HDFC","5030508 - Agri-Allied(Horti,IFS,Livestock,Crops)-CITI BANK","5030509 - Const.Water Harvesting Structures -CITI BANK","5030510 - HRDP-Agriculture-HDFC","5030511 - NRM & Income Enhancement Project - HDFC"],"gl_map":{"5140001 - Travelling Exp. (TA/DA to administrativ":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140002 - Meeting Exp(including get together ,ret":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140003 - Postage , Printing & Stationery":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140004 - Bank Charges":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140005 - Insurance, Rent & Taxes":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140010 - Transportation-General":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140013 - Administrative exp.":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140014 - Insurance, Rent & Taxes":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TCS"},"5140015 - Power & Fuel":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140016 - Audit expences":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSRDS"},"5140020 - Transportation-General":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140023 - Auditors Remuneration-Audit Fees":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140024 - Auditors Remuneration-Taxation Matters":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140025 - Auditors Out-Of-Pocket Expenses":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140201 - Security  Services":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140202 - Office Maintenance Expenses":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140203 - General Repair & Maintt. (including cen":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140502 - Admin- Urban Devlopment":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140012 - Communication (Common)":{"theme":"Communication expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5040013 - Disability linked programmes":{"theme":"Disability_Sig","dept":"Sabal","prog_type":"Ongoing","da":"TSF"},"5040023 - Support to Organisation working for PwDs":{"theme":"Disability_Sig","dept":"Sabal","prog_type":"Ongoing","da":"TSF"},"5110001 - Disaster Relief Management":{"theme":"Disaster Relief Management","dept":"Disaster Management","prog_type":"One-time","da":"TSF"},"5010003 - Installation of piped drinking water supply system":{"theme":"Drinking Water","dept":"W&CI","prog_type":"Ongoing","da":"TSF"},"5010004 - Installation and repair of deep bores":{"theme":"Drinking Water","dept":"W&CI","prog_type":"Ongoing","da":"TSF"},"5010005 - Installation and repair of hand tube wells":{"theme":"Drinking Water","dept":"W&CI","prog_type":"Ongoing","da":"TSF"},"5010007 - Supply of drinking water through tanker":{"theme":"Drinking Water","dept":"W&CI","prog_type":"One-time","da":"TSF"},"5010008 - Other Sources of Drinking water":{"theme":"Drinking Water","dept":"W&CI","prog_type":"One-time","da":"TSF"},"5010009 - Solar powered drinking water project":{"theme":"Drinking Water","dept":"W&CI","prog_type":"Ongoing","da":"TSF"},"5050001 - Pre-Matric Coaching":{"theme":"Education","dept":"Education","prog_type":"Ongoing","da":"TSF"},"5050002 - Fellowship programme (Jyoti Fellowship)":{"theme":"Education","dept":"Tribal Identity","prog_type":"Ongoing","da":"TSF"},"5050005 - Support for Schools/Institutions (educational infrastructure)":{"theme":"Education","dept":"W&CI","prog_type":"One-time","da":"TSF"},"5050008 - Learning Support Program":{"theme":"Education","dept":"Education","prog_type":"Ongoing","da":"TSF"},"5050009 - Masti Ki Pathshala":{"theme":"Education","dept":"Education","prog_type":"Ongoing","da":"TSF"},"5050011 - Support to SC/ST students in education (Akankhya Project)":{"theme":"Education","dept":"Tribal Identity","prog_type":"Ongoing","da":"TSF"},"5050012 - Support to SC/ST students in Higher education (TSS)":{"theme":"Education","dept":"Tribal Identity","prog_type":"Ongoing","da":"TSF"},"5050013 - Spoken English & Soft Skill Development":{"theme":"Education","dept":"Education","prog_type":"One-time","da":"TSF"},"5050014 - ICT intervention in schools":{"theme":"Education","dept":"Education","prog_type":"0","da":"TSF"},"5050017 - Financial support to selected schools":{"theme":"Education","dept":"Education","prog_type":"One-time","da":"TSF"},"5050018 - Other Intervention Education (technology, pilots etc.)":{"theme":"Education","dept":"Education","prog_type":"One-time","da":"TSF"},"5050021 - Green School Project":{"theme":"Education","dept":"Education","prog_type":"Ongoing","da":"TSF"},"5050022 - Support to SC/ST Youths for Educational Coaching":{"theme":"Education","dept":"Tribal Identity","prog_type":"One-time","da":"TSF"},"5050029 - Running community center libraries":{"theme":"Education","dept":"Urban","prog_type":"Ongoing","da":"TSF"},"5050031 - Mainstreaming BPL Children":{"theme":"Education","dept":"Urban","prog_type":"Ongoing","da":"TSF"},"5050032 - Bridge Course - Learning Initiative (NRBCs/FLN/AWD/STEM)":{"theme":"Education","dept":"Education","prog_type":"One-time","da":"TSF"},"5050033 - Center for Equitable Learning":{"theme":"Education","dept":"Education","prog_type":"One-time","da":"TSF"},"5050020 - SP Education (Quality secondary education Project)":{"theme":"Education_Sig","dept":"Education","prog_type":"Ongoing","da":"TSF"},"5051002 - SP Education (ESP)":{"theme":"Education_Sig","dept":"Education","prog_type":"Ongoing","da":"TSF"},"5070001 - Plantation":{"theme":"Environment","dept":"Others","prog_type":"One-time","da":"TSF"},"5070002 - Roof Rain Water Harvesting":{"theme":"Environment","dept":"W&CI","prog_type":"One-time","da":"TSF"},"5070003 - Renewable Energy (Solar Light)":{"theme":"Environment","dept":"W&CI","prog_type":"One-time","da":"TSF"},"5070004 - Protection of flora and fauna":{"theme":"Environment","dept":"Others","prog_type":"One-time","da":"TSF"},"5070007 - Naturenomics - Ecology is Economy":{"theme":"Environment","dept":"Others","prog_type":"Ongoing","da":"TSF"},"5071001 - Jamshedpur Zoo (TSZS)":{"theme":"Environment","dept":"Others","prog_type":"Ongoing","da":"TSL"},"5140206 - Admin Exp. for Ethics Program":{"theme":"Ethics","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5060001 - Gender Programmes (includes DISHA)":{"theme":"Gender","dept":"Gender and Community Enterprises","prog_type":"Ongoing","da":"TSF"},"5060003 - Youth Empowerment MRA":{"theme":"Gender","dept":"Gender and Community Enterprises","prog_type":"One-time","da":"TSF"},"5060006 - Digital literacy training":{"theme":"Gender","dept":"Gender and Community Enterprises","prog_type":"Ongoing","da":"TSF"},"5135001 - Development Corridor Project":{"theme":"Grassroots Governance systems_Sig","dept":"GGS Team","prog_type":"Ongoing","da":"TSF"},"5135002 - Panchayat Governance and Fellowship":{"theme":"Grassroots Governance systems_Sig","dept":"GGS Team","prog_type":"Ongoing","da":"TSF"},"5140006 - Legal Exp.":{"theme":"HR Overheads","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140009 - Staff Recruitment cost":{"theme":"HR Overheads","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5150002 - Staff Training":{"theme":"HR Overheads","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5150003 - Medical exp. for staff":{"theme":"HR Overheads","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5150004 - Uniform":{"theme":"HR Overheads","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5150006 - Employee Engagement & Welfare Expenses":{"theme":"HR Overheads","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"FY26GL14 - Impact Assessment":{"theme":"Impact Assessment","dept":"Impact Assessment","prog_type":"Over Head","da":"TSF"},"5140011 - I T Development Expenses":{"theme":"IT expenses","dept":"Digital","prog_type":"Over Head","da":"TSF"},"5030002 - Agriculture Activities (SRI and dryland farming)":{"theme":"Livelihoods (Agriculture)","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"},"5030003 - Promote second crops":{"theme":"Livelihoods (Agriculture)","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"},"5030004 - Livelihood Agri allied, Livo, Diary, Poult":{"theme":"Livelihoods (Agriculture)","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"},"5030005 - Capacity Building of Farmers Institutions":{"theme":"Livelihoods (Agriculture)","dept":"Agriculture","prog_type":"One-time","da":"TSF"},"5030006 - Agri resource centres, training and info. centres.":{"theme":"Livelihoods (Agriculture)","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"},"5030007 - Enterprise Development Programmes":{"theme":"Livelihoods (Agriculture)","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"},"5030008 - Promote horticulture in wastelands and dry land crops":{"theme":"Livelihoods (Agriculture)","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"},"5030016 - Integrated Farming System TSBS":{"theme":"Livelihoods (Agriculture)","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"},"5030020 - Livelihood Agri allied Tassr":{"theme":"Livelihoods (Agriculture)","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"},"5030021 - Livelihood Infrastructure":{"theme":"Livelihoods (Agriculture)","dept":"Agriculture","prog_type":"One-time","da":"TSF"},"5030026 - Formation & Strengthening of FPC":{"theme":"Livelihoods (Agriculture)","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"},"5060002 - Community Enterprises (SHG and Women Entrepreneur)":{"theme":"Livelihoods (Community Enterprises)","dept":"Gender and Community Enterprises","prog_type":"Ongoing","da":"TSF"},"5060005 - Mission Shakti":{"theme":"Livelihoods (Community Enterprises)","dept":"Mission Shakti (Odisha)","prog_type":"Ongoing","da":"TSF"},"5040001 - Sponsorship to Trainees for various vocational courses":{"theme":"Livelihoods (Skill Development)","dept":"Tribal Identity","prog_type":"One-time","da":"TSF"},"5040002 - Skill Development Programmes (short term courses linked to placement / self employment / capacity building)":{"theme":"Livelihoods (Skill Development)","dept":"Skill Development","prog_type":"One-time","da":"TSF"},"5040004 - O&M of ITI Jagannathpur":{"theme":"Livelihoods (Skill Development)","dept":"Skill Development","prog_type":"Ongoing","da":"TSF"},"5040005 - O&M of TSTI Burmamines":{"theme":"Livelihoods (Skill Development)","dept":"Skill Development","prog_type":"Ongoing","da":"TSF"},"5040006 - Setting up O&M of Multiskill centre(MSC)":{"theme":"Livelihoods (Skill Development)","dept":"Skill Development","prog_type":"Ongoing","da":"TSF"},"5040008 - Support girls in Nursing training TCS":{"theme":"Livelihoods (Skill Development)","dept":"Tribal Identity","prog_type":"Ongoing","da":"TSF"},"5040009 - Capacity building/coaching programmes W TCS":{"theme":"Livelihoods (Skill Development)","dept":"Tribal Identity","prog_type":"One-time","da":"TSF"},"5040010 - O&M of ITI Tamar":{"theme":"Livelihoods (Skill Development)","dept":"Skill Development","prog_type":"Ongoing","da":"TSF"},"5040011 - O&M of MCC":{"theme":"Livelihoods (Skill Development)","dept":"Skill Development","prog_type":"Ongoing","da":"TSF"},"5040012 - Entrepreneurship Development":{"theme":"Livelihoods (Skill Development)","dept":"Skill Development","prog_type":"Ongoing","da":"TSF"},"5040014 - O&M of JN Tata Technical Education Center Gopalpur (JNTTEC)":{"theme":"Livelihoods (Skill Development)","dept":"Skill Development","prog_type":"Ongoing","da":"TSF"},"5040017 - O&M of ITI Chandil":{"theme":"Livelihoods (Skill Development)","dept":"Skill Development","prog_type":"Ongoing","da":"TSF"},"5040019 - O&M of ITI Banspal":{"theme":"Livelihoods (Skill Development)","dept":"Skill Development","prog_type":"Ongoing","da":"TSF"},"5040021 - Motor driving training":{"theme":"Livelihoods (Skill Development)","dept":"Urban Habitat","prog_type":"One-time","da":"TSF"},"5040022 - Kaushalyan Project - Class Room On Wheel":{"theme":"Livelihoods (Skill Development)","dept":"Skill Development","prog_type":"Ongoing","da":"TSF"},"5040024 - O&M of RD Tata Technical Eduction Centre":{"theme":"Livelihoods (Skill Development)","dept":"Skill Development","prog_type":"Ongoing","da":"TSF"},"5041001 - PM Internship":{"theme":"Livelihoods (Skill Development)","dept":"Skill Development","prog_type":"Ongoing","da":"TSL"},"5141001 - TSL overheads (restricted to 5% of overall CSR budget)":{"theme":"Overheads TSL","dept":"TSL","prog_type":"Over Head","da":"TSL"},"5140501 - Inward Grant Partnership Management":{"theme":"Partnership Cost - Inward Grant","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"FY26GL12 - Knowledge Partnership Management":{"theme":"Partnership Cost - Knowledge Ecosystems","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"FY26GL11 - Outward Grant Partnership Management":{"theme":"Partnership Cost - Outward Grant","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5140205 - Total Quality Management":{"theme":"Process Excellence","dept":"TQM","prog_type":"Over Head","da":"TSF"},"5020003 - Healthcare infrastructure":{"theme":"Public Health","dept":"W&CI","prog_type":"One-time","da":"TSF"},"5020009 - Provide fin assist-waivers for needy, case-to-case":{"theme":"Public Health","dept":"Public Health","prog_type":"One-time","da":"TSF"},"5020013 - Health Camps":{"theme":"Public Health","dept":"Public Health","prog_type":"One-time","da":"TSF"},"5020014 - Research in health":{"theme":"Public Health","dept":"Public Health","prog_type":"One-time","da":"TSF"},"5020023 - VBD Vector Borne Diseases Control Programme":{"theme":"Public Health","dept":"Public Health","prog_type":"Ongoing","da":"TSF"},"5020025 - Support in response to Govt./External request (Public Health)":{"theme":"Public Health","dept":"Public Health","prog_type":"One-time","da":"TSF"},"5020027 - Support to Unpriveledged Community":{"theme":"Public Health","dept":"Urban Habitat","prog_type":"One-time","da":"TSF"},"5020029 - NCD Non-Communicable Diseases Control Program":{"theme":"Public Health","dept":"Public Health","prog_type":"Ongoing","da":"TSF"},"5020030 - mPHUs (Mobile Public Heath Units)":{"theme":"Public Health","dept":"Public Health","prog_type":"0","da":"TSF"},"5020031 - Project DRISHTI ( Comprehensive Community Eye Health Programme )":{"theme":"Public Health","dept":"Public Health","prog_type":"One-time","da":"TSF"},"5020035 - Rare & Neglected Congenital Diseases":{"theme":"Public Health","dept":"Public Health","prog_type":"0","da":"TSF"},"5020036 - Project Poshan - A Nutrition Project":{"theme":"Public Health","dept":"Public Health","prog_type":"0","da":"TSF"},"5020038 - Basic Life Support training":{"theme":"Public Health","dept":"Public Health","prog_type":"0","da":"TSF"},"5020050 - Mobile Cancer Screening Programme":{"theme":"Public Health","dept":"Public Health","prog_type":"One-time","da":"TSF"},"5020502 - RISHTA":{"theme":"Public Health","dept":"Public Health","prog_type":"Ongoing","da":"TSF"},"5020018 - SP Health (MANSI+) Prog TSF 65%":{"theme":"Public Health_Sig","dept":"Public Health","prog_type":"Ongoing","da":"TSF"},"5020037 - SP Health (MANSI+) Prog TSF 100%":{"theme":"Public Health_Sig","dept":"Public Health","prog_type":"Ongoing","da":"TSF"},"5020041 - SP Health (MANSI+) Wage TSF 65%":{"theme":"Public Health_Sig","dept":"Public Health","prog_type":"Ongoing","da":"TSF"},"5020042 - SP Health (MANSI+) Wage TSF 100%":{"theme":"Public Health_Sig","dept":"Public Health","prog_type":"Ongoing","da":"TSF"},"5051003 - Rural Immersion Program":{"theme":"Rural Immersion","dept":"Rural Immersion","prog_type":"One-time","da":"TSF"},"5130001 - Infrastructural support for Rural Development":{"theme":"Rural Infrastructure","dept":"W&CI","prog_type":"One-time","da":"TSF"},"5130002 - Construction and maintenance of drain and roads":{"theme":"Rural Infrastructure","dept":"W&CI","prog_type":"One-time","da":"TSF"},"5130003 - Community Safety Initiatives":{"theme":"Rural Infrastructure","dept":"W&CI","prog_type":"One-time","da":"TSF"},"5135003 - Technical Support Unit for Holistic Development":{"theme":"Rural Infrastructure","dept":"GGDP","prog_type":"One-time","da":"TSF"},"5140204 - Safety Expenses":{"theme":"Safety","dept":"Safety","prog_type":"Over Head","da":"TSF"},"5020201 - SANITATION (DOMESTIC TOILETS)":{"theme":"Sanitation","dept":"W&CI","prog_type":"One-time","da":"TSF"},"FY26GL13 - Secretarial costs":{"theme":"Secretarial costs","dept":"Secretarial","prog_type":"Over Head","da":"TSF"},"5020017 - Homi Bhabha Cancer Hospital, Odisha":{"theme":"Special Commitments","dept":"W&CI","prog_type":"One-time","da":"TSF"},"5021001 - Health Insurance Premium to Govt of Jharkhand":{"theme":"Special Commitments","dept":"Public Health","prog_type":"One-time","da":"TSL"},"5050034 - Indian Institute of Science Grant":{"theme":"Special Commitments","dept":"Public Health","prog_type":"One-time","da":"TSF"},"5100002 - Support to Sportsman & associations":{"theme":"Sports","dept":"Sports","prog_type":"One-time","da":"TSF"},"5100004 - Sports infrastructures":{"theme":"Sports","dept":"W&CI","prog_type":"One-time","da":"TSF"},"5100005 - Organising sports tournaments and coaching camps":{"theme":"Sports","dept":"Sports","prog_type":"One-time","da":"TSF"},"5100007 - Running Sports Centres":{"theme":"Sports","dept":"Sports","prog_type":"Ongoing","da":"TSF"},"5100009 - Organising outdoor and leadership camps":{"theme":"Sports","dept":"Sports","prog_type":"One-time","da":"TSF"},"5101001 - Running Sports Centres":{"theme":"Sports","dept":"Sports","prog_type":"Ongoing","da":"TSL"},"5080002 - Preserve & Promote Art and Culture":{"theme":"Tribal Identity","dept":"Tribal Identity","prog_type":"Ongoing","da":"TSF"},"5080005 - Soci economic development of PVTG villagers":{"theme":"Tribal Identity","dept":"Tribal Identity","prog_type":"One-time","da":"TSF"},"5080009 - Infrastructure Support (for Tribal Identity)":{"theme":"Tribal Identity","dept":"W&CI","prog_type":"One-time","da":"TSF"},"5080012 - support to SC community":{"theme":"Tribal Identity","dept":"Tribal Identity","prog_type":"One-time","da":"TSF"},"5080013 - Support to different ST/SC organisation for assets & amenities":{"theme":"Tribal Identity","dept":"Urban Habitat","prog_type":"One-time","da":"TSF"},"5080015 - Preserve & Promote , Literature , Art & Culture":{"theme":"Tribal Identity","dept":"Urban Habitat","prog_type":"Ongoing","da":"TSF"},"5080019 - Community Socio Cultural Enhancement":{"theme":"Tribal Identity","dept":"Tribal Identity","prog_type":"One-time","da":"TSF"},"5080001 - Tribal language and literature":{"theme":"Tribal Identity_Sig","dept":"Tribal Identity","prog_type":"Ongoing","da":"TSF"},"5080003 - Tribal Sports":{"theme":"Tribal Identity_Sig","dept":"Tribal Identity","prog_type":"Ongoing","da":"TSF"},"5080007 - Tribal Meet ( Samvaad Conclave & Regional Samvaad)":{"theme":"Tribal Identity_Sig","dept":"Tribal Identity","prog_type":"Ongoing","da":"TSF"},"5080010 - Signature Programme (Tribal Identity)":{"theme":"Tribal Identity_Sig","dept":"Tribal Identity","prog_type":"Ongoing","da":"TSF"},"5080016 - Johar Haat (Promotion of Tribal Art, Culture & Cuisine)":{"theme":"Tribal Identity_Sig","dept":"Tribal Identity","prog_type":"Ongoing","da":"TSF"},"5080017 - Strengthening of TCC as centre for Tribal Excellence":{"theme":"Tribal Identity_Sig","dept":"Tribal Identity","prog_type":"Ongoing","da":"TCS"},"5080018 - Samvaad Ecosystem Elements":{"theme":"Tribal Identity_Sig","dept":"Tribal Identity","prog_type":"Ongoing","da":"TSF"},"5080020 - Tribal Music Centres (Empowering Creativity & Passion through Tribal Music)":{"theme":"Tribal Identity_Sig","dept":"Tribal Identity","prog_type":"Ongoing","da":"TSF"},"5170001 - Slum Area Development(Jaga Mission)":{"theme":"Urban Habitat (Slum area development)","dept":"Urban Habitat","prog_type":"Ongoing","da":"TSF"},"5170003 - Youth leadership programme":{"theme":"Urban Habitat (Slum area development)","dept":"Urban Habitat","prog_type":"Ongoing","da":"TSF"},"5140022 - Employee Volunteerism":{"theme":"Volunteerism","dept":"Volunteering Team","prog_type":"Ongoing","da":"TSF"},"Enterprise_wage - Salary & Wages Enterprise":{"theme":"Wage_Enterprise","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"Program_wage - Salary & Wages Programme":{"theme":"Wage_Programme","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5030001 - Water Harvesting structures Agri":{"theme":"Water conservation Initiatives","dept":"Agriculture","prog_type":"One-time","da":"TSF"},"5030015 - Watershed Projects":{"theme":"Water conservation Initiatives","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"},"5030023 - Watershed Project Dangdung (NABARD)":{"theme":"Water conservation Initiatives","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"},"5031008 - Watershed Project Dangdung (NABARD)":{"theme":"Water conservation Initiatives","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"},"5130004 - Water Harvesting structures W&CI":{"theme":"Water conservation Initiatives","dept":"W&CI","prog_type":"One-time","da":"TSF"},"5140401 - Capital Items":{"theme":"Capital Items","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5040025 - Disability linked programmes":{"theme":"Disability_Sig","dept":"Sabal","prog_type":"Ongoing","da":"TSF"},"5040026 - Disability linked programmes":{"theme":"Disability_Sig","dept":"Sabal","prog_type":"Ongoing","da":"TSF"},"5140701 - HRDP -Admin & HR -HDFC":{"theme":"Administrative expenses","dept":"Enterprise cost","prog_type":"Over Head","da":"TSF"},"5010502 - HRDP-Drinking Water -HDFC":{"theme":"Drinking Water","dept":"W&CI","prog_type":"One-time","da":"TSF"},"5050508 - Quality Higher Education fr Youth - Axis":{"theme":"Education","dept":"Education","prog_type":"Ongoing","da":"TSF"},"5050509 - Quality Higher Education fr Youth - Axis":{"theme":"Education_Sig","dept":"Education","prog_type":"Ongoing","da":"TSF"},"5070501 - HRDP -Environment -HDFC":{"theme":"Environment","dept":"Others","prog_type":"One-time","da":"TSF"},"5070502 - Citi Bank N.A.-Energy for Progress":{"theme":"Environment","dept":"Others","prog_type":"Ongoing","da":"TSF"},"5060502 - HRDP - Empowerment":{"theme":"Livelihoods (Community Enterprises)","dept":"Gender and Community Enterprises","prog_type":"One-time","da":"TSF"},"5020501 - SP Health (MANSI+) Prog AIF 35%":{"theme":"Public Health_Sig","dept":"Public Health","prog_type":"Ongoing","da":"TSF"},"5020505 - SP Health (MANSI+) Wage AIF 35%":{"theme":"Public Health_Sig","dept":"Public Health","prog_type":"Ongoing","da":"TSF"},"5020506 - SP Health Gates Foundation (Prog)":{"theme":"Public Health_Sig","dept":"Public Health","prog_type":"Ongoing","da":"TSF"},"5020507 - SP Health Gates Foundation (Wages)":{"theme":"Public Health_Sig","dept":"Public Health","prog_type":"Ongoing","da":"TSF"},"5030025 - Integrated Watershed &Climate Proofing-SC":{"theme":"Water conservation Initiatives","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"},"5030028 - Integrated Watershed &Climate Proofing-SC":{"theme":"Water conservation Initiatives","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"},"5030506 - Integ.MicroWS Mgt.Climate Proofing-Kalahandi-HDFC":{"theme":"Water conservation Initiatives","dept":"WATER","prog_type":"Ongoing","da":"TSF"},"5030507 - Integ.MicroWS Mgt.Climate Proofing-Tundi-HDFC":{"theme":"Water conservation Initiatives","dept":"WATER","prog_type":"Ongoing","da":"TSF"},"5030508 - Agri-Allied(Horti,IFS,Livestock,Crops)-CITI BANK":{"theme":"Water conservation Initiatives","dept":"WATER","prog_type":"Ongoing","da":"TSF"},"5030509 - Const.Water Harvesting Structures -CITI BANK":{"theme":"Water conservation Initiatives","dept":"WATER","prog_type":"Ongoing","da":"TSF"},"5030510 - HRDP-Agriculture-HDFC":{"theme":"Water conservation Initiatives","dept":"WATER","prog_type":"Ongoing","da":"TSF"},"5030511 - NRM & Income Enhancement Project - HDFC":{"theme":"Livelihoods (Agriculture)","dept":"Agriculture","prog_type":"Ongoing","da":"TSF"}},"delivery_arms":["TCS","TSF","TSL","TSRDS"],"prog_types":["Over Head","Ongoing","One-time","N/A"],"budget_types":["Budget A","Budget A+","Budget B"],"locations":["Jamshedpur","Jamshedpur Urban","Jamshedpur Ghamaria","Jamshedpur Golmuri","Jamshedpur ISWP","East Singhbhum - Others","West Singhbhum - Others","Saraikela","Gumla","Manoharpur","Ranchi - Others","Tamar","Ramgarh - Others","Dhanbad - Others","Goelkera","Dumka","Jamtara","Bokaro","Khunti","Lohardaga","Simdega","Jharkhand - others","West Bokaro","Jamadoba","Noamundi","Vijaya II","Katamati","Joda Municipality","Joda Bamabari","Joda Khondbond","Joda Kalmang","Joda (Bileipada)","Joda Khondbond (Sundergarh)","Joda Kalmong (Sundergarh)","Joda SP (Sundergarh)","Joda SP (Keonjhar)","Joda SP (Jajpur)","Kalinganagar","KLNR NINL","KLNR TSK CER","KLNR NINL CER","KLNR Cluster III RFT","Sukinda","Bamnipal","Balasore","Gopalpur","Meramandali","Meramandali-2","Athagarh","Keonjhar - Others","Jajpur - Others","Bhubaneshwar","Cuttack - Others","Ganjam - Others","Gomardih","Mayurbhanj","Bargarh","Bauda","Bhadrak","Debagarh","Dhenkenal - Others","Jharsuguda","Sambalpur - Others","Sundergarh - Others","Kandmal","Subarnapur","Odisha Others","Kharagpur","Bishnupur","Kolkata","Haldia","West Bangal Others","Khopoli","Tarapur","Sahibabad","Ludhiana","Ludhiana AEA","Assam others","Bangalore","Dharwar","Delhi","Other Location","Gadchiroli","Pithampur","Mumbai"],"loc_cluster":{"Jamshedpur":"Jamshedpur","Jamshedpur Urban":"Jamshedpur","Jamshedpur Ghamaria":"Saraikela","Jamshedpur Golmuri":"Jamshedpur","Jamshedpur ISWP":"Jamshedpur","East Singhbhum - Others":"Jharkhand others","West Singhbhum - Others":"Jharkhand others","Saraikela":"Saraikela","Gumla":"Jharkhand others","Manoharpur":"Jharkhand others","Ranchi - Others":"Jharkhand others","Tamar":"Jharkhand others","Ramgarh - Others":"Jharkhand others","Dhanbad - Others":"Jharkhand others","Goelkera":"Jharkhand others","Dumka":"Jharkhand others","Jamtara":"Jharkhand others","Bokaro":"Jharkhand others","Khunti":"Jharkhand others","Lohardaga":"Jharkhand others","Simdega":"Jharkhand others","Jharkhand - others":"Jharkhand others","West Bokaro":"West Bokaro","Jamadoba":"Jamadoba","Noamundi":"Noamundi","Vijaya II":"Noamundi","Katamati":"Katamati","Joda Municipality":"Joda","Joda Bamabari":"Joda","Joda Khondbond":"Joda","Joda Kalmang":"Joda","Joda (Bileipada)":"Joda","Joda Khondbond (Sundergarh)":"Joda","Joda Kalmong (Sundergarh)":"Joda","Joda SP (Sundergarh)":"Joda","Joda SP (Keonjhar)":"Joda","Joda SP (Jajpur)":"Joda","Kalinganagar":"Kalinganagar","KLNR NINL":"Kalinganagar","KLNR TSK CER":"Kalinganagar","KLNR NINL CER":"Kalinganagar","KLNR Cluster III RFT":"Kalinganagar","Sukinda":"Sukinda","Bamnipal":"Bamnipal","Balasore":"Balasore","Gopalpur":"Gopalpur","Meramandali":"Meramandali and Athagarh","Meramandali-2":"Meramandali and Athagarh","Athagarh":"Meramandali and Athagarh","Keonjhar - Others":"Odisha others","Jajpur - Others":"Odisha others","Bhubaneshwar":"Odisha others","Cuttack - Others":"Odisha others","Ganjam - Others":"Odisha others","Gomardih":"Odisha others","Mayurbhanj":"Odisha others","Bargarh":"Odisha others","Bauda":"Odisha others","Bhadrak":"Odisha others","Debagarh":"Odisha others","Dhenkenal - Others":"Odisha others","Jharsuguda":"Odisha others","Sambalpur - Others":"Odisha others","Sundergarh - Others":"Odisha others","Kandmal":"Odisha others","Subarnapur":"Odisha others","Odisha Others":"Odisha others","Kharagpur":"Kharagpur and Bishnupur","Bishnupur":"Kharagpur and Bishnupur","Kolkata":"West Bengal others","Haldia":"West Bengal others","West Bangal Others":"West Bengal others","Khopoli":"Khopoli","Tarapur":"Tarapur","Sahibabad":"Sahibabad","Ludhiana":"Ludhiana","Ludhiana AEA":"Ludhiana","Assam others":"Assam","Bangalore":"Karnataka","Dharwar":"Karnataka","Delhi":"Delhi","Other Location":"Other States","Gadchiroli":"Gadchiroli","Pithampur":"Pithampur CC","Mumbai":"Mumbai"}};
+const OD={"units":["Assam","Delhi","Jharkhand","Karnataka","Madhya Pradesh","Maharashtra","Odisha","Other States","Punjab","Uttar Pradesh","West Bengal"],"clusters":["Assam","Balasore","Bamnipal","Delhi","Gadchiroli","Gopalpur","Jamadoba","Jamshedpur","Jharkhand others","Joda","Kalinganagar","Karnataka","Katamati","Kharagpur and Bishnupur","Khopoli","Ludhiana","Meramandali and Athagarh","Mumbai","Noamundi","Odisha others","Other States","Pithampur CC","Sahibabad","Saraikela","Sukinda","Tarapur","West Bengal others","West Bokaro"],"loc_unit":{"Jamshedpur":"Jharkhand","Jamshedpur Urban":"Jharkhand","Jamshedpur Ghamaria":"Jharkhand","Jamshedpur Golmuri":"Jharkhand","Jamshedpur ISWP":"Jharkhand","East Singhbhum - Others":"Jharkhand","West Singhbhum - Others":"Jharkhand","Saraikela":"Jharkhand","Gumla":"Jharkhand","Manoharpur":"Jharkhand","Ranchi - Others":"Jharkhand","Tamar":"Jharkhand","Ramgarh - Others":"Jharkhand","Dhanbad - Others":"Jharkhand","Goelkera":"Jharkhand","Dumka":"Jharkhand","Jamtara":"Jharkhand","Bokaro":"Jharkhand","Khunti":"Jharkhand","Lohardaga":"Jharkhand","Simdega":"Jharkhand","Jharkhand - others":"Jharkhand","West Bokaro":"Jharkhand","Jamadoba":"Jharkhand","Noamundi":"Jharkhand","Vijaya II":"Jharkhand","Katamati":"Odisha","Joda Municipality":"Odisha","Joda Bamabari":"Odisha","Joda Khondbond":"Odisha","Joda Kalmang":"Odisha","Joda (Bileipada)":"Odisha","Joda Khondbond (Sundergarh)":"Odisha","Joda Kalmong (Sundergarh)":"Odisha","Joda SP (Sundergarh)":"Odisha","Joda SP (Keonjhar)":"Odisha","Joda SP (Jajpur)":"Odisha","Kalinganagar":"Odisha","KLNR NINL":"Odisha","KLNR TSK CER":"Odisha","KLNR NINL CER":"Odisha","KLNR Cluster III RFT":"Odisha","Sukinda":"Odisha","Bamnipal":"Odisha","Balasore":"Odisha","Gopalpur":"Odisha","Meramandali":"Odisha","Meramandali-2":"Odisha","Athagarh":"Odisha","Keonjhar - Others":"Odisha","Jajpur - Others":"Odisha","Bhubaneshwar":"Odisha","Cuttack - Others":"Odisha","Ganjam - Others":"Odisha","Gomardih":"Odisha","Mayurbhanj":"Odisha","Bargarh":"Odisha","Bauda":"Odisha","Bhadrak":"Odisha","Debagarh":"Odisha","Dhenkenal - Others":"Odisha","Jharsuguda":"Odisha","Sambalpur - Others":"Odisha","Sundergarh - Others":"Odisha","Kandmal":"Odisha","Subarnapur":"Odisha","Odisha Others":"Odisha","Kharagpur":"West Bengal","Bishnupur":"West Bengal","Kolkata":"West Bengal","Haldia":"West Bengal","West Bangal Others":"West Bengal","Khopoli":"Maharashtra","Tarapur":"Maharashtra","Sahibabad":"Uttar Pradesh","Ludhiana":"Punjab","Ludhiana AEA":"Punjab","Assam others":"Assam","Bangalore":"Karnataka","Dharwar":"Karnataka","Delhi":"Delhi","Other Location":"Other States","Gadchiroli":"Maharashtra","Pithampur":"Madhya Pradesh","Mumbai":"Maharashtra"},"loc_cluster":{"Jamshedpur":"Jamshedpur","Jamshedpur Urban":"Jamshedpur","Jamshedpur Ghamaria":"Saraikela","Jamshedpur Golmuri":"Jamshedpur","Jamshedpur ISWP":"Jamshedpur","East Singhbhum - Others":"Jharkhand others","West Singhbhum - Others":"Jharkhand others","Saraikela":"Saraikela","Gumla":"Jharkhand others","Manoharpur":"Jharkhand others","Ranchi - Others":"Jharkhand others","Tamar":"Jharkhand others","Ramgarh - Others":"Jharkhand others","Dhanbad - Others":"Jharkhand others","Goelkera":"Jharkhand others","Dumka":"Jharkhand others","Jamtara":"Jharkhand others","Bokaro":"Jharkhand others","Khunti":"Jharkhand others","Lohardaga":"Jharkhand others","Simdega":"Jharkhand others","Jharkhand - others":"Jharkhand others","West Bokaro":"West Bokaro","Jamadoba":"Jamadoba","Noamundi":"Noamundi","Vijaya II":"Noamundi","Katamati":"Katamati","Joda Municipality":"Joda","Joda Bamabari":"Joda","Joda Khondbond":"Joda","Joda Kalmang":"Joda","Joda (Bileipada)":"Joda","Joda Khondbond (Sundergarh)":"Joda","Joda Kalmong (Sundergarh)":"Joda","Joda SP (Sundergarh)":"Joda","Joda SP (Keonjhar)":"Joda","Joda SP (Jajpur)":"Joda","Kalinganagar":"Kalinganagar","KLNR NINL":"Kalinganagar","KLNR TSK CER":"Kalinganagar","KLNR NINL CER":"Kalinganagar","KLNR Cluster III RFT":"Kalinganagar","Sukinda":"Sukinda","Bamnipal":"Bamnipal","Balasore":"Balasore","Gopalpur":"Gopalpur","Meramandali":"Meramandali and Athagarh","Meramandali-2":"Meramandali and Athagarh","Athagarh":"Meramandali and Athagarh","Keonjhar - Others":"Odisha others","Jajpur - Others":"Odisha others","Bhubaneshwar":"Odisha others","Cuttack - Others":"Odisha others","Ganjam - Others":"Odisha others","Gomardih":"Odisha others","Mayurbhanj":"Odisha others","Bargarh":"Odisha others","Bauda":"Odisha others","Bhadrak":"Odisha others","Debagarh":"Odisha others","Dhenkenal - Others":"Odisha others","Jharsuguda":"Odisha others","Sambalpur - Others":"Odisha others","Sundergarh - Others":"Odisha others","Kandmal":"Odisha others","Subarnapur":"Odisha others","Odisha Others":"Odisha others","Kharagpur":"Kharagpur and Bishnupur","Bishnupur":"Kharagpur and Bishnupur","Kolkata":"West Bengal others","Haldia":"West Bengal others","West Bangal Others":"West Bengal others","Khopoli":"Khopoli","Tarapur":"Tarapur","Sahibabad":"Sahibabad","Ludhiana":"Ludhiana","Ludhiana AEA":"Ludhiana","Assam others":"Assam","Bangalore":"Karnataka","Dharwar":"Karnataka","Delhi":"Delhi","Other Location":"Other States","Gadchiroli":"Gadchiroli","Pithampur":"Pithampur CC","Mumbai":"Mumbai"},"unit_locations":{"Jharkhand":["Jamshedpur","Jamshedpur Urban","Jamshedpur Ghamaria","Jamshedpur Golmuri","Jamshedpur ISWP","East Singhbhum - Others","West Singhbhum - Others","Saraikela","Gumla","Manoharpur","Ranchi - Others","Tamar","Ramgarh - Others","Dhanbad - Others","Goelkera","Dumka","Jamtara","Bokaro","Khunti","Lohardaga","Simdega","Jharkhand - others","West Bokaro","Jamadoba","Noamundi","Vijaya II"],"Odisha":["Katamati","Joda Municipality","Joda Bamabari","Joda Khondbond","Joda Kalmang","Joda (Bileipada)","Joda Khondbond (Sundergarh)","Joda Kalmong (Sundergarh)","Joda SP (Sundergarh)","Joda SP (Keonjhar)","Joda SP (Jajpur)","Kalinganagar","KLNR NINL","KLNR TSK CER","KLNR NINL CER","KLNR Cluster III RFT","Sukinda","Bamnipal","Balasore","Gopalpur","Meramandali","Meramandali-2","Athagarh","Keonjhar - Others","Jajpur - Others","Bhubaneshwar","Cuttack - Others","Ganjam - Others","Gomardih","Mayurbhanj","Bargarh","Bauda","Bhadrak","Debagarh","Dhenkenal - Others","Jharsuguda","Sambalpur - Others","Sundergarh - Others","Kandmal","Subarnapur","Odisha Others"],"West Bengal":["Kharagpur","Bishnupur","Kolkata","Haldia","West Bangal Others"],"Maharashtra":["Khopoli","Tarapur","Gadchiroli","Mumbai"],"Uttar Pradesh":["Sahibabad"],"Punjab":["Ludhiana","Ludhiana AEA"],"Assam":["Assam others"],"Karnataka":["Bangalore","Dharwar"],"Delhi":["Delhi"],"Other States":["Other Location"],"Madhya Pradesh":["Pithampur"]},"cluster_locations":{"Jamshedpur":["Jamshedpur","Jamshedpur Urban","Jamshedpur Golmuri","Jamshedpur ISWP"],"Saraikela":["Jamshedpur Ghamaria","Saraikela"],"Jharkhand others":["East Singhbhum - Others","West Singhbhum - Others","Gumla","Manoharpur","Ranchi - Others","Tamar","Ramgarh - Others","Dhanbad - Others","Goelkera","Dumka","Jamtara","Bokaro","Khunti","Lohardaga","Simdega","Jharkhand - others"],"West Bokaro":["West Bokaro"],"Jamadoba":["Jamadoba"],"Noamundi":["Noamundi","Vijaya II"],"Katamati":["Katamati"],"Joda":["Joda Municipality","Joda Bamabari","Joda Khondbond","Joda Kalmang","Joda (Bileipada)","Joda Khondbond (Sundergarh)","Joda Kalmong (Sundergarh)","Joda SP (Sundergarh)","Joda SP (Keonjhar)","Joda SP (Jajpur)"],"Kalinganagar":["Kalinganagar","KLNR NINL","KLNR TSK CER","KLNR NINL CER","KLNR Cluster III RFT"],"Sukinda":["Sukinda"],"Bamnipal":["Bamnipal"],"Balasore":["Balasore"],"Gopalpur":["Gopalpur"],"Meramandali and Athagarh":["Meramandali","Meramandali-2","Athagarh"],"Odisha others":["Keonjhar - Others","Jajpur - Others","Bhubaneshwar","Cuttack - Others","Ganjam - Others","Gomardih","Mayurbhanj","Bargarh","Bauda","Bhadrak","Debagarh","Dhenkenal - Others","Jharsuguda","Sambalpur - Others","Sundergarh - Others","Kandmal","Subarnapur","Odisha Others"],"Kharagpur and Bishnupur":["Kharagpur","Bishnupur"],"West Bengal others":["Kolkata","Haldia","West Bangal Others"],"Khopoli":["Khopoli"],"Tarapur":["Tarapur"],"Sahibabad":["Sahibabad"],"Ludhiana":["Ludhiana","Ludhiana AEA"],"Assam":["Assam others"],"Karnataka":["Bangalore","Dharwar"],"Delhi":["Delhi"],"Other States":["Other Location"],"Gadchiroli":["Gadchiroli"],"Pithampur CC":["Pithampur"],"Mumbai":["Mumbai"]}};
+const MQ={Q1:['APRIL','MAY','JUNE'],Q2:['JULY','AUGUST','SEPTEMBER'],Q3:['OCTOBER','NOVEMBER','DECEMBER'],Q4:['JANUARY','FEBRUARY','MARCH']};
+const MALL=['APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER','JANUARY','FEBRUARY','MARCH'];
+const ROLES=[{l:1,lbl:'Initiator'},{l:2,lbl:'Unit P&A'},{l:3,lbl:'Unit Lead'},{l:4,lbl:'Cluster Head'},{l:5,lbl:'Thematic Head'},{l:6,lbl:'P&A Team'},{l:7,lbl:'COO/CEO'}];
+const FU={
+  unitpa1:{name:'Priya Sharma',email:'priya@tsf.org',role:'Unit P&A',level:2,ctx:'unit'},
+  unitlead1:{name:'Amit Singh',email:'amit@tsf.org',role:'Unit Lead',level:3,ctx:'unit'},
+  cluster1:{name:'Sonia Verma',email:'sonia@tsf.org',role:'Cluster Head',level:4,ctx:'cluster'},
+  thematic1:{name:'Dr. R. Nair',email:'rnair@tsf.org',role:'Thematic Head',level:5,ctx:'theme'},
+  pateam1:{name:'Kavita Patel',email:'kavita@tsf.org',role:'P&A Team',level:6,location:'Head Office'},
+  coo1:{name:'Vikram Bose',email:'vbose@tsf.org',role:'COO/CEO',level:7,location:'Head Office'},
+  fa1:{name:'Rajesh Gupta',email:'rajesh@tsf.org',role:'F&A Staff',level:8,location:'Head Office'},
+};
+let UP=JSON.parse(localStorage.getItem('bps_up')||'{}');
+let CU=null;
+let REQS=JSON.parse(localStorage.getItem('bps_reqs')||'[]');
+let RC=parseInt(localStorage.getItem('bps_rc')||'1001');
+let SR_R=JSON.parse(localStorage.getItem('bps_sr')||'[]');
+let IO_R=JSON.parse(localStorage.getItem('bps_io')||'[]');
+let AC_R=JSON.parse(localStorage.getItem('bps_act')||'[]');
+let FAC=parseInt(localStorage.getItem('bps_fac')||'2001');
+let itemCount=0,chgItemCount=0,editItemCount=0;
+let qMode='pct',qDist='equal',chgQMode='pct',chgQDist='equal';
+let srRC=0,ioRC=0;
+
+function save(){localStorage.setItem('bps_rc',RC);localStorage.setItem('bps_reqs',JSON.stringify(REQS));}
+function saveFAD(){localStorage.setItem('bps_fac',FAC);localStorage.setItem('bps_sr',JSON.stringify(SR_R));localStorage.setItem('bps_io',JSON.stringify(IO_R));localStorage.setItem('bps_act',JSON.stringify(AC_R));}
+function saveUP(){localStorage.setItem('bps_up',JSON.stringify(UP));}
+function fmt(n){return Number(n||0).toLocaleString('en-IN');}
+
+// ── INIT ──────────────────────────────────────────────────────────
+window.addEventListener('load',()=>{
+  MD.gl_list.forEach(g=>document.getElementById('selGL').innerHTML+=`<option>${g}</option>`);
+  MD.delivery_arms.forEach(d=>document.getElementById('selDA').innerHTML+=`<option>${d}</option>`);
+  MD.budget_types.forEach(b=>document.getElementById('selBT').innerHTML+=`<option>${b}</option>`);
+  ['selLoc','pLoc','rptLc','bmLocFilter'].forEach(id=>{const e=document.getElementById(id);if(e)MD.locations.forEach(l=>e.innerHTML+=`<option>${l}</option>`);});
+  const depts=[...new Set(MD.gl_list.map(g=>MD.gl_map[g]?.dept).filter(Boolean))].sort();
+  depts.forEach(d=>{document.getElementById('pDept').innerHTML+=`<option>${d}</option>`;document.getElementById('rptDp').innerHTML+=`<option>${d}</option>`;});
+  const themes=[...new Set(MD.gl_list.map(g=>MD.gl_map[g]?.theme).filter(Boolean))].sort();
+  themes.forEach(t=>document.getElementById('rptTh').innerHTML+=`<option>${t}</option>`);
+  buildQGrid('qGrid','m');buildQGrid('chgQGrid','c');
+  const d=new Date().toISOString().split('T')[0];
+  ['srDate','ioDate','actDate'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=d;});
+});
+
+// ── LOGIN ─────────────────────────────────────────────────────────
+function ql(id){document.getElementById('loginId').value=id;document.getElementById('loginPass').value='demo';doLogin();}
+function doLogin(){
+  const id=document.getElementById('loginId').value.trim(),pw=document.getElementById('loginPass').value.trim();
+  if(!id||!pw){toast('Enter Login ID and Password.','error');return;}
+  if(FU[id]){const u=FU[id];if(u.ctx){window._pu={...u,id};showCtx(u.ctx);return;}CU={...u,id};hideAll();showApp();toast('Welcome, '+u.name+'!','success');return;}
+  if(UP[id]){CU={...UP[id],id,level:1,role:'Initiator'};hideAll();showApp();toast('Welcome back, '+CU.name+'!','success');return;}
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('profileScreen').classList.add('active');
+  document.getElementById('profileScreen').dataset.pid=id;
+  toast('First login — complete your profile.','info');
+}
+function showCtx(type){
+  const sel=document.getElementById('cxSel');sel.innerHTML='<option value="">— Select —</option>';
+  if(type==='unit'){document.getElementById('cxTitle').textContent='Select Your Unit / State';document.getElementById('cxLbl').textContent='Unit / State';OD.units.forEach(u=>sel.innerHTML+=`<option>${u}</option>`);}
+  else if(type==='cluster'){document.getElementById('cxTitle').textContent='Select Your Cluster';document.getElementById('cxLbl').textContent='Cluster';OD.clusters.forEach(c=>sel.innerHTML+=`<option>${c}</option>`);}
+  else{document.getElementById('cxTitle').textContent='Select Your Theme';document.getElementById('cxLbl').textContent='Theme';[...new Set(MD.gl_list.map(g=>MD.gl_map[g]?.theme).filter(Boolean))].sort().forEach(t=>sel.innerHTML+=`<option>${t}</option>`);}
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('contextScreen').classList.add('active');
+  document.getElementById('contextScreen').dataset.ctype=type;
+}
+function saveCtx(){
+  const val=document.getElementById('cxSel').value;if(!val){toast('Please select.','error');return;}
+  const u=window._pu,type=document.getElementById('contextScreen').dataset.ctype;
+  if(type==='unit')u.unit=val;else if(type==='cluster')u.cluster=val;else u.theme=val;
+  CU=u;window._pu=null;hideAll();showApp();toast('Welcome '+u.name+'. Context: '+val,'success');
+}
+function onProfLoc(){const l=document.getElementById('pLoc').value;document.getElementById('pUnit').value=OD.loc_unit[l]||'';document.getElementById('pCluster').value=OD.loc_cluster[l]||'';}
+function saveProfile(){
+  const name=document.getElementById('pName').value.trim(),email=document.getElementById('pEmail').value.trim(),loc=document.getElementById('pLoc').value;
+  if(!name||!email||!loc){toast('Name, Email, Location required.','error');return;}
+  const id=document.getElementById('profileScreen').dataset.pid;
+  UP[id]={name,email,location:loc,department:document.getElementById('pDept').value,unit:OD.loc_unit[loc]||'',cluster:OD.loc_cluster[loc]||'',createdAt:new Date().toLocaleDateString('en-IN')};
+  const profData={name,email,location:loc,department:document.getElementById('pDept').value,unit:OD.loc_unit[loc]||'',cluster:OD.loc_cluster[loc]||'',createdAt:new Date().toLocaleDateString('en-IN')};
+  showLoader('Saving profile...');
+  saveProfile(id, profData).then(()=>{hideLoader();CU={...profData,id,level:1,role:'Initiator'};hideAll();showApp();toast('Welcome '+name+'!','success');});
+}
+function cancelProfile(){document.getElementById('profileScreen').classList.remove('active');document.getElementById('loginScreen').classList.add('active');}
+function hideAll(){['loginScreen','profileScreen','contextScreen','editScreen'].forEach(id=>document.getElementById(id).classList.remove('active'));}
+
+// ── SHOW APP ──────────────────────────────────────────────────────
+function showApp(){
+  document.getElementById('appScreen').style.display='flex';document.getElementById('appScreen').classList.add('active');
+  const u=CU;
+  document.getElementById('sbAv').textContent=u.name[0];document.getElementById('sbNm').textContent=u.name;
+  document.getElementById('sbRl').textContent=u.role;document.getElementById('topUser').textContent=u.name+' — '+u.role;
+  let lc='';
+  if(u.level===4)lc='🏢 '+(u.cluster||'—');else if(u.level===5)lc='🎯 '+(u.theme||'—');
+  else if(u.level===2||u.level===3)lc='🏬 '+(u.unit||'—');else if(u.level>=6)lc='🌐 Head Office';
+  else lc='📍 '+(u.location||'—');
+  document.getElementById('sbLc').textContent=lc;
+  // Show DB mode in sidebar
+  const modeEl=document.getElementById('sbMode');
+  if(modeEl) modeEl.textContent=isSBConfigured()?'🟢 Supabase DB':'🟡 Local Storage';
+  const lvl=u.level;
+  document.getElementById('navBM').style.display=lvl===1?'flex':'none';
+  document.getElementById('navMine').style.display=lvl===1?'flex':'none';
+  document.getElementById('navApp').style.display=(lvl>=2&&lvl<=7)?'flex':'none';
+  document.getElementById('navCon').style.display=lvl>=6?'flex':'none';
+  document.getElementById('navFA').style.display=lvl===8?'flex':'none';
+  if(typeof loadAllData==='function'){
+    loadAllData().then(()=>{
+      refreshDash();updBadge();renderBMSummary();
+      if(lvl===8)nav('faModule',document.getElementById('navFA'));
+      else nav('dashboard',document.querySelector('.ni.active'));
+    });
+  } else {
+    refreshDash();updBadge();
+    if(lvl===8)nav('faModule',document.getElementById('navFA'));
+    else nav('dashboard',document.querySelector('.ni.active'));
+  }
+}
+function doLogout(){CU=null;document.getElementById('appScreen').style.display='none';document.getElementById('appScreen').classList.remove('active');hideAll();document.getElementById('loginScreen').classList.add('active');document.getElementById('loginId').value='';document.getElementById('loginPass').value='';}
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+function nav(name,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);if(pg)pg.classList.add('active');
+  if(el)el.classList.add('active');
+  const T={dashboard:'Dashboard',budgetMgmt:'Budget Management',myReqs:'My Requests',approvals:'Pending Approvals',consolidated:'Consolidated View',faModule:'F&A / Actual Spend',report:'Export Report'};
+  document.getElementById('pgTitle').textContent=T[name]||name;
+  if(name==='approvals')renderApprovals();
+  if(name==='myReqs')renderMine();
+  if(name==='consolidated')renderCon('theme');
+  if(name==='dashboard')refreshDash();
+  if(name==='budgetMgmt'){renderBMSummary();loadChgSel();}
+  if(name==='faModule'){loadFASels();renderSRRec();renderIORec();renderActRec();renderFAStat();}
+  if(name==='report')loadRptFilters();
+}
+
+// ── GL & LOC SELECT ───────────────────────────────────────────────
+function onGLSelect(){
+  const gl=document.getElementById('selGL').value,info=MD.gl_map[gl]||{};
+  document.getElementById('autoTheme').value=info.theme||'';
+  document.getElementById('autoDept').value=info.dept||'';
+  document.getElementById('autoPT').value=info.prog_type||'';
+  if(info.da){const da=document.getElementById('selDA');for(let o of da.options)if(o.value===info.da){da.value=info.da;break;}}
+  buildApprovalPrev('prevApp');
+}
+function onLocSelect(){const l=document.getElementById('selLoc').value;document.getElementById('autoCluster').value=MD.loc_cluster[l]||'';}
+
+// ── WORD COUNT ────────────────────────────────────────────────────
+function wc(fid,cid,max){const v=document.getElementById(fid).value;const e=document.getElementById(cid);e.textContent=v.length+' / '+max;e.style.color=v.length>max*0.9?'var(--dan)':'var(--muted)';}
+function wcW(fid,cid,max){const v=document.getElementById(fid).value.trim(),w=v?v.split(/\s+/).length:0;const e=document.getElementById(cid);e.textContent=w+' / '+max+' words';e.style.color=w>max*0.9?'var(--dan)':'var(--muted)';}
+
+// ── FILE UPLOAD ───────────────────────────────────────────────────
+let uploadedFile=null;
+function handleFile(inp){
+  const file=inp.files[0];if(!file)return;
+  if(file.size>2*1024*1024){toast('File exceeds 2MB.','error');inp.value='';return;}
+  const ext='.'+file.name.split('.').pop().toLowerCase();
+  if(!['.doc','.docx','.xls','.xlsx','.pdf','.jpg','.jpeg','.png'].includes(ext)){toast('Unsupported file type.','error');inp.value='';return;}
+  uploadedFile={name:file.name,size:(file.size/1024).toFixed(1)+'KB'};
+  document.getElementById('uploadBox').classList.add('has-file');
+  document.getElementById('fileChip').innerHTML=`<div style="margin-top:6px;font-size:12px;font-weight:600;color:var(--suc)">📄 ${file.name} <button onclick="removeFile(event)" style="background:none;border:none;cursor:pointer;color:var(--dan);font-size:14px;margin-left:4px">✕</button></div>`;
+  toast('File attached: '+file.name,'success');
+}
+function removeFile(e){e.stopPropagation();uploadedFile=null;document.getElementById('fileInput').value='';document.getElementById('uploadBox').classList.remove('has-file');document.getElementById('fileChip').innerHTML='';}
+
+// ── BUDGET ITEMS ──────────────────────────────────────────────────
+function addBudgetItem(desc='',unit='',qty='',rate='',amt=''){
+  itemCount++;const id='bi-'+itemCount;
+  const tr=document.createElement('tr');tr.id=id;
+  tr.innerHTML=`<td style="text-align:center;color:var(--muted);font-size:11px">${itemCount}</td>
+    <td><input class="itbl-inp" placeholder="Item description" value="${desc}" oninput="calcItem('${id}')"/></td>
+    <td><input class="itbl-inp" placeholder="Nos/m/kg" value="${unit}" style="width:70px"/></td>
+    <td><input class="itbl-inp" type="number" placeholder="0" value="${qty}" style="width:60px" oninput="calcItem('${id}')"/></td>
+    <td><input class="itbl-inp" type="number" placeholder="0" value="${rate}" style="width:90px" oninput="calcItem('${id}')"/></td>
+    <td><input class="itbl-inp" type="number" placeholder="0" value="${amt}" oninput="calcTotalItems()"/></td>
+    <td><button class="btn bd bxs" onclick="document.getElementById('${id}').remove();calcTotalItems()">✕</button></td>`;
+  document.getElementById('budgetItemBody').appendChild(tr);calcTotalItems();
+}
+function calcItem(id){const tr=document.getElementById(id),inp=tr.querySelectorAll('input');const q=parseFloat(inp[2].value)||0,r=parseFloat(inp[3].value)||0;if(q&&r)inp[4].value=q*r;calcTotalItems();}
+function calcTotalItems(){
+  let t=0;document.querySelectorAll('#budgetItemBody tr').forEach(tr=>{const inp=tr.querySelectorAll('input');t+=parseFloat(inp[4]?.value)||0;});
+  document.getElementById('itemTotal').textContent='₹ '+fmt(t);
+  if(qDist==='equal')applyEqualDist('m');else refreshQDisp('m');
+  buildApprovalPrev('prevApp');return t;
+}
+function getTotalBudget(){let t=0;document.querySelectorAll('#budgetItemBody tr').forEach(tr=>{const inp=tr.querySelectorAll('input');t+=parseFloat(inp[4]?.value)||0;});return t;}
+
+// CHANGE BUDGET ITEMS
+function addChgItem(desc='',unit='',qty='',rate='',amt=''){
+  chgItemCount++;const id='ci-'+chgItemCount;
+  const tr=document.createElement('tr');tr.id=id;
+  tr.innerHTML=`<td style="text-align:center;color:var(--muted);font-size:11px">${chgItemCount}</td>
+    <td><input class="itbl-inp" value="${desc}" oninput="calcChgItem('${id}')"/></td>
+    <td><input class="itbl-inp" value="${unit}" style="width:70px"/></td>
+    <td><input class="itbl-inp" type="number" value="${qty}" style="width:60px" oninput="calcChgItem('${id}')"/></td>
+    <td><input class="itbl-inp" type="number" value="${rate}" style="width:90px" oninput="calcChgItem('${id}')"/></td>
+    <td><input class="itbl-inp" type="number" value="${amt}" oninput="calcChgTotal()"/></td>
+    <td><button class="btn bd bxs" onclick="document.getElementById('${id}').remove();calcChgTotal()">✕</button></td>`;
+  document.getElementById('chgItemBody').appendChild(tr);calcChgTotal();
+}
+function calcChgItem(id){const tr=document.getElementById(id),inp=tr.querySelectorAll('input');const q=parseFloat(inp[2].value)||0,r=parseFloat(inp[3].value)||0;if(q&&r)inp[4].value=q*r;calcChgTotal();}
+function calcChgTotal(){let t=0;document.querySelectorAll('#chgItemBody tr').forEach(tr=>{const inp=tr.querySelectorAll('input');t+=parseFloat(inp[4]?.value)||0;});document.getElementById('chgItemTotal').textContent='₹ '+fmt(t);if(chgQDist==='equal')applyEqualDist('c');else refreshQDisp('c');return t;}
+function getChgTotal(){let t=0;document.querySelectorAll('#chgItemBody tr').forEach(tr=>{const inp=tr.querySelectorAll('input');t+=parseFloat(inp[4]?.value)||0;});return t;}
+
+// EDIT ITEMS
+function addEditItem(desc='',unit='',qty='',rate='',amt=''){
+  editItemCount++;const id='ei-'+editItemCount;
+  const tr=document.createElement('tr');tr.id=id;
+  tr.innerHTML=`<td style="text-align:center;color:var(--muted);font-size:11px">${editItemCount}</td>
+    <td><input class="itbl-inp" value="${desc}" oninput="calcEditItem('${id}')"/></td>
+    <td><input class="itbl-inp" value="${unit}" style="width:70px"/></td>
+    <td><input class="itbl-inp" type="number" value="${qty}" style="width:60px" oninput="calcEditItem('${id}')"/></td>
+    <td><input class="itbl-inp" type="number" value="${rate}" style="width:90px" oninput="calcEditItem('${id}')"/></td>
+    <td><input class="itbl-inp" type="number" value="${amt}" oninput="calcEditTotal()"/></td>
+    <td><button class="btn bd bxs" onclick="document.getElementById('${id}').remove();calcEditTotal()">✕</button></td>`;
+  document.getElementById('editItemBody').appendChild(tr);calcEditTotal();
+}
+function calcEditItem(id){const tr=document.getElementById(id),inp=tr.querySelectorAll('input');const q=parseFloat(inp[2].value)||0,r=parseFloat(inp[3].value)||0;if(q&&r)inp[4].value=q*r;calcEditTotal();}
+function calcEditTotal(){let t=0;document.querySelectorAll('#editItemBody tr').forEach(tr=>{const inp=tr.querySelectorAll('input');t+=parseFloat(inp[4]?.value)||0;});document.getElementById('editItemTotal').textContent='₹ '+fmt(t);const e=document.getElementById('eTot');if(e)e.textContent='₹ '+fmt(t);return t;}
+
+// ── QUARTERLY PLAN ────────────────────────────────────────────────
+function buildQGrid(gid,pfx){
+  const grid=document.getElementById(gid);if(!grid)return;grid.innerHTML='';
+  Object.keys(MQ).forEach(q=>{
+    const months=MQ[q];
+    const mhtml=months.map(m=>`<div class="me"><span class="ml">${m}</span><input class="mi" type="number" id="${pfx}-${m}" min="0" step="0.01" placeholder="0" oninput="onQInput('${pfx}')"/><span class="mp" id="${pfx}pc-${m}">0%</span></div>`).join('');
+    const card=document.createElement('div');card.className='qcard';
+    card.innerHTML=`<div class="qh" onclick="this.parentElement.classList.toggle('exp')"><div><div class="ql">${q}</div><div class="qm">${months.join(' · ')}</div></div><div style="text-align:right"><div class="qt" id="${pfx}t-${q}">0</div><div class="qp" id="${pfx}pq-${q}">0%</div><div class="ti">▾</div></div></div><div class="qbody">${mhtml}</div>`;
+    grid.appendChild(card);
+  });
+}
+function setQMode(mode){
+  qMode=mode;
+  document.getElementById('btnPct').classList.toggle('active',mode==='pct');
+  document.getElementById('btnAmt').classList.toggle('active',mode==='amt');
+  document.getElementById('qModeInfo').textContent=mode==='pct'?'% Mode: Enter percentage of total budget per month.':'₹ Mode: Enter actual rupee amounts per month.';
+  if(qDist==='equal')applyEqualDist('m');else refreshQDisp('m');
+}
+function setQDist(dist){
+  qDist=dist;
+  document.getElementById('btnEqual').classList.toggle('active',dist==='equal');
+  document.getElementById('btnManual').classList.toggle('active',dist==='manual');
+  if(dist==='equal')applyEqualDist('m');
+}
+function setChgQMode(mode){chgQMode=mode;document.getElementById('chgBtnPct').classList.toggle('active',mode==='pct');document.getElementById('chgBtnAmt').classList.toggle('active',mode==='amt');if(chgQDist==='equal')applyEqualDist('c');else refreshQDisp('c');}
+function setChgQDist(dist){chgQDist=dist;document.getElementById('chgBtnEq').classList.toggle('active',dist==='equal');document.getElementById('chgBtnMn').classList.toggle('active',dist==='manual');if(dist==='equal')applyEqualDist('c');}
+function applyEqualDist(pfx){
+  const total=pfx==='m'?getTotalBudget():getChgTotal();if(!total)return;
+  const n=MALL.length;const mode=pfx==='m'?qMode:chgQMode;
+  if(mode==='pct'){const v=parseFloat((100/n).toFixed(4));MALL.forEach(m=>{const e=document.getElementById(pfx+'-'+m);if(e)e.value=v;});}
+  else{const v=Math.floor(total/n);const rem=total-v*n;MALL.forEach((m,i)=>{const e=document.getElementById(pfx+'-'+m);if(e)e.value=i===0?v+rem:v;});}
+  refreshQDisp(pfx);
+}
+function onQInput(pfx){const dist=pfx==='m'?qDist:chgQDist;if(dist==='equal')return;refreshQDisp(pfx);}
+function refreshQDisp(pfx){
+  const total=pfx==='m'?getTotalBudget():getChgTotal();const mode=pfx==='m'?qMode:chgQMode;
+  let grand=0;
+  Object.keys(MQ).forEach(q=>{
+    let qt=0;
+    MQ[q].forEach(m=>{const e=document.getElementById(pfx+'-'+m);const v=parseFloat(e?.value)||0;const r=mode==='pct'?(v/100*total):v;qt+=r;grand+=r;const pct=total>0?Math.round(r/total*100):0;const pe=document.getElementById(pfx+'pc-'+m);if(pe)pe.textContent=pct+'%';});
+    const pct=total>0?Math.round(qt/total*100):0;
+    const te=document.getElementById(pfx+'t-'+q);if(te)te.textContent=mode==='pct'?fmt(Math.round(qt)):'₹ '+fmt(Math.round(qt));
+    const pe=document.getElementById(pfx+'pq-'+q);if(pe)pe.textContent=pct+'%';
+  });
+  const rem=total-grand;
+  const sfx=pfx==='m'?'':pfx==='c'?'chg':'';
+  if(pfx==='m'){const td=document.getElementById('qTotDisplay');if(td)td.textContent='₹ '+fmt(Math.round(grand));const rd=document.getElementById('qRemDisplay');if(rd){rd.textContent='₹ '+fmt(Math.round(rem));rd.style.color=rem<-1?'var(--dan)':rem>1?'var(--war)':'var(--suc)';}const bd=document.getElementById('qBudDisplay');if(bd)bd.textContent='₹ '+fmt(total);}
+  else{const td=document.getElementById('chgQTotDisp');if(td)td.textContent='₹ '+fmt(Math.round(grand));const rd=document.getElementById('chgQRemDisp');if(rd){rd.textContent='₹ '+fmt(Math.round(rem));rd.style.color=rem<-1?'var(--dan)':rem>1?'var(--war)':'var(--suc)';}const bd=document.getElementById('chgQBudDisp');if(bd)bd.textContent='₹ '+fmt(total);}
+}
+function getMDfromGrid(pfx,total,mode){
+  const md={};MALL.forEach(m=>{const v=parseFloat(document.getElementById(pfx+'-'+m)?.value)||0;md[m]=mode==='pct'?Math.round(v/100*total):Math.round(v);});return md;
+}
+
+function buildApprovalPrev(cid){
+  const c=document.getElementById(cid);if(!c)return;c.innerHTML='';
+  ROLES.forEach((r,i)=>{const d=document.createElement('div');d.className='astep '+(i===0?'cur':'');d.innerHTML=`<div class="snum">${r.l}</div><div class="si"><div class="sr-r">${r.lbl}</div><div class="su">${i===0?(CU?.name||'—')+' | '+(CU?.email||''):'Awaiting'}</div></div><span class="sp-badge">${i===0?'In Progress':'Pending'}</span>`;c.appendChild(d);});
+}
+
+// ── SUBMIT NEW REQUEST ────────────────────────────────────────────
+function submitReq(){
+  const gl=document.getElementById('selGL').value,da=document.getElementById('selDA').value;
+  const bt=document.getElementById('selBT').value,founder=document.getElementById('selFounder').value;
+  const loc=document.getElementById('selLoc').value,projName=document.getElementById('projName').value.trim();
+  const projDesc=document.getElementById('projDesc').value.trim();
+  const theme=document.getElementById('autoTheme').value,dept=document.getElementById('autoDept').value;
+  const pt=document.getElementById('autoPT').value,cluster=document.getElementById('autoCluster').value;
+  if(!gl||!da||!bt||!founder||!loc){toast('Complete all required fields.','error');return;}
+  if(!projName||!projDesc){toast('Project Name and Description required.','error');return;}
+  const items=[];let totalBud=0;
+  document.querySelectorAll('#budgetItemBody tr').forEach(tr=>{const inp=tr.querySelectorAll('input');const d=inp[0].value.trim(),u=inp[1].value,q=inp[2].value,rt=inp[3].value,a=parseFloat(inp[4].value)||0;if(d&&a){items.push({desc:d,unit:u,qty:q,rate:rt,amt:a});totalBud+=a;}});
+  if(!items.length||!totalBud){toast('Add at least one budget item.','error');return;}
+  const fy=document.getElementById('selFY').value;
+  const md=getMDfromGrid('m',totalBud,qMode);
+  const req={ref:'BUD-'+RC++,type:'New',version:1,gl,theme,dept,pt,da,bt,founder,loc,cluster,unit:OD.loc_unit[loc]||'',fy,projName,projDesc,attachedFile:uploadedFile?.name||null,items,bud:totalBud,md,qMode,
+    budVersions:[{v:1,bud:totalBud,items:[...items],md:{...md},at:new Date().toLocaleDateString('en-IN'),by:CU.name}],
+    by:CU.id,byName:CU.name,at:new Date().toLocaleDateString('en-IN'),status:'pending',curLvl:2,
+    hist:[{v:1,act:'Submitted',by:CU.name,role:'Initiator',at:new Date().toLocaleDateString('en-IN'),note:'Initial submission'}],
+    appr:ROLES.map(r=>({l:r.l,lbl:r.lbl,st:r.l===1?'approved':'pending',by:r.l===1?CU.name:null,at:r.l===1?new Date().toLocaleDateString('en-IN'):null,rmk:r.l===1?'Submitted':null}))};
+  REQS.push(req);
+  showLoader('Saving budget request...');
+  saveReq(req).then(()=>{hideLoader();toast(req.ref+' "'+projName+'" submitted.','success');resetNewBudget();hideAllBMForms();refreshDash();updBadge();renderBMSummary();nav('myReqs',document.getElementById('navMine'));});
+}
+function resetNewBudget(){
+  document.getElementById('selGL').value='';['selDA','selBT','selFounder','selLoc','selFY'].forEach(id=>{const e=document.getElementById(id);if(e)e.selectedIndex=0;});
+  document.getElementById('projName').value='';document.getElementById('projDesc').value='';
+  document.getElementById('pnc').textContent='0 / 150';document.getElementById('pdc').textContent='0 / 500 words';
+  document.getElementById('budgetItemBody').innerHTML='';itemCount=0;document.getElementById('itemTotal').textContent='₹ 0';
+  buildQGrid('qGrid','m');uploadedFile=null;document.getElementById('fileChip').innerHTML='';document.getElementById('uploadBox').classList.remove('has-file');
+  ['autoTheme','autoDept','autoPT','autoCluster'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ── BM SUMMARY ────────────────────────────────────────────────────
+function showNewBudget(){document.getElementById('newBudgetForm').style.display='block';document.getElementById('changeBudgetForm').style.display='none';addBudgetItem();buildApprovalPrev('prevApp');document.getElementById('newBudgetForm').scrollIntoView({behavior:'smooth'});}
+function showChangeBudget(){document.getElementById('changeBudgetForm').style.display='block';document.getElementById('newBudgetForm').style.display='none';loadChgSel();document.getElementById('changeBudgetForm').scrollIntoView({behavior:'smooth'});}
+function hideAllBMForms(){document.getElementById('newBudgetForm').style.display='none';document.getElementById('changeBudgetForm').style.display='none';}
+function renderBMSummary(){
+  const lf=document.getElementById('bmLocFilter').value;
+  const reqs=lf?REQS.filter(r=>r.loc===lf):REQS;
+  const tb=document.getElementById('bmSummaryTb');
+  if(!reqs.length){tb.innerHTML='<tr><td colspan="15" style="text-align:center;padding:24px;color:var(--muted)">No requests yet. Click "New Budget" to create one.</td></tr>';return;}
+  tb.innerHTML=reqs.map(r=>{
+    const vb=r.version>1?`<span class="vbadge">v${r.version}</span>`:'';
+    const srV=SR_R.filter(s=>s.budRef===r.ref).reduce((s,x)=>s+x.srVal,0);
+    const ioV=IO_R.filter(i=>i.budRef===r.ref).reduce((s,x)=>s+x.ioVal,0);
+    const ioIds=IO_R.filter(i=>i.budRef===r.ref).map(i=>i.id);
+    const act=AC_R.filter(a=>ioIds.includes(a.ioId)).reduce((s,x)=>s+x.amount,0);
+    const bal=r.bud-act,util=r.bud>0?Math.round(act/r.bud*100):0;
+    const uc=util>=90?'var(--dan)':util>=70?'var(--war)':'var(--suc)';
+    const sc=r.status==='returned'?'sp-ret':r.status==='approved'?'sp-a':r.status==='rejected'?'sp-r':'sp-p';
+    return `<tr><td><strong style="font-family:'IBM Plex Mono',monospace">${r.ref}</strong>${vb}</td><td>v${r.version||1}</td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.projName}</td>
+      <td style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.gl}">${r.gl.substring(0,20)}…</td>
+      <td>${r.theme}</td><td>${r.dept}</td><td>${r.loc}</td>
+      <td class="amt">₹ ${fmt(r.bud)}</td>
+      <td class="amt">${srV?'₹ '+fmt(srV):'—'}</td><td class="amt">${ioV?'₹ '+fmt(ioV):'—'}</td>
+      <td class="amt" style="color:var(--dan)">${act?'₹ '+fmt(act):'—'}</td>
+      <td class="amt" style="color:${bal>=0?'var(--suc)':'var(--dan)'}"><strong>₹ ${fmt(bal)}</strong></td>
+      <td><div style="display:flex;align-items:center;gap:5px"><div class="util-bar" style="width:48px"><div class="util-fill" style="width:${Math.min(util,100)}%;background:${uc}"></div></div><span style="font-size:11px;color:${uc}">${util}%</span></div></td>
+      <td><span class="spill ${sc}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td>
+      <td><button class="btn bo bxs" onclick="viewReq('${r.ref}')">👁</button></td></tr>`;
+  }).join('');
+}
+
+// ── CHANGE BUDGET ─────────────────────────────────────────────────
+function loadChgSel(){
+  const sel=document.getElementById('chgReqSel');sel.innerHTML='<option value="">— Select Approved Request —</option>';
+  REQS.filter(r=>r.status==='approved'&&r.by===CU?.id).forEach(r=>sel.innerHTML+=`<option value="${r.ref}">${r.ref} — ${r.projName} — ₹${fmt(r.bud)}</option>`);
+}
+function loadChangeReq(){
+  const ref=document.getElementById('chgReqSel').value;document.getElementById('chgDetails').style.display=ref?'block':'none';if(!ref)return;
+  const r=REQS.find(x=>x.ref===ref);
+  document.getElementById('chgGL').value=r.gl;document.getElementById('chgTheme').value=r.theme;document.getElementById('chgDept').value=r.dept;document.getElementById('chgLoc').value=r.loc;
+  const vers=r.budVersions||[{v:1,bud:r.bud,at:r.at}];
+  document.getElementById('chgVerHistory').innerHTML=`<div style="margin-bottom:6px"><strong style="font-size:11px;color:var(--muted);text-transform:uppercase">Version History</strong><div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px">${vers.map(v=>`<span class="ver-chip" style="${v.v===r.version?'background:var(--acl);border-color:var(--acc)':''}">V${v.v}: ₹${fmt(v.bud)} — ${v.at}</span>`).join('')}</div></div>`;
+  const srV=SR_R.filter(s=>s.budRef===ref).reduce((s,x)=>s+x.srVal,0);const ioV=IO_R.filter(i=>i.budRef===ref).reduce((s,x)=>s+x.ioVal,0);
+  const ioIds=IO_R.filter(i=>i.budRef===ref).map(i=>i.id);const act=AC_R.filter(a=>ioIds.includes(a.ioId)).reduce((s,x)=>s+x.amount,0);
+  document.getElementById('chgFASummary').innerHTML=`<div style="display:flex;gap:14px;padding:8px;background:#f8fafc;border-radius:6px;font-size:12px;flex-wrap:wrap"><div><span class="tmuted">Total SR:</span> <strong>₹ ${fmt(srV)}</strong></div><div><span class="tmuted">Total IO:</span> <strong>₹ ${fmt(ioV)}</strong></div><div><span class="tmuted">Actual Spend:</span> <strong style="color:var(--dan)">₹ ${fmt(act)}</strong></div><div><span class="tmuted">Balance:</span> <strong style="color:${r.bud-act>=0?'var(--suc)':'var(--dan)'}">₹ ${fmt(r.bud-act)}</strong></div></div>`;
+  document.getElementById('chgItemBody').innerHTML='';chgItemCount=0;
+  (r.items||[{desc:r.projName,unit:'',qty:'',rate:'',amt:r.bud}]).forEach(item=>addChgItem(item.desc,item.unit||'',item.qty||'',item.rate||'',item.amt));
+  MALL.forEach(m=>{const e=document.getElementById('c-'+m);if(e)e.value=r.qMode==='pct'?(r.bud>0?((r.md[m]||0)/r.bud*100).toFixed(2):0):(r.md[m]||0);});
+  buildApprovalPrev('chgAppPrev');refreshQDisp('c');
+}
+function submitChange(){
+  const ref=document.getElementById('chgReqSel').value,reason=document.getElementById('chgReason').value.trim();
+  if(!ref){toast('Select a request.','error');return;}if(!reason){toast('Provide reason.','error');return;}
+  const items=[];let total=0;
+  document.querySelectorAll('#chgItemBody tr').forEach(tr=>{const inp=tr.querySelectorAll('input');const d=inp[0].value.trim(),u=inp[1].value,q=inp[2].value,rt=inp[3].value,a=parseFloat(inp[4].value)||0;if(d&&a){items.push({desc:d,unit:u,qty:q,rate:rt,amt:a});total+=a;}});
+  if(!total){toast('Add valid budget items.','error');return;}
+  const src=REQS.find(x=>x.ref===ref),newVer=(src.version||1)+1;
+  const md=getMDfromGrid('c',total,chgQMode);
+  src.bud=total;src.items=items;src.md=md;src.version=newVer;src.status='pending';src.curLvl=2;src.at=new Date().toLocaleDateString('en-IN');
+  src.budVersions=src.budVersions||[];src.budVersions.push({v:newVer,bud:total,items:[...items],md:{...md},at:new Date().toLocaleDateString('en-IN'),by:CU.name,note:reason});
+  src.appr.forEach(a=>{if(a.l>=2){a.st='pending';a.by=null;a.at=null;a.rmk=null;}});
+  src.hist.push({v:newVer,act:'Budget Change',by:CU.name,role:'Initiator',at:new Date().toLocaleDateString('en-IN'),note:reason});
+  showLoader('Saving budget change...');
+  saveReq(src).then(()=>{hideLoader();toast(ref+' v'+newVer+' change submitted.','success');resetChangeBudget();hideAllBMForms();refreshDash();updBadge();renderBMSummary();nav('myReqs',document.getElementById('navMine'));});
+}
+function resetChangeBudget(){document.getElementById('chgReqSel').value='';document.getElementById('chgDetails').style.display='none';document.getElementById('chgItemBody').innerHTML='';chgItemCount=0;document.getElementById('chgReason').value='';}
+
+// ── MY REQUESTS ───────────────────────────────────────────────────
+function renderMine(){
+  const mine=REQS.filter(r=>r.by===CU.id);const tb=document.getElementById('mineTb');
+  if(!mine.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--muted)">No requests yet.</td></tr>';return;}
+  tb.innerHTML=[...mine].reverse().map(r=>{
+    const vb=r.version>1?`<span class="vbadge">v${r.version}</span>`:'';
+    const sc=r.status==='returned'?'sp-ret':r.status==='approved'?'sp-a':r.status==='rejected'?'sp-r':'sp-p';
+    const eBtn=r.status==='returned'?`<button class="btn br bxs" onclick="openEdit('${r.ref}')">✏️</button>`:'';
+    return `<tr><td><strong style="font-family:'IBM Plex Mono',monospace">${r.ref}</strong>${vb}</td><td>v${r.version||1}</td><td><span class="spill" style="background:#e8f4fd;color:#1565c0">${r.type}</span></td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.projName}</td><td style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.gl}">${r.gl.substring(0,18)}…</td><td>${r.loc}</td><td class="amt">₹ ${fmt(r.bud)}</td><td>${r.at}</td><td><span class="spill ${sc}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td><td style="display:flex;gap:3px">${eBtn}<button class="btn bo bxs" onclick="viewReq('${r.ref}')">👁</button></td></tr>`;
+  }).join('');
+}
+
+// ── APPROVALS ─────────────────────────────────────────────────────
+function getMyApprovals(){
+  const lvl=CU.level;
+  return REQS.filter(r=>{
+    if(r.status!=='pending'||r.curLvl!==lvl)return false;
+    if(lvl===2||lvl===3){if(CU.unit)return(r.unit||OD.loc_unit[r.loc]||'')===CU.unit;return true;}
+    if(lvl===4&&CU.cluster)return(r.cluster||OD.loc_cluster[r.loc]||'')===CU.cluster;
+    if(lvl===5&&CU.theme)return r.theme===CU.theme;
+    return true;
+  });
+}
+function renderApprovals(){
+  const mine=getMyApprovals();let ctx='';
+  if(CU.level===2||CU.level===3)ctx=' | Unit: '+(CU.unit||'All');else if(CU.level===4)ctx=' | Cluster: '+(CU.cluster||'All');else if(CU.level===5)ctx=' | Theme: '+(CU.theme||'All');
+  document.getElementById('appNote').textContent=`${CU.role} | L${CU.level}${ctx}`;
+  if(!mine.length){document.getElementById('appList').innerHTML='<div style="text-align:center;padding:24px;color:var(--muted)">No pending approvals.</div>';return;}
+  const extra=CU.level>=6?'<div class="cnote">Use Consolidated View for bulk approval.</div>':'';
+  document.getElementById('appList').innerHTML='<div style="padding:11px">'+extra+mine.map(r=>{
+    const vb=r.version>1?`<span class="vbadge">v${r.version}</span>`:'';
+    return `<div class="card" style="margin-bottom:8px"><div class="cbody" style="padding:10px"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><div><strong style="color:var(--pri)">${r.ref}</strong>${vb} <strong style="margin-left:5px">${r.projName}</strong><span class="tmuted" style="margin-left:5px">${r.gl.substring(0,30)}</span></div><div style="display:flex;gap:5px"><strong style="font-family:'IBM Plex Mono',monospace;color:var(--suc)">₹ ${fmt(r.bud)}</strong><button class="btn bs bxs" onclick="approveR('${r.ref}')">✅</button><button class="btn br bxs" onclick="openRetMod('${r.ref}')">↩</button><button class="btn bd bxs" onclick="openRejMod('${r.ref}')">❌</button><button class="btn bo bxs" onclick="viewReq('${r.ref}')">👁</button></div></div><div class="tmuted" style="margin-top:4px">${r.byName} | ${r.at} | ${r.loc}</div></div></div>`;
+  }).join('')+'</div>';
+}
+function approveR(ref,rmk='Approved'){
+  const r=REQS.find(x=>x.ref===ref);if(!r)return;
+  const a=r.appr.find(x=>x.l===CU.level);if(a){a.st='approved';a.by=CU.name;a.at=new Date().toLocaleDateString('en-IN');a.rmk=rmk;}
+  r.hist.push({v:r.version||1,act:'Approved',by:CU.name,role:CU.role,at:new Date().toLocaleDateString('en-IN'),note:rmk});
+  if(CU.level>=7)r.status='approved';else r.curLvl=CU.level+1;
+  showLoader('Saving approval...');
+  saveReq(r).then(()=>{hideLoader();toast(ref+' approved.','success');renderApprovals();refreshDash();updBadge();closeMod();renderBMSummary();});
+}
+function openRetMod(ref){
+  document.getElementById('mTitle').textContent='↩ Return — '+ref;
+  document.getElementById('mBody').innerHTML=`<div class="rnote">Request returned to initiator for editing. New version tracked on resubmission.</div><div class="fg"><label>Remarks</label><textarea id="retRmk" style="min-height:80px" placeholder="What changes are required..."></textarea></div>`;
+  document.getElementById('mFtr').innerHTML=`<button class="btn bo" onclick="closeMod()">Cancel</button><button class="btn br" onclick="confRet('${ref}')">↩ Return</button>`;openMod();
+}
+function confRet(ref){
+  const rmk=document.getElementById('retRmk').value.trim()||'Please review and resubmit.';
+  const r=REQS.find(x=>x.ref===ref);if(!r)return;
+  const a=r.appr.find(x=>x.l===CU.level);if(a){a.st='returned';a.by=CU.name;a.at=new Date().toLocaleDateString('en-IN');a.rmk=rmk;}
+  r.status='returned';r.retBy=CU.name;r.retRole=CU.role;r.retRmk=rmk;
+  r.hist.push({v:r.version||1,act:'Returned',by:CU.name,role:CU.role,at:new Date().toLocaleDateString('en-IN'),note:rmk});
+  saveReq(r).then(()=>{toast(ref+' returned.','warn');renderApprovals();refreshDash();updBadge();closeMod();});
+}
+function openRejMod(ref){
+  document.getElementById('mTitle').textContent='❌ Reject — '+ref;
+  document.getElementById('mBody').innerHTML=`<div class="wbox">Permanent rejection. Use Return to allow revision.</div><div class="fg"><label>Reason</label><textarea id="rejRmk" style="min-height:70px"></textarea></div>`;
+  document.getElementById('mFtr').innerHTML=`<button class="btn bo" onclick="closeMod()">Cancel</button><button class="btn bd" onclick="confRej('${ref}')">❌ Confirm</button>`;openMod();
+}
+function confRej(ref){
+  const rmk=document.getElementById('rejRmk').value.trim()||'Rejected.';
+  const r=REQS.find(x=>x.ref===ref);if(!r)return;
+  const a=r.appr.find(x=>x.l===CU.level);if(a){a.st='rejected';a.by=CU.name;a.at=new Date().toLocaleDateString('en-IN');a.rmk=rmk;}
+  r.status='rejected';r.hist.push({v:r.version||1,act:'Rejected',by:CU.name,role:CU.role,at:new Date().toLocaleDateString('en-IN'),note:rmk});
+  saveReq(r).then(()=>{toast(ref+' rejected.','error');renderApprovals();refreshDash();updBadge();closeMod();});
+}
+
+// ── EDIT/RETURN ───────────────────────────────────────────────────
+function openEdit(ref){
+  const r=REQS.find(x=>x.ref===ref);if(!r)return;
+  document.getElementById('editRef').value=ref;
+  document.getElementById('eGL').value=r.gl;document.getElementById('eTheme').value=r.theme;document.getElementById('eDept').value=r.dept;document.getElementById('ePT').value=r.pt;document.getElementById('eFounder').value=r.founder||'';
+  document.getElementById('eProjName').value=r.projName||'';document.getElementById('eDesc').value=r.projDesc||'';
+  document.getElementById('editSub').innerHTML=`<strong style="color:var(--ret)">Returned by ${r.retBy} (${r.retRole}):</strong> "${r.retRmk}"`;
+  document.getElementById('editItemBody').innerHTML='';editItemCount=0;
+  (r.items||[]).forEach(item=>addEditItem(item.desc,item.unit||'',item.qty||'',item.rate||'',item.amt));
+  calcEditTotal();
+  const wrap=document.getElementById('editQWrap');
+  wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><strong style="font-size:12px;color:var(--pri)">Quarterly Plan</strong></div><div class="qgrid" id="eQGrid"></div><div style="margin-top:8px;padding:8px;background:#f8fafc;border:1px solid var(--bdr);border-radius:6px;font-size:12px"><span class="tmuted">Total:</span> <strong id="eTot">₹ ${fmt(r.bud)}</strong></div>`;
+  buildQGrid('eQGrid','e');
+  MALL.forEach(m=>{const e=document.getElementById('e-'+m);if(e)e.value=r.md[m]||0;});
+  hideAll();document.getElementById('editScreen').classList.add('active');
+}
+function closeEdit(){document.getElementById('editScreen').classList.remove('active');}
+function resubmit(){
+  const ref=document.getElementById('editRef').value,projName=document.getElementById('eProjName').value.trim(),desc=document.getElementById('eDesc').value.trim(),note=document.getElementById('eNote').value.trim();
+  if(!projName||!desc){toast('Project Name and Description required.','error');return;}
+  const items=[];let total=0;
+  document.querySelectorAll('#editItemBody tr').forEach(tr=>{const inp=tr.querySelectorAll('input');const d=inp[0].value.trim(),u=inp[1].value,q=inp[2].value,rt=inp[3].value,a=parseFloat(inp[4]?.value)||0;if(d&&a){items.push({desc:d,unit:u,qty:q,rate:rt,amt:a});total+=a;}});
+  if(!total){toast('Add valid budget items.','error');return;}
+  const r=REQS.find(x=>x.ref===ref);if(!r)return;
+  const md={};MALL.forEach(m=>{md[m]=parseInt(document.getElementById('e-'+m)?.value)||0;});
+  r.projName=projName;r.projDesc=desc;r.items=items;r.bud=total;r.md=md;r.version=(r.version||1)+1;r.status='pending';r.curLvl=2;r.at=new Date().toLocaleDateString('en-IN');
+  r.budVersions=r.budVersions||[];r.budVersions.push({v:r.version,bud:total,items:[...items],md:{...md},at:new Date().toLocaleDateString('en-IN'),by:CU.name,note:note||'Resubmitted'});
+  r.appr.forEach(a=>{if(a.l>=2){a.st='pending';a.by=null;a.at=null;a.rmk=null;}});
+  r.hist.push({v:r.version,act:'Resubmitted',by:CU.name,role:'Initiator',at:new Date().toLocaleDateString('en-IN'),note:note||'Edited and resubmitted.'});
+  document.getElementById('editScreen').classList.remove('active');
+  showLoader('Saving...');
+  saveReq(r).then(()=>{hideLoader();toast(ref+' v'+r.version+' resubmitted.','success');refreshDash();updBadge();nav('myReqs',document.getElementById('navMine'));});
+}
+
+// ── VIEW REQUEST ──────────────────────────────────────────────────
+function viewReq(ref){
+  const r=REQS.find(x=>x.ref===ref);if(!r)return;
+  const vb=r.version>1?`<span class="vbadge">v${r.version}</span>`:'';
+  document.getElementById('mTitle').innerHTML=r.ref+' '+vb+' — '+r.projName;
+  const vers=r.budVersions||[{v:1,bud:r.bud,at:r.at}];
+  const verHtml=vers.map(v=>`<span class="ver-chip" style="${v.v===r.version?'background:var(--acl);border-color:var(--acc)':''}">V${v.v}: ₹${fmt(v.bud)} — ${v.at}</span>`).join('');
+  const mrows=Object.entries(MQ).map(([q,months])=>{const qt=months.reduce((s,m)=>s+(r.md[m]||0),0),p=r.bud>0?Math.round(qt/r.bud*100):0;return `<tr style="background:#f8fafc"><td colspan="2"><strong>${q}</strong></td><td class="amt"><strong>₹ ${fmt(qt)}</strong></td><td class="amt"><strong>${p}%</strong></td></tr>`+months.map(m=>`<tr><td style="padding-left:14px">${m}</td><td></td><td class="amt">₹ ${fmt(r.md[m]||0)}</td><td class="amt">${r.bud>0?Math.round((r.md[m]||0)/r.bud*100):0}%</td></tr>`).join('');}).join('');
+  const arows=r.appr.map(a=>{const cls=a.st==='approved'?'app':a.st==='rejected'?'rej':a.st==='returned'?'ret':r.curLvl===a.l?'cur':'';return `<div class="astep ${cls}"><div class="snum">${a.l}</div><div class="si"><div class="sr-r">${a.lbl}</div><div class="su">${a.by||'—'}${a.at?' | '+a.at:''}</div>${a.rmk?`<div class="st">${a.rmk}</div>`:''}</div><span class="sp-badge">${a.st.charAt(0).toUpperCase()+a.st.slice(1)}</span></div>`;}).join('');
+  const itemsHtml=(r.items||[]).map((it,i)=>`<tr><td>${i+1}</td><td>${it.desc}</td><td>${it.unit||'—'}</td><td>${it.qty||'—'}</td><td class="amt">₹ ${fmt(it.rate||0)}</td><td class="amt">₹ ${fmt(it.amt)}</td></tr>`).join('');
+  const hist=(r.hist||[]).map(h=>`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:11px"><span style="font-family:'IBM Plex Mono';color:var(--muted);width:32px">v${h.v}</span><span style="font-weight:600;width:90px;color:${h.act.includes('Return')?'var(--ret)':h.act.includes('Approv')?'var(--suc)':h.act.includes('Reject')?'var(--dan)':'var(--pri)'}">${h.act}</span><span style="flex:1;color:var(--muted)">${h.by}(${h.role||'—'}) — ${h.at}</span><span style="color:var(--muted);font-style:italic">${h.note||''}</span></div>`).join('');
+  const srV=SR_R.filter(s=>s.budRef===ref).reduce((s,x)=>s+x.srVal,0);const ioV=IO_R.filter(i=>i.budRef===ref).reduce((s,x)=>s+x.ioVal,0);const ioIds=IO_R.filter(i=>i.budRef===ref).map(i=>i.id);const act=AC_R.filter(a=>ioIds.includes(a.ioId)).reduce((s,x)=>s+x.amount,0);
+  document.getElementById('mBody').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;font-size:12px">
+      <div style="grid-column:1/-1"><span class="tmuted">GL:</span> <strong>${r.gl}</strong></div>
+      <div><span class="tmuted">Theme:</span> <strong>${r.theme}</strong></div><div><span class="tmuted">Department:</span> <strong>${r.dept}</strong></div>
+      <div><span class="tmuted">Prog Type:</span> <strong>${r.pt}</strong></div><div><span class="tmuted">Delivery Arm:</span> <strong>${r.da}</strong></div>
+      <div><span class="tmuted">Budget Type:</span> <strong>${r.bt}</strong></div><div><span class="tmuted">Founder:</span> <strong>${r.founder||'—'}</strong></div>
+      <div><span class="tmuted">Location:</span> <strong>${r.loc}</strong></div><div><span class="tmuted">Cluster:</span> <strong>${r.cluster||'—'}</strong></div>
+      <div><span class="tmuted">Budget:</span> <strong style="color:var(--suc)">₹ ${fmt(r.bud)}</strong></div><div><span class="tmuted">Version:</span> <strong>v${r.version||1}</strong></div>
+      <div><span class="tmuted">SR Value:</span> <strong>₹ ${fmt(srV)}</strong></div><div><span class="tmuted">IO Value:</span> <strong>₹ ${fmt(ioV)}</strong></div>
+      <div><span class="tmuted">Actual Spend:</span> <strong style="color:var(--dan)">₹ ${fmt(act)}</strong></div><div><span class="tmuted">Balance:</span> <strong style="color:${r.bud-act>=0?'var(--suc)':'var(--dan)'}">₹ ${fmt(r.bud-act)}</strong></div>
+    </div>
+    ${r.attachedFile?`<div style="margin-bottom:8px;font-size:12px">📄 ${r.attachedFile}</div>`:''}
+    ${r.status==='returned'?`<div class="rnote">Returned by ${r.retBy}: "${r.retRmk}"</div>`:''}
+    <div style="margin-bottom:8px;padding:8px;background:#f8fafc;border-radius:6px;font-size:12px"><strong>${r.projName}</strong><br><span style="color:var(--muted);margin-top:3px;display:block">${r.projDesc||'—'}</span></div>
+    <div style="margin-bottom:8px"><strong style="font-size:11px;color:var(--muted);text-transform:uppercase">Budget Versions</strong><div style="margin-top:4px">${verHtml}</div></div>
+    <div style="margin-bottom:8px"><strong style="font-size:11px;color:var(--muted);text-transform:uppercase">Budget Items</strong>
+      <table class="item-tbl" style="margin-top:5px"><thead><tr><th>#</th><th>Description</th><th>Unit</th><th>Qty</th><th>Rate(₹)</th><th>Amount(₹)</th></tr></thead><tbody>${itemsHtml}</tbody></table></div>
+    <div style="margin-bottom:8px"><strong style="font-size:11px;color:var(--muted);text-transform:uppercase">Quarterly Plan</strong>
+      <table class="stbl" style="margin-top:5px;width:100%"><thead><tr><th>Month</th><th></th><th>Amount(₹)</th><th>%</th></tr></thead><tbody>${mrows}</tbody></table></div>
+    <div style="margin-bottom:8px"><strong style="font-size:11px;color:var(--muted);text-transform:uppercase">Approval Path</strong><div style="margin-top:5px">${arows}</div></div>
+    <div><strong style="font-size:11px;color:var(--muted);text-transform:uppercase">Activity History</strong><div style="margin-top:5px;border:1px solid var(--bdr);border-radius:6px;padding:3px 8px">${hist}</div></div>`;
+  const canA=r.curLvl===CU.level&&r.status==='pending',canE=r.status==='returned'&&r.by===CU.id;
+  document.getElementById('mFtr').innerHTML=`<button class="btn bo" onclick="closeMod()">Close</button>${canE?`<button class="btn br" onclick="closeMod();openEdit('${r.ref}')">✏️ Edit</button>`:''}${canA?`<button class="btn bs" onclick="approveR('${r.ref}')">✅</button><button class="btn br" onclick="closeMod();openRetMod('${r.ref}')">↩ Return</button><button class="btn bd" onclick="openRejMod('${r.ref}')">❌</button>`:''}`;
+  openMod();
+}
+
+// ── CONSOLIDATED ──────────────────────────────────────────────────
+function renderCon(by){
+  const tb=document.getElementById('conTb');const grp={};
+  REQS.forEach(r=>{const k=by==='theme'?r.theme:by==='dept'?r.dept:by==='gl'?r.gl:r.loc;if(!grp[k])grp[k]={cnt:0,tot:0,app:0,pnd:0,act:0};grp[k].cnt++;grp[k].tot+=r.bud;if(r.status==='approved')grp[k].app+=r.bud;if(r.status==='pending')grp[k].pnd++;const ioIds=IO_R.filter(i=>i.budRef===r.ref).map(i=>i.id);grp[k].act+=AC_R.filter(a=>ioIds.includes(a.ioId)).reduce((s,x)=>s+x.amount,0);});
+  if(!Object.keys(grp).length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:14px;color:var(--muted)">No data.</td></tr>';return;}
+  let gt=0,ga=0,gc=0,gact=0;
+  tb.innerHTML=Object.entries(grp).map(([k,v])=>{gt+=v.tot;ga+=v.app;gc+=v.cnt;gact+=v.act;return `<tr><td>${k}</td><td>${v.cnt}</td><td class="amt">₹ ${fmt(v.tot)}</td><td class="amt">₹ ${fmt(v.app)}</td><td class="amt">₹ ${fmt(v.act)}</td><td>${v.pnd}</td></tr>`;}).join('')+`<tr><td><strong>TOTAL</strong></td><td>${gc}</td><td class="amt"><strong>₹ ${fmt(gt)}</strong></td><td class="amt"><strong>₹ ${fmt(ga)}</strong></td><td class="amt"><strong>₹ ${fmt(gact)}</strong></td><td>—</td></tr>`;
+  document.getElementById('conAppSec').style.display=(CU.level>=6&&getMyApprovals().length>0)?'block':'none';
+}
+function swCon(t,el){document.querySelectorAll('.ctab').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderCon(t);}
+function conApprove(){
+  const lvl=CU.level;let cnt=0;
+  getMyApprovals().forEach(r=>{const a=r.appr.find(x=>x.l===lvl);if(a){a.st='approved';a.by=CU.name;a.at=new Date().toLocaleDateString('en-IN');a.rmk='Consolidated';}r.hist.push({v:r.version||1,act:'Approved',by:CU.name,role:CU.role,at:new Date().toLocaleDateString('en-IN'),note:'Consolidated'});if(lvl>=7)r.status='approved';else r.curLvl=lvl+1;cnt++;});
+  save();toast(cnt+' approved.','success');renderCon('theme');refreshDash();updBadge();renderBMSummary();
+}
+
+// ── F&A MODULE ────────────────────────────────────────────────────
+function loadFASels(){
+  ['srReqSel','ioReqSel'].forEach(id=>{const sel=document.getElementById(id);sel.innerHTML='<option value="">— Select —</option>';REQS.filter(r=>r.status==='approved').forEach(r=>sel.innerHTML+=`<option value="${r.ref}">${r.ref} — ${r.projName} — ₹${fmt(r.bud)}</option>`);});
+  const aio=document.getElementById('actIOSel');aio.innerHTML='<option value="">— Select IO —</option>';IO_R.forEach(i=>aio.innerHTML+=`<option value="${i.id}">${i.ioNo} | ${i.budRef} | ₹${fmt(i.ioVal)}</option>`);
+  const af=document.getElementById('actFilterIO');af.innerHTML='<option value="">All IOs</option>';IO_R.forEach(i=>af.innerHTML+=`<option value="${i.id}">${i.ioNo}(${i.budRef})</option>`);
+}
+function renderFAStat(){
+  const totAct=AC_R.reduce((s,x)=>s+x.amount,0),totBud=REQS.filter(r=>r.status==='approved').reduce((s,r)=>s+r.bud,0);
+  document.getElementById('faSR').textContent=SR_R.length;document.getElementById('faIO').textContent=IO_R.length;document.getElementById('faAct').textContent='₹'+fmt(totAct);document.getElementById('faUtil').textContent=(totBud>0?Math.round(totAct/totBud*100):0)+'%';
+}
+// SR
+function onSRSel(){
+  const ref=document.getElementById('srReqSel').value;document.getElementById('srTableWrap').style.display=ref?'block':'none';document.getElementById('srAct').style.display=ref?'flex':'none';
+  if(!ref){document.getElementById('srTBody').innerHTML='';return;}const r=REQS.find(x=>x.ref===ref);document.getElementById('srTBody').innerHTML='';srRC=0;addSRRowData(r);
+}
+function addSRRow(){const ref=document.getElementById('srReqSel').value;if(!ref)return;addSRRowData(REQS.find(x=>x.ref===ref));}
+function addSRRowData(r){
+  srRC++;const id='srr-'+srRC;const daO=MD.delivery_arms.map(d=>`<option${d===r.da?' selected':''}>${d}</option>`).join('');const btO=MD.budget_types.map(b=>`<option${b===r.bt?' selected':''}>${b}</option>`).join('');
+  const tr=document.createElement('tr');tr.id=id;
+  tr.innerHTML=`<td><input class="fa-inp ro" value="${r.gl.substring(0,20)}" readonly title="${r.gl}" style="width:110px"/></td><td><input class="fa-inp ro" value="${r.theme}" readonly style="width:80px"/></td><td><input class="fa-inp ro" value="${r.dept}" readonly style="width:85px"/></td><td><input class="fa-inp ro" value="${r.pt}" readonly style="width:75px"/></td><td><select class="fa-sel" style="width:75px">${daO}</select></td><td><select class="fa-sel" style="width:80px">${btO}</select></td><td><input class="fa-inp ro" value="${r.loc}" readonly style="width:80px"/></td><td><input class="fa-inp sr-no" type="text" placeholder="SR No." style="width:90px"/></td><td><input class="fa-inp sr-val" type="number" placeholder="₹" style="width:90px"/></td><td><button class="btn bd bxs" onclick="document.getElementById('${id}').remove()">✕</button></td>`;
+  document.getElementById('srTBody').appendChild(tr);
+}
+function submitSR(){
+  const ref=document.getElementById('srReqSel').value;if(!ref){toast('Select a request.','error');return;}
+  const rows=document.querySelectorAll('#srTBody tr');let saved=0;
+  rows.forEach(tr=>{const srNo=tr.querySelector('.sr-no').value.trim(),srVal=parseFloat(tr.querySelector('.sr-val').value)||0;if(!srNo||!srVal){toast('SR Number and Value required.','error');return;}
+    const r=REQS.find(x=>x.ref===ref);SR_R.push({id:'SR-'+FAC++,budRef:ref,projName:r.projName,gl:r.gl,theme:r.theme,dept:r.dept,pt:r.pt,da:tr.querySelectorAll('select')[0].value,bt:tr.querySelectorAll('select')[1].value,loc:r.loc,srNo,srVal,date:document.getElementById('srDate').value||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});saved++;});
+  if(saved>0){
+    showLoader('Saving SRs...');
+    Promise.all(SR_R.slice(-saved).map(s=>saveSR(s))).then(()=>{saveFAD();hideLoader();toast(saved+' SR saved.','success');resetSR();renderSRRec();renderFAStat();renderBMSummary();});
+  }
+}
+function resetSR(){document.getElementById('srReqSel').value='';document.getElementById('srTBody').innerHTML='';document.getElementById('srTableWrap').style.display='none';document.getElementById('srAct').style.display='none';srRC=0;}
+function renderSRRec(){
+  const tb=document.getElementById('srRecTb');if(!SR_R.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;padding:12px;color:var(--muted)">No records.</td></tr>';return;}
+  tb.innerHTML=[...SR_R].reverse().map(s=>`<tr><td><strong>${s.id}</strong></td><td>${s.budRef}</td><td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.projName}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${s.gl}">${s.gl.substring(0,18)}…</td><td>${s.loc}</td><td><strong>${s.srNo}</strong></td><td class="amt">₹ ${fmt(s.srVal)}</td><td>${s.date}</td><td>${s.by}</td><td><button class="btn bd bxs" onclick="delSR('${s.id}').then(()=>{saveFAD();renderSRRec();renderFAStat();renderBMSummary();})">✕</button></td></tr>`).join('');
+}
+// IO
+function onIOSel(){
+  const ref=document.getElementById('ioReqSel').value;document.getElementById('ioTableWrap').style.display=ref?'block':'none';document.getElementById('ioAct').style.display=ref?'flex':'none';
+  if(!ref){document.getElementById('ioTBody').innerHTML='';return;}const r=REQS.find(x=>x.ref===ref);document.getElementById('ioTBody').innerHTML='';ioRC=0;addIORowData(r);
+}
+function addIORow(){const ref=document.getElementById('ioReqSel').value;if(!ref)return;addIORowData(REQS.find(x=>x.ref===ref));}
+function addIORowData(r){
+  ioRC++;const id='ior-'+ioRC;const daO=MD.delivery_arms.map(d=>`<option${d===r.da?' selected':''}>${d}</option>`).join('');const btO=MD.budget_types.map(b=>`<option${b===r.bt?' selected':''}>${b}</option>`).join('');
+  const tr=document.createElement('tr');tr.id=id;
+  tr.innerHTML=`<td><input class="fa-inp ro" value="${r.gl.substring(0,20)}" readonly title="${r.gl}" style="width:110px"/></td><td><input class="fa-inp ro" value="${r.theme}" readonly style="width:80px"/></td><td><input class="fa-inp ro" value="${r.dept}" readonly style="width:85px"/></td><td><input class="fa-inp ro" value="${r.pt}" readonly style="width:75px"/></td><td><select class="fa-sel" style="width:75px">${daO}</select></td><td><select class="fa-sel" style="width:80px">${btO}</select></td><td><input class="fa-inp ro" value="${r.loc}" readonly style="width:80px"/></td><td><input class="fa-inp io-no" type="text" placeholder="IO No." style="width:90px"/></td><td><input class="fa-inp io-val" type="number" placeholder="₹" style="width:90px"/></td><td><button class="btn bd bxs" onclick="document.getElementById('${id}').remove()">✕</button></td>`;
+  document.getElementById('ioTBody').appendChild(tr);
+}
+function submitIO(){
+  const ref=document.getElementById('ioReqSel').value;if(!ref){toast('Select a request.','error');return;}
+  const rows=document.querySelectorAll('#ioTBody tr');let saved=0;
+  rows.forEach(tr=>{const ioNo=tr.querySelector('.io-no').value.trim(),ioVal=parseFloat(tr.querySelector('.io-val').value)||0;if(!ioNo||!ioVal){toast('IO Number and Value required.','error');return;}
+    const r=REQS.find(x=>x.ref===ref);IO_R.push({id:'IO-'+FAC++,budRef:ref,projName:r.projName,gl:r.gl,theme:r.theme,dept:r.dept,pt:r.pt,da:tr.querySelectorAll('select')[0].value,bt:tr.querySelectorAll('select')[1].value,loc:r.loc,ioNo,ioVal,date:document.getElementById('ioDate').value||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});saved++;});
+  if(saved>0){
+    showLoader('Saving IOs...');
+    Promise.all(IO_R.slice(-saved).map(i=>saveIO(i))).then(()=>{saveFAD();hideLoader();toast(saved+' IO saved.','success');resetIO();renderIORec();renderFAStat();loadFASels();});
+  }
+}
+function resetIO(){document.getElementById('ioReqSel').value='';document.getElementById('ioTBody').innerHTML='';document.getElementById('ioTableWrap').style.display='none';document.getElementById('ioAct').style.display='none';ioRC=0;}
+function renderIORec(){
+  const tb=document.getElementById('ioRecTb');if(!IO_R.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;padding:12px;color:var(--muted)">No records.</td></tr>';return;}
+  tb.innerHTML=[...IO_R].reverse().map(i=>`<tr><td><strong>${i.id}</strong></td><td>${i.budRef}</td><td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.projName}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${i.gl}">${i.gl.substring(0,18)}…</td><td>${i.loc}</td><td><strong>${i.ioNo}</strong></td><td class="amt">₹ ${fmt(i.ioVal)}</td><td>${i.date}</td><td>${i.by}</td><td><button class="btn bd bxs" onclick="delIO('${i.id}').then(()=>{saveFAD();renderIORec();renderFAStat();})">✕</button></td></tr>`).join('');
+}
+// ACTUAL
+function onActIO(){
+  const ioId=document.getElementById('actIOSel').value;document.getElementById('actWrap').style.display=ioId?'block':'none';document.getElementById('actAct').style.display=ioId?'flex':'none';if(!ioId)return;
+  const io=IO_R.find(x=>x.id===ioId),spent=AC_R.filter(x=>x.ioId===ioId).reduce((s,x)=>s+x.amount,0);
+  document.getElementById('actIOV').value=io.ioVal;document.getElementById('actSpent').value=spent;document.getElementById('actBal').value=io.ioVal-spent;document.getElementById('actAmt').value='';
+  document.getElementById('actInfo').innerHTML=`<div style="display:flex;gap:14px;flex-wrap:wrap"><div><span class="tmuted">IO:</span> <strong>${io.ioNo}</strong></div><div><span class="tmuted">Budget:</span> <strong>${io.budRef}</strong></div><div><span class="tmuted">IO Value:</span> <strong>₹ ${fmt(io.ioVal)}</strong></div><div><span class="tmuted">Spent:</span> <strong style="color:var(--dan)">₹ ${fmt(spent)}</strong></div><div><span class="tmuted">Balance:</span> <strong style="color:${io.ioVal-spent>=0?'var(--suc)':'var(--dan)'}">₹ ${fmt(io.ioVal-spent)}</strong></div></div>`;
+}
+function calcActBal(){const io=IO_R.find(x=>x.id===document.getElementById('actIOSel').value);if(!io)return;const spent=AC_R.filter(x=>x.ioId===io.id).reduce((s,x)=>s+x.amount,0);document.getElementById('actBal').value=io.ioVal-spent-(parseFloat(document.getElementById('actAmt').value)||0);}
+function submitAct(){
+  const ioId=document.getElementById('actIOSel').value,amount=parseFloat(document.getElementById('actAmt').value)||0;
+  if(!ioId){toast('Select an IO.','error');return;}if(!amount){toast('Enter spend amount.','error');return;}
+  const io=IO_R.find(x=>x.id===ioId),spent=AC_R.filter(x=>x.ioId===ioId).reduce((s,x)=>s+x.amount,0);
+  if(amount>io.ioVal-spent){toast('Exceeds IO balance of ₹'+fmt(io.ioVal-spent)+'.','error');return;}
+  AC_R.push({id:'ACT-'+FAC++,ioId,ioNo:io.ioNo,budRef:io.budRef,projName:io.projName,gl:io.gl,loc:io.loc,amount,date:document.getElementById('actDate').value||new Date().toLocaleDateString('en-IN'),voucher:document.getElementById('actVoucher').value.trim(),desc:document.getElementById('actDesc').value.trim(),by:CU.name,at:new Date().toLocaleDateString('en-IN')});
+  showLoader('Saving spend...');
+  saveAct(AC_R[AC_R.length-1]).then(()=>{saveFAD();hideLoader();toast('Spend ₹'+fmt(amount)+' saved.','success');resetAct();renderActRec();renderFAStat();renderBMSummary();});
+}
+function resetAct(){document.getElementById('actIOSel').value='';document.getElementById('actWrap').style.display='none';document.getElementById('actAct').style.display='none';['actAmt','actVoucher','actDesc'].forEach(id=>document.getElementById(id).value='');}
+function renderActRec(){
+  const filter=document.getElementById('actFilterIO')?.value||'';const recs=filter?AC_R.filter(x=>x.ioId===filter):AC_R;const tb=document.getElementById('actRecTb');
+  if(!recs.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;padding:12px;color:var(--muted)">No records.</td></tr>';return;}
+  tb.innerHTML=[...recs].reverse().map(a=>`<tr><td><strong>${a.id}</strong></td><td>${a.ioNo}</td><td>${a.budRef}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${a.gl}">${a.gl.substring(0,18)}…</td><td class="amt" style="color:var(--dan)"><strong>₹ ${fmt(a.amount)}</strong></td><td>${a.date}</td><td>${a.voucher||'—'}</td><td>${a.desc||'—'}</td><td>${a.by}</td><td><button class="btn bd bxs" onclick="delAct('${a.id}').then(()=>{saveFAD();renderActRec();renderFAStat();renderBMSummary();})">✕</button></td></tr>`).join('');
+}
+// BULK
+function parseCSV(text){const lines=text.trim().split('\n');const hdrs=lines[0].split(',').map(h=>h.replace(/"/g,'').trim());return lines.slice(1).map(l=>{const vals=l.split(',').map(v=>v.replace(/"/g,'').trim());const o={};hdrs.forEach((h,i)=>o[h]=vals[i]||'');return o;});}
+function bulkSR(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const rows=parseCSV(e.target.result);let s=0;rows.forEach(row=>{const ref=row['Budget Ref'],rq=REQS.find(x=>x.ref===ref);if(!rq)return;const srNo=row['SR Number'],srVal=parseFloat(row['SR Value'])||0;if(!srNo||!srVal)return;SR_R.push({id:'SR-'+FAC++,budRef:ref,projName:rq.projName,gl:rq.gl,theme:rq.theme,dept:rq.dept,pt:rq.pt,da:row['Delivery Arm']||rq.da,bt:row['Budget Type']||rq.bt,loc:rq.loc,srNo,srVal,date:row['Date']||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});s++;});if(s>0){saveFAD();toast(s+' SRs imported.','success');renderSRRec();renderFAStat();}else toast('No valid rows found.','error');};r.readAsText(f);inp.value='';}
+function bulkIO(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const rows=parseCSV(e.target.result);let s=0;rows.forEach(row=>{const ref=row['Budget Ref'],rq=REQS.find(x=>x.ref===ref);if(!rq)return;const ioNo=row['IO Number'],ioVal=parseFloat(row['IO Value'])||0;if(!ioNo||!ioVal)return;IO_R.push({id:'IO-'+FAC++,budRef:ref,projName:rq.projName,gl:rq.gl,theme:rq.theme,dept:rq.dept,pt:rq.pt,da:row['Delivery Arm']||rq.da,bt:row['Budget Type']||rq.bt,loc:rq.loc,ioNo,ioVal,date:row['Date']||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});s++;});if(s>0){saveFAD();toast(s+' IOs imported.','success');renderIORec();renderFAStat();loadFASels();}else toast('No valid rows found.','error');};r.readAsText(f);inp.value='';}
+function bulkAct(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const rows=parseCSV(e.target.result);let s=0;rows.forEach(row=>{const ioNo=row['IO Number'],io=IO_R.find(x=>x.ioNo===ioNo);if(!io)return;const amount=parseFloat(row['Spend Amount'])||0;if(!amount)return;AC_R.push({id:'ACT-'+FAC++,ioId:io.id,ioNo:io.ioNo,budRef:io.budRef,projName:io.projName,gl:io.gl,loc:io.loc,amount,date:row['Date']||new Date().toLocaleDateString('en-IN'),voucher:row['Voucher']||'',desc:row['Description']||'',by:CU.name,at:new Date().toLocaleDateString('en-IN')});s++;});if(s>0){saveFAD();toast(s+' spends imported.','success');renderActRec();renderFAStat();}else toast('No valid rows found.','error');};r.readAsText(f);inp.value='';}
+function dlTpl(headers,filename){const csv=headers.join(',')+',Notes\n'+','.repeat(headers.length-1)+',(sample row)';const blob=new Blob(['\uFEFF'+csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
+
+// ── REPORT ────────────────────────────────────────────────────────
+function loadRptFilters(){const rd=document.getElementById('rptDp');rd.innerHTML='<option value="">All</option>';[...new Set(MD.gl_list.map(g=>MD.gl_map[g]?.dept).filter(Boolean))].sort().forEach(d=>rd.innerHTML+=`<option>${d}</option>`);}
+function getFilt(){const t=document.getElementById('rptTh').value,d=document.getElementById('rptDp').value,l=document.getElementById('rptLc').value,s=document.getElementById('rptSt').value;return REQS.filter(r=>(!t||r.theme===t)&&(!d||r.dept===d)&&(!l||r.loc===l)&&(!s||r.status===s));}
+function prevReport(){
+  const data=getFilt();document.getElementById('rptPrevCard').style.display='block';
+  const maxVer=data.reduce((m,r)=>Math.max(m,r.version||1),1);
+  const tbl=document.getElementById('rptTbl');
+  const vHdrs=Array.from({length:maxVer},(_,i)=>`<th>V${i+1}(₹)</th>`).join('');
+  tbl.innerHTML=`<thead><tr><th>Ref#</th><th>Ver</th><th>Project Name</th><th>GL</th><th>Theme</th><th>Dept</th><th>Location</th><th>Founder</th><th>Budget(₹)</th>${vHdrs}<th>SR(₹)</th><th>IO(₹)</th><th>Actual(₹)</th><th>Status</th><th>By</th><th>Date</th></tr></thead><tbody>${data.length?data.map(r=>{
+    const vers=r.budVersions||[{v:1,bud:r.bud}];const vCells=Array.from({length:maxVer},(_,i)=>`<td class="amt">${vers[i]?fmt(vers[i].bud):'—'}</td>`).join('');
+    const srV=SR_R.filter(s=>s.budRef===r.ref).reduce((s,x)=>s+x.srVal,0);const ioV=IO_R.filter(i=>i.budRef===r.ref).reduce((s,x)=>s+x.ioVal,0);const ioIds=IO_R.filter(i=>i.budRef===r.ref).map(i=>i.id);const act=AC_R.filter(a=>ioIds.includes(a.ioId)).reduce((s,x)=>s+x.amount,0);
+    const sc=r.status==='returned'?'sp-ret':r.status==='approved'?'sp-a':r.status==='rejected'?'sp-r':'sp-p';
+    return `<tr><td>${r.ref}</td><td>v${r.version||1}</td><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis">${r.projName}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis" title="${r.gl}">${r.gl.substring(0,15)}…</td><td>${r.theme}</td><td>${r.dept}</td><td>${r.loc}</td><td>${r.founder||'—'}</td><td class="amt">${fmt(r.bud)}</td>${vCells}<td class="amt">${fmt(srV)}</td><td class="amt">${fmt(ioV)}</td><td class="amt">${fmt(act)}</td><td><span class="spill ${sc}">${r.status}</span></td><td>${r.byName}</td><td>${r.at}</td></tr>`;
+  }).join(''):'<tr><td colspan="30" style="text-align:center;padding:14px;color:var(--muted)">No data.</td></tr>'}</tbody>`;
+}
+function genReport(){
+  const data=getFilt();if(!data.length){toast('No data.','error');return;}
+  const maxVer=data.reduce((m,r)=>Math.max(m,r.version||1),1);
+  const vHdrs=Array.from({length:maxVer},(_,i)=>`V${i+1} Budget(₹)`);
+  const hdr=['Ref #','Version','Project Name','GL','Theme','Department','Location','Cluster','Unit','Founder','Budget(₹)',...vHdrs,'SR Value(₹)','IO Value(₹)','Actual Spend(₹)','Balance(₹)','Status','Submitted By','Date'];
+  const rows=data.map(r=>{
+    const vers=r.budVersions||[{v:1,bud:r.bud}];const vVals=Array.from({length:maxVer},(_,i)=>vers[i]?vers[i].bud:'');
+    const srV=SR_R.filter(s=>s.budRef===r.ref).reduce((s,x)=>s+x.srVal,0);const ioV=IO_R.filter(i=>i.budRef===r.ref).reduce((s,x)=>s+x.ioVal,0);const ioIds=IO_R.filter(i=>i.budRef===r.ref).map(i=>i.id);const act=AC_R.filter(a=>ioIds.includes(a.ioId)).reduce((s,x)=>s+x.amount,0);
+    return [r.ref,'v'+(r.version||1),r.projName,r.gl,r.theme,r.dept,r.loc,r.cluster||'',r.unit||'',r.founder||'',r.bud,...vVals,srV,ioV,act,r.bud-act,r.status,r.byName,r.at];
+  });
+  const csv=[hdr,...rows].map(r=>r.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='BudgetMgmt_'+new Date().toLocaleDateString('en-IN').replace(/\//g,'-')+'.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  toast('Report downloaded.','success');prevReport();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────
+function refreshDash(){
+  document.getElementById('stTot').textContent=REQS.length;document.getElementById('stPnd').textContent=REQS.filter(r=>r.status==='pending').length;document.getElementById('stRet').textContent=REQS.filter(r=>r.status==='returned').length;document.getElementById('stBud').textContent='₹'+fmt(REQS.reduce((s,r)=>s+r.bud,0));
+  const tb=document.getElementById('dashTb');if(!REQS.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">No requests yet.</td></tr>';return;}
+  tb.innerHTML=[...REQS].reverse().slice(0,8).map(r=>{const vb=r.version>1?`<span class="vbadge">v${r.version}</span>`:'';const sc=r.status==='returned'?'sp-ret':r.status==='approved'?'sp-a':r.status==='rejected'?'sp-r':'sp-p';return `<tr><td><strong style="font-family:'IBM Plex Mono',monospace">${r.ref}</strong>${vb}</td><td>v${r.version||1}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.projName}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.gl}">${r.gl.substring(0,18)}…</td><td>${r.loc}</td><td class="amt">₹ ${fmt(r.bud)}</td><td><span class="spill ${sc}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td><td><button class="btn bo bxs" onclick="viewReq('${r.ref}')">👁</button></td></tr>`;}).join('');
+}
+function updBadge(){const cnt=getMyApprovals().length;const b=document.getElementById('aBadge');b.textContent=cnt;b.style.display=cnt>0?'inline-block':'none';}
+
+// ── MODAL & TOAST ─────────────────────────────────────────────────
+function openMod(){document.getElementById('mainModal').classList.add('active');}
+function closeMod(){document.getElementById('mainModal').classList.remove('active');}
+document.getElementById('mainModal').addEventListener('click',e=>{if(e.target===document.getElementById('mainModal'))closeMod();});
+function toast(msg,type='info'){const c=document.getElementById('toastC');const t=document.createElement('div');t.className='toast '+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3600);}
+</script>
+</body>
+</html>
