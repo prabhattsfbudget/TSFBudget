@@ -232,7 +232,7 @@ const supabase = {
 // ============================================================
 // SUPABASE CONFIGURATION — Replace with your actual values
 // ============================================================
-const SUPABASE_URL     = 'https://hijjndsihiksrjdbegjv.supabase.co/rest/v1/';
+const SUPABASE_URL     = 'https://hijjndsihiksrjdbegjv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpampuZHNpaGlrc3JqZGJlZ2p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NDUzOTMsImV4cCI6MjA5NzAyMTM5M30.ZPe14MIihsF3HljRWIOlcUkOap7hEdNnJWwDSef77p8';
 
 // Safe lazy init — works even if CDN fails or not configured
@@ -262,17 +262,17 @@ async function dbGet(table, filters={}){
   const sb=getSB();if(!sb)return[];let q=sb.from(table).select('*');
   Object.entries(filters).forEach(([k,v])=>{ q = q.eq(k,v); });
   const {data,error} = await q;
-  if(error){ console.error(table,error); return []; }
+  if(error){ console.error('[Supabase select failed] table='+table+' | '+(error?.message||error)); return []; }
   return data||[];
 }
 async function dbUpsert(table, row){
   const sb2=getSB();if(!sb2)return false;const {error}=await sb2.from(table).upsert(row,{onConflict:Object.keys(row)[0]});
-  if(error) console.error('upsert',table,error);
+  if(error) console.error('[Supabase upsert failed] table='+table+' | '+(error?.message||error));
   return !error;
 }
 async function dbDelete(table, id_col, id_val){
   const sb3=getSB();if(!sb3)return false;const {error}=await sb3.from(table).delete().eq(id_col,id_val);
-  if(error) console.error('delete',table,error);
+  if(error) console.error('[Supabase delete failed] table='+table+' | '+(error?.message||error));
   return !error;
 }
 
@@ -1388,7 +1388,7 @@ function buildApprovalPrev(cid){
 }
 
 // ── SUBMIT NEW REQUEST ────────────────────────────────────────────
-function submitReq(){
+function _submitReqCore(){
   const gl=document.getElementById('selGL').value,da=document.getElementById('selDA').value;
   const bt=document.getElementById('selBT').value,founder=document.getElementById('selFounder').value;
   const loc=document.getElementById('selLoc').value,projName=document.getElementById('projName').value.trim();
@@ -1522,7 +1522,7 @@ function renderApprovals(){
     return `<div class="card" style="margin-bottom:8px"><div class="cbody" style="padding:10px"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><div><strong style="color:var(--pri)">${r.ref}</strong>${vb} <strong style="margin-left:5px">${r.projName}</strong><span class="tmuted" style="margin-left:5px">${r.gl.substring(0,30)}</span></div><div style="display:flex;gap:5px"><strong style="font-family:'IBM Plex Mono',monospace;color:var(--suc)">₹ ${fmt(r.bud)}</strong><button class="btn bs bxs" onclick="openApproveWithComment('${r.ref}')">✅ Approve</button><button class="btn br bxs" onclick="openRetMod('${r.ref}')">↩</button><button class="btn bd bxs" onclick="openRejMod('${r.ref}')">❌</button><button class="btn bo bxs" onclick="viewReq('${r.ref}')">👁</button></div></div><div class="tmuted" style="margin-top:4px">${r.byName} | ${r.at} | ${r.loc}</div></div></div>`;
   }).join('')+'</div>';
 }
-function approveR(ref,rmk='Approved'){
+function _approveRCore(ref,rmk='Approved'){
   const r=REQS.find(x=>x.ref===ref);if(!r)return;
   const a=r.appr.find(x=>x.l===CU.level);if(a){a.st='approved';a.by=CU.name;a.at=new Date().toLocaleDateString('en-IN');a.rmk=rmk;}
   r.hist.push({v:r.version||1,act:'Approved',by:CU.name,role:CU.role,at:new Date().toLocaleDateString('en-IN'),note:rmk});
@@ -1541,7 +1541,7 @@ function openRetMod(ref){
   document.getElementById('mFtr').innerHTML=`<button class="btn bo" onclick="closeMod()">Cancel</button><button class="btn br" onclick="confRet('${ref}')">↩ Return to Initiator</button>`;
   openMod();
 }
-function confRet(ref){
+function _confRetCore(ref){
   const rmk=document.getElementById('retRmk').value.trim()||'Please review and resubmit.';
   const r=REQS.find(x=>x.ref===ref);if(!r)return;
   const a=r.appr.find(x=>x.l===CU.level);if(a){a.st='returned';a.by=CU.name;a.at=new Date().toLocaleDateString('en-IN');a.rmk=rmk;}
@@ -1554,7 +1554,7 @@ function openRejMod(ref){
   document.getElementById('mBody').innerHTML=`<div class="wbox">Permanent rejection. Use Return to allow revision.</div><div class="fg"><label>Reason</label><textarea id="rejRmk" style="min-height:70px"></textarea></div>`;
   document.getElementById('mFtr').innerHTML=`<button class="btn bo" onclick="closeMod()">Cancel</button><button class="btn bd" onclick="confRej('${ref}')">❌ Confirm</button>`;openMod();
 }
-function confRej(ref){
+function _confRejCore(ref){
   const rmk=document.getElementById('rejRmk').value.trim()||'Rejected.';
   const r=REQS.find(x=>x.ref===ref);if(!r)return;
   const a=r.appr.find(x=>x.l===CU.level);if(a){a.st='rejected';a.by=CU.name;a.at=new Date().toLocaleDateString('en-IN');a.rmk=rmk;}
@@ -1579,7 +1579,7 @@ function openEdit(ref){
   hideAll();document.getElementById('editScreen').classList.add('active');
 }
 function closeEdit(){document.getElementById('editScreen').classList.remove('active');}
-function resubmit(){
+function _resubmitCore(){
   const ref=document.getElementById('editRef').value,projName=document.getElementById('eProjName').value.trim(),desc=document.getElementById('eDesc').value.trim(),note=document.getElementById('eNote').value.trim();
   if(!projName||!desc){toast('Project Name and Description required.','error');return;}
   const items=[];let total=0;
@@ -1879,20 +1879,17 @@ function addAdminLog(action, byName, note, ref=''){
   localStorage.setItem('bps_logs',JSON.stringify(LOGS));
 }
 // Patch existing functions to log
-const _origApproveR = approveR;
 async function approveR(ref, rmk){
   addAdminLog('Approved', CU?.name||'—', rmk||'Approved', ref);
-  return _origApproveR(ref, rmk);
+  return _approveRCore(ref, rmk);
 }
-const _origConfRet = confRet;
 function confRet(ref){
   addAdminLog('Returned', CU?.name||'—', document.getElementById('retRmk')?.value||'Returned', ref);
-  return _origConfRet(ref);
+  return _confRetCore(ref);
 }
-const _origConfRej = confRej;
 function confRej(ref){
   addAdminLog('Rejected', CU?.name||'—', document.getElementById('rejRmk')?.value||'Rejected', ref);
-  return _origConfRej(ref);
+  return _confRejCore(ref);
 }
 
 // ── SHOW ADMIN PANEL ─────────────────────────────────────────
@@ -2086,17 +2083,15 @@ window.addEventListener('load',()=>{
 });
 
 // ── LOG SUBMIT/RESUBMIT ACTIONS ───────────────────────────────
-const _origSubmitReq=submitReq;
 async function submitReq(){
   const pn=document.getElementById('projName')?.value.trim()||'';
-  await _origSubmitReq();
+  await _submitReqCore();
   addAdminLog('Submitted',CU?.name||'—','New budget request: '+pn);
 }
-const _origResubmit=resubmit;
 function resubmit(){
   const ref=document.getElementById('editRef')?.value||'';
   addAdminLog('Resubmitted',CU?.name||'—','Edited and resubmitted',ref);
-  return _origResubmit();
+  return _resubmitCore();
 }
 
 </script>
