@@ -2,11 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Budget Management System — FY27</title>
+<title>Budget Management System v2 — FY27</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--pri:#1a3a5c;--prl:#2563a8;--acc:#e8b84b;--acl:#fdf3d8;--suc:#1e7e4a;--scl:#d4edda;--dan:#c0392b;--war:#f39c12;--ret:#7b2d8b;--bg:#f0f4f8;--card:#fff;--bdr:#cdd5e0;--txt:#1a2332;--muted:#5a6a7e;--side:#0f2540;--sw:260px;--hh:62px;--rad:6px;--sh:0 2px 8px rgba(0,0,0,.08);--shm:0 4px 16px rgba(0,0,0,.12)}
+:root{--pri:#1a3a5c;--prl:#2563a8;--acc:#e8b84b;--acl:#fdf3d8;--suc:#1e7e4a;--scl:#d4edda;--dan:#c0392b;--war:#f39c12;--ret:#7b2d8b;--bg:#f0f4f8;--card:#fff;--bdr:#cdd5e0;--txt:#1a2332;--muted:#5a6a7e;--side:#0f2540;--sw:220px;--sw-collapsed:58px;--hh:62px;--rad:6px;--sh:0 2px 8px rgba(0,0,0,.08);--shm:0 4px 16px rgba(0,0,0,.12)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
 .overlay{min-height:100vh;display:none;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f2540,#1a3a5c);position:fixed;inset:0;z-index:1000}
@@ -36,8 +39,22 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt
 .fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 .fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
 .fgrid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
-#appScreen{display:none;min-height:100vh}#appScreen.active{display:flex}
-.sidebar{width:var(--sw);background:var(--side);min-height:100vh;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100}
+#appScreen{display:none;min-height:100vh}#appScreen.active{display:flex;flex-direction:row;align-items:flex-start;min-height:100vh}
+.sidebar{width:var(--sw);min-width:var(--sw);background:var(--side);min-height:100vh;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;z-index:200;transition:width .25s cubic-bezier(.4,0,.2,1),min-width .25s cubic-bezier(.4,0,.2,1);overflow:hidden;flex-shrink:0;overflow-y:auto}
+.sidebar.collapsed{width:var(--sw-collapsed);min-width:var(--sw-collapsed)}
+.sidebar.collapsed .brand,.sidebar.collapsed .uinfo,.sidebar.collapsed .nav-lbl,.sidebar.collapsed .ni .ni-label,.sidebar.collapsed .sb-ftr .lo-label{display:none!important}
+.sidebar.collapsed .sb-logo{justify-content:center;padding:0}
+.sidebar.collapsed .ucard{justify-content:center;padding:10px 0}
+.sidebar.collapsed .uav{margin:0 auto}
+.sidebar.collapsed .ni{justify-content:center;padding:10px 0;border-radius:6px;overflow:hidden}
+.sidebar.collapsed .ni .ico{margin:0;font-size:18px}
+.sidebar.collapsed .sb-ftr{padding:8px 4px}
+.sidebar.collapsed .btn-lo{width:38px;padding:0;justify-content:center;border-radius:50%}
+.sidebar.collapsed .btn-lo .lo-icon{margin:0}
+.sb-toggle{position:absolute;right:-13px;top:22px;z-index:300;width:26px;height:26px;border-radius:50%;background:var(--pri);border:2px solid #fff;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25);flex-shrink:0}
+.ni .ni-label{flex:1}
+.ni .ico{min-width:20px;text-align:center;font-size:15px}
+.sidebar.collapsed .ni[title]:hover::after{content:attr(title);position:fixed;left:70px;background:#1a3a5c;color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;white-space:nowrap;z-index:999;pointer-events:none}
 .sb-hdr{padding:14px 14px 11px;border-bottom:1px solid rgba(255,255,255,.08)}
 .sb-logo{display:flex;align-items:center;gap:9px}
 .sb-logo .icon{width:32px;height:32px;background:var(--acc);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px}
@@ -54,7 +71,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt
 .sb-ftr{margin-top:auto;padding:11px;border-top:1px solid rgba(255,255,255,.08)}
 .btn-lo{width:100%;padding:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;color:rgba(255,255,255,.6);font-family:inherit;font-size:12px;cursor:pointer;transition:all .15s}
 .btn-lo:hover{background:rgba(255,255,255,.12);color:#fff}
-.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
 .topbar{height:var(--hh);background:#fff;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:50;box-shadow:var(--sh)}
 .tb-title{font-size:14px;font-weight:700;color:var(--pri)}.tb-sub{font-size:11px;color:var(--muted);margin-top:1px}
 .page{display:none;padding:18px}.page.active{display:block}
@@ -306,6 +323,7 @@ async function loadAllData(){
     if(acts && acts.length >= 0) AC_R = acts.map(mapAct);
     hideLoader();
     console.log('Loaded from Supabase:', REQS.length,'requests');
+    await loadAllNewData();
   } catch(e){
     console.error('Supabase load error:',e);
     toast('Using local data. Check Supabase connection.','warn');
@@ -396,6 +414,7 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
         <button class="dbtn" onclick="ql('pateam1')">P&amp;A Team</button>
         <button class="dbtn" onclick="ql('coo1')">COO/CEO</button>
         <button class="dbtn" onclick="ql('fa1')">F&amp;A Staff</button>
+        <button class="dbtn" onclick="ql('sc1')">Supply Chain</button>
         <button class="dbtn" onclick="ql('admin')" style="background:#2d1b4e;color:#e8b84b;border-color:#2d1b4e">🛡️ Admin</button>
       </div>
     </div>
@@ -476,26 +495,34 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
 
 <!-- APP -->
 <div id="appScreen">
-  <div class="sidebar">
+  <div class="sidebar" id="mainSidebar" style="position:relative">
+    <button class="sb-toggle" id="sbToggle" onclick="toggleSidebar()" title="Toggle sidebar">◀</button>
     <div class="sb-hdr"><div class="sb-logo"><div class="icon">📊</div><div class="brand">BudgetMS <small>FY 2026-27</small></div></div></div>
     <div class="ucard">
       <div class="uav" id="sbAv">U</div>
       <div class="uinfo"><div class="uname" id="sbNm">—</div><div class="urole" id="sbRl">—</div><div class="uloc" id="sbLc">—</div><div style="font-size:10px;margin-top:3px;color:rgba(255,255,255,.4)" id="sbMode">🟡 Local Storage</div></div>
     </div>
     <div class="nav-lbl">Navigation</div>
-    <div class="ni active" onclick="nav('dashboard',this)"><span class="ico">🏠</span> Dashboard</div>
-    <div class="ni" id="navBM" onclick="nav('budgetMgmt',this)"><span class="ico">💼</span> Budget Management</div>
-    <div class="ni" id="navMine" onclick="nav('myReqs',this)"><span class="ico">📋</span> My Requests</div>
-    <div class="ni" id="navApp" onclick="nav('approvals',this)" style="display:none"><span class="ico">✅</span> Pending Approvals <span class="nbadge" id="aBadge">0</span></div>
-    <div class="ni" id="navCon" onclick="nav('consolidated',this)" style="display:none"><span class="ico">📈</span> Consolidated View</div>
-    <div class="ni" id="navFA" onclick="nav('faModule',this)" style="display:none"><span class="ico">💰</span> F&amp;A / Actual Spend</div>
-    <div class="ni" onclick="nav('report',this)"><span class="ico">📥</span> Export Report</div>
-    <div class="sb-ftr"><button class="btn-lo" onclick="doLogout()">⎋ Sign Out</button></div>
+    <div class="ni active" onclick="nav('dashboard',this)" title="Dashboard"><span class="ico">🏠</span><span class="ni-label">Dashboard</span></div>
+    <div class="ni" id="navBM" onclick="nav('budgetMgmt',this)" title="Budget Management"><span class="ico">💼</span><span class="ni-label">Budget Management</span></div>
+    <div class="ni" id="navMine" onclick="nav('myReqs',this)" title="My Requests"><span class="ico">📋</span><span class="ni-label">My Requests</span></div>
+    <div class="ni" id="navApp" onclick="nav('approvals',this)" title="Approvals" style="display:none"><span class="ico">✅</span><span class="ni-label">Pending Approvals </span><span class="nbadge" id="aBadge">0</span></div>
+    <div class="ni" id="navCon" onclick="nav('consolidated',this)" title="Consolidated View" style="display:none"><span class="ico">📈</span><span class="ni-label">Consolidated View</span></div>
+    <div class="ni" id="navFA" onclick="nav('faModule',this)" title="F&A Module" style="display:none"><span class="ico">💰</span><span class="ni-label">F&amp;A Module</span></div>
+    <div class="ni" id="navSR" onclick="nav('srModule',this)" title="SR Management" style="display:none"><span class="ico">📋</span><span class="ni-label">SR Management</span></div>
+    <div class="ni" id="navIO" onclick="nav('ioModule',this)" title="IO Management" style="display:none"><span class="ico">📄</span><span class="ni-label">IO Management</span></div>
+    <div class="ni" id="navPR" onclick="nav('prModule',this)" title="PR / MRF" style="display:none"><span class="ico">🛒</span><span class="ni-label">PR / MRF</span></div>
+    <div class="ni" id="navWO" onclick="nav('woModule',this)" title="WO/PO/RO" style="display:none"><span class="ico">📦</span><span class="ni-label">WO/PO/RO</span></div>
+    <div class="ni" id="navImpl" onclick="nav('implModule',this)" title="Implementation" style="display:none"><span class="ico">🔧</span><span class="ni-label">Implementation</span></div>
+    <div class="ni" id="navClosure" onclick="nav('closureModule',this)" title="Closure" style="display:none"><span class="ico">✅</span><span class="ni-label">Closure</span></div>
+    <div class="ni" id="navSaving" onclick="nav('savingModule',this)" title="Savings" style="display:none"><span class="ico">💰</span><span class="ni-label">Savings</span></div>
+    <div class="ni" onclick="nav('report',this)" title="Export Report"><span class="ico">📥</span><span class="ni-label">Export Report</span></div>
+    <div class="sb-ftr"><button class="btn-lo" onclick="doLogout()"><span class="lo-icon">⎋</span><span class="lo-label"> Sign Out</span></button></div>
   </div>
 
-  <div class="main">
+  <div class="main" id="mainContent" style="position:relative">
     <div class="topbar">
-      <div><div class="tb-title" id="pgTitle">Dashboard</div><div class="tb-sub">Budget Management System — FY 2026-27</div></div>
+      <div><div class="tb-title" id="pgTitle">Dashboard</div><div class="tb-sub">Budget Management System v2 — FY 2026-27</div></div>
       <span class="tmuted" id="topUser">—</span>
     </div>
     <!-- FREEZE BANNER -->
@@ -509,11 +536,82 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
 
     <!-- DASHBOARD -->
     <div id="page-dashboard" class="page active">
-      <div class="stats-g">
-        <div class="stat"><div class="s-ico">📝</div><div class="s-val" id="stTot">0</div><div class="s-lbl">Total Requests</div></div>
-        <div class="stat"><div class="s-ico">⏳</div><div class="s-val" id="stPnd">0</div><div class="s-lbl">Pending</div></div>
-        <div class="stat"><div class="s-ico">↩️</div><div class="s-val" id="stRet">0</div><div class="s-lbl">Returned</div></div>
-        <div class="stat"><div class="s-ico">💰</div><div class="s-val" id="stBud">₹0</div><div class="s-lbl">Total Budget</div></div>
+      <style>
+      .pipeline-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}
+      .p-card{background:#fff;border-radius:8px;border:1px solid var(--bdr);box-shadow:var(--sh);padding:13px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+      .p-card:hover{transform:translateY(-2px);box-shadow:var(--shm);border-color:var(--prl)}
+      .p-card .pc-icon{font-size:18px;margin-bottom:5px}
+      .p-card .pc-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+      .p-card .pc-val{font-size:18px;font-weight:700;color:var(--pri);font-family:'IBM Plex Mono',monospace;margin:2px 0}
+      .p-card .pc-bar{height:4px;border-radius:2px;background:#e0e0e0;margin-top:8px;overflow:hidden}
+      .p-card .pc-fill{height:100%;border-radius:2px;transition:width .5s ease}
+      .p-card .pc-pct{font-size:10px;color:var(--muted);margin-top:3px}
+      .p-card.bud{border-top:3px solid #1a3a5c}
+      .p-card.sr{border-top:3px solid #2563a8}
+      .p-card.io{border-top:3px solid #0891b2}
+      .p-card.pr{border-top:3px solid #7c3aed}
+      .p-card.wo{border-top:3px solid #059669}
+      .p-card.impl{border-top:3px solid #d97706}
+      .p-card.clos{border-top:3px solid #dc2626}
+      .p-card.sav{border-top:3px solid #16a34a}
+      </style>
+      <div class="pipeline-cards">
+        <div class="p-card bud" onclick="openDashDetail('budget')">
+          <div class="pc-icon">💼</div>
+          <div class="pc-label">Budget</div>
+          <div class="pc-val" id="dBud">₹0</div>
+          <div class="pc-bar"><div class="pc-fill" id="dBudF" style="width:100%;background:#1a3a5c"></div></div>
+          <div class="pc-pct" id="dBudP">Total Approved Budget</div>
+        </div>
+        <div class="p-card sr" onclick="openDashDetail('sr')">
+          <div class="pc-icon">📋</div>
+          <div class="pc-label">SR (Sanction Request)</div>
+          <div class="pc-val" id="dSR">₹0</div>
+          <div class="pc-bar"><div class="pc-fill" id="dSRF" style="width:0%;background:#2563a8"></div></div>
+          <div class="pc-pct" id="dSRP">0% of Budget</div>
+        </div>
+        <div class="p-card io" onclick="openDashDetail('io')">
+          <div class="pc-icon">📄</div>
+          <div class="pc-label">IO (Internal Order)</div>
+          <div class="pc-val" id="dIO">₹0</div>
+          <div class="pc-bar"><div class="pc-fill" id="dIOF" style="width:0%;background:#0891b2"></div></div>
+          <div class="pc-pct" id="dIOP">0% of Budget</div>
+        </div>
+        <div class="p-card pr" onclick="openDashDetail('pr')">
+          <div class="pc-icon">🛒</div>
+          <div class="pc-label">PR / MRF</div>
+          <div class="pc-val" id="dPR">₹0</div>
+          <div class="pc-bar"><div class="pc-fill" id="dPRF" style="width:0%;background:#7c3aed"></div></div>
+          <div class="pc-pct" id="dPRP">0% of Budget</div>
+        </div>
+        <div class="p-card wo" onclick="openDashDetail('wo')">
+          <div class="pc-icon">📦</div>
+          <div class="pc-label">WO/PO/RO</div>
+          <div class="pc-val" id="dWO">₹0</div>
+          <div class="pc-bar"><div class="pc-fill" id="dWOF" style="width:0%;background:#059669"></div></div>
+          <div class="pc-pct" id="dWOP">0% of Budget</div>
+        </div>
+        <div class="p-card impl" onclick="openDashDetail('impl')">
+          <div class="pc-icon">🔧</div>
+          <div class="pc-label">Implementation</div>
+          <div class="pc-val" id="dImpl">₹0</div>
+          <div class="pc-bar"><div class="pc-fill" id="dImplF" style="width:0%;background:#d97706"></div></div>
+          <div class="pc-pct" id="dImplP">0% of Budget</div>
+        </div>
+        <div class="p-card clos" onclick="openDashDetail('closure')">
+          <div class="pc-icon">✅</div>
+          <div class="pc-label">Closure</div>
+          <div class="pc-val" id="dClos">0 Projects</div>
+          <div class="pc-bar"><div class="pc-fill" id="dClosF" style="width:0%;background:#dc2626"></div></div>
+          <div class="pc-pct" id="dClosP">0% Closed</div>
+        </div>
+        <div class="p-card sav" onclick="openDashDetail('saving')">
+          <div class="pc-icon">💰</div>
+          <div class="pc-label">Savings</div>
+          <div class="pc-val" id="dSav">₹0</div>
+          <div class="pc-bar"><div class="pc-fill" id="dSavF" style="width:0%;background:#16a34a"></div></div>
+          <div class="pc-pct" id="dSavP">Budget vs Final Booking</div>
+        </div>
       </div>
       <div class="card">
         <div class="card-hdr"><h3>📋 Recent Requests</h3></div>
@@ -704,6 +802,14 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
             <div class="card-hdr"><h3>Reason &amp; Approval Path</h3></div>
             <div class="cbody">
               <div class="fg"><label>Reason for Change <span class="req">*</span></label><textarea id="chgReason" style="min-height:80px" placeholder="Justify the budget revision..."></textarea></div>
+              <div class="fg"><label>Variance Management <span class="req">*</span></label>
+                <select id="chgVarianceMgmt">
+                  <option value="">— Select Option —</option>
+                  <option value="gl_manage">Manage via GL Transfer</option>
+                  <option value="saving">Convert to Budget Saving</option>
+                </select>
+              </div>
+              <div class="fg" id="chgVarianceGLWrap" style="display:none"><label>Target GL for Variance</label><select id="chgVarianceGL"><option value="">— Select GL —</option></select></div>
               <div id="chgAppPrev"></div>
             </div>
             <div class="aact">
@@ -753,7 +859,7 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
             <tbody id="conTb"></tbody>
           </table>
           <div id="conAppSec" style="margin-top:11px;display:none">
-            <button class="btn bs" onclick="conApprove()">✅ Approve All Pending</button>
+            <button class="btn bs" onclick="conApprove()">✅ Approve Provision All Pending</button>
           </div>
         </div>
       </div>
@@ -916,6 +1022,406 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
 </div>
 
 
+
+
+<!-- SR MODULE (User/Prog Team) -->
+<div id="page-srModule" class="page">
+  <div class="card">
+    <div class="card-hdr">
+      <h3>📋 SR Management — Sanction Request</h3>
+      <div style="display:flex;gap:7px">
+        <button class="btn ba bsm" onclick="document.getElementById('srUserBulk').click()">⬆ Bulk Upload</button>
+        <input type="file" id="srUserBulk" style="display:none" accept=".csv" onchange="bulkSRUser(this)"/>
+        <button class="btn bo bsm" onclick="dlTpl(['Budget Ref','SR Number','SR Value','Delivery Arm','Budget Type','Date'],'SR_Template.csv')">⬇ Template</button>
+      </div>
+    </div>
+    <div class="cbody">
+      <div class="fgrid2" style="margin-bottom:10px">
+        <div class="fg"><label>Select Approved Request <span class="req">*</span></label><select id="srUserReqSel" onchange="onSRUserSel()"><option value="">— Select —</option></select></div>
+        <div class="fg"><label>SR Date</label><input type="date" id="srUserDate"/></div>
+      </div>
+      <div id="srUserTableWrap" style="display:none">
+        <div style="overflow-x:auto;margin-bottom:8px">
+          <table class="item-tbl" style="min-width:860px">
+            <thead><tr><th>GL</th><th>Theme</th><th>Department</th><th>Prog Type</th><th>Delivery Arm</th><th>Budget Type</th><th>Location</th><th>SR Number</th><th>SR Value (₹)</th><th></th></tr></thead>
+            <tbody id="srUserTBody"></tbody>
+          </table>
+        </div>
+        <button class="btn bp bsm" onclick="addSRUserRow()">+ Add Row</button>
+      </div>
+    </div>
+    <div class="aact" id="srUserAct" style="display:none">
+      <button class="btn bo" onclick="resetSRUser()">Clear</button>
+      <button class="btn bp" onclick="submitSRUser()">💾 Submit SR Entry</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><h3>SR Submission Records</h3></div>
+    <div style="overflow-x:auto">
+      <table class="blist-tbl" style="width:100%">
+        <thead><tr><th>SR Ref</th><th>Budget Ref</th><th>Project</th><th>GL</th><th>Location</th><th>SR Number</th><th>SR Value(₹)</th><th>Date</th><th>By</th><th></th></tr></thead>
+        <tbody id="srUserRecTb"><tr><td colspan="10" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- IO MODULE (User IO Request + F&A IO Issue) -->
+<div id="page-ioModule" class="page">
+  <!-- IO Request by User -->
+  <div class="card" id="ioRequestCard">
+    <div class="card-hdr"><h3>📄 IO Request — Based on SR</h3></div>
+    <div class="cbody">
+      <div class="ibox">Programme Team submits IO requests based on approved SR. F&A Team reviews and issues the IO Number.</div>
+      <div class="fgrid2">
+        <div class="fg"><label>Select SR Record <span class="req">*</span></label>
+          <select id="ioReqSRSel" onchange="onIOReqSRSel()"><option value="">— Select SR —</option></select>
+        </div>
+        <div class="fg"><label>IO Request Date</label><input type="date" id="ioReqDate"/></div>
+      </div>
+      <div id="ioReqDetails" style="display:none">
+        <div class="fgrid2">
+          <div class="fg"><label>Budget Ref</label><input id="ioReqBudRef" readonly class="auto-field"/></div>
+          <div class="fg"><label>SR Number</label><input id="ioReqSRNo" readonly class="auto-field"/></div>
+          <div class="fg"><label>SR Value (₹)</label><input id="ioReqSRVal" readonly class="auto-field"/></div>
+          <div class="fg"><label>GL</label><input id="ioReqGL" readonly class="auto-field" style="font-size:11px"/></div>
+        </div>
+        <div class="fg" style="margin-top:8px">
+          <label>IO Description <span class="req">*</span></label>
+          <textarea id="ioReqDesc" style="min-height:80px" placeholder="Enter full IO description — scope of work, vendor details, purpose..."></textarea>
+        </div>
+        <div class="fg">
+          <label>IO Amount Requested (₹) <span class="req">*</span></label>
+          <input type="number" id="ioReqAmt" placeholder="Amount in ₹"/>
+        </div>
+      </div>
+    </div>
+    <div class="aact" id="ioReqAct" style="display:none">
+      <button class="btn bo" onclick="resetIOReq()">Clear</button>
+      <button class="btn bp" onclick="submitIOReq()">📤 Submit IO Request</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><h3>IO Request History</h3></div>
+    <div style="overflow-x:auto">
+      <table class="blist-tbl" style="width:100%">
+        <thead><tr><th>IO Req Ref</th><th>Budget Ref</th><th>SR No.</th><th>GL</th><th>Description</th><th>Amount(₹)</th><th>Date</th><th>Status</th><th>IO No. (F&A)</th></tr></thead>
+        <tbody id="ioUserReqTb"><tr><td colspan="9" style="text-align:center;padding:14px;color:var(--muted)">No requests.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <!-- IO Issue by F&A -->
+  <div class="card" id="ioIssueCard" style="display:none">
+    <div class="card-hdr"><h3>🔖 IO Number Issue — F&A Team</h3></div>
+    <div class="cbody">
+      <div class="ibox">F&A Team reviews pending IO requests and issues IO Numbers.</div>
+      <div style="overflow-x:auto">
+        <table class="blist-tbl" style="width:100%">
+          <thead><tr><th>IO Req Ref</th><th>Budget Ref</th><th>SR No.</th><th>GL</th><th>Description</th><th>Requested(₹)</th><th>By</th><th>Date</th><th>Issue IO No.</th><th>Action</th></tr></thead>
+          <tbody id="ioPendingTb"><tr><td colspan="10" style="text-align:center;padding:14px;color:var(--muted)">No pending requests.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!-- All IO Records -->
+  <div class="card">
+    <div class="card-hdr"><h3>All IO Records</h3></div>
+    <div style="overflow-x:auto">
+      <table class="blist-tbl" style="width:100%">
+        <thead><tr><th>IO Ref</th><th>Budget Ref</th><th>Project</th><th>GL</th><th>IO No.</th><th>IO Value(₹)</th><th>Description</th><th>Date</th><th>By</th></tr></thead>
+        <tbody id="ioAllRecTb"><tr><td colspan="9" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PR/MRF MODULE (User) -->
+<div id="page-prModule" class="page">
+  <div class="card">
+    <div class="card-hdr">
+      <h3>🛒 PR / MRF — Purchase & Material Requisition</h3>
+      <button class="btn bp bsm" onclick="addPRMRFRow()">+ Add Row</button>
+    </div>
+    <div class="cbody">
+      <div class="ibox">Enter Purchase Requisition (PR) and Material Requisition Form (MRF) details for the project.</div>
+      <div class="fgrid2" style="margin-bottom:10px">
+        <div class="fg"><label>Select Project (Approved Budget) <span class="req">*</span></label>
+          <select id="prReqSel" onchange="onPRSel()"><option value="">— Select —</option></select>
+        </div>
+        <div class="fg"><label>Date</label><input type="date" id="prDate"/></div>
+      </div>
+      <div id="prTableWrap" style="display:none">
+        <div style="overflow-x:auto">
+          <table class="item-tbl" style="min-width:900px">
+            <thead><tr><th>Type</th><th>PR/MRF Number</th><th>Description</th><th>GL</th><th>Amount (₹)</th><th>Vendor/Supplier</th><th></th></tr></thead>
+            <tbody id="prTBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="aact" id="prAct" style="display:none">
+      <button class="btn bo" onclick="resetPR()">Clear</button>
+      <button class="btn bp" onclick="submitPR()">💾 Submit PR / MRF</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><h3>PR/MRF Records</h3></div>
+    <div style="overflow-x:auto">
+      <table class="blist-tbl" style="width:100%">
+        <thead><tr><th>Ref</th><th>Type</th><th>PR/MRF No.</th><th>Budget Ref</th><th>GL</th><th>Description</th><th>Amount(₹)</th><th>Vendor</th><th>Date</th><th>By</th><th></th></tr></thead>
+        <tbody id="prRecTb"><tr><td colspan="11" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- WO/PO/RO MODULE (Supply Chain) -->
+<div id="page-woModule" class="page">
+  <div class="card">
+    <div class="card-hdr">
+      <h3>📦 WO/PO/RO — Work/Purchase/Release Orders</h3>
+      <div style="display:flex;gap:7px">
+        <button class="btn ba bsm" onclick="document.getElementById('woBulk').click()">⬆ Bulk Upload</button>
+        <input type="file" id="woBulk" style="display:none" accept=".csv" onchange="bulkWO(this)"/>
+        <button class="btn bo bsm" onclick="dlTpl(['Budget Ref','GL','Order Type','Order Number','Order Value','Stage','Date'],'WO_PO_RO_Template.csv')">⬇ Template</button>
+      </div>
+    </div>
+    <div class="cbody">
+      <div class="fgrid2" style="margin-bottom:10px">
+        <div class="fg"><label>Select Project (Approved Budget) <span class="req">*</span></label>
+          <select id="woReqSel" onchange="onWOSel()"><option value="">— Select —</option></select>
+        </div>
+        <div class="fg"><label>Date</label><input type="date" id="woDate"/></div>
+      </div>
+      <div id="woTableWrap" style="display:none">
+        <div style="overflow-x:auto">
+          <table class="item-tbl" style="min-width:900px">
+            <thead><tr><th>Order Type</th><th>Order Number</th><th>GL</th><th>Order Value (₹)</th><th>Stage</th><th>Vendor</th><th></th></tr></thead>
+            <tbody id="woTBody"></tbody>
+          </table>
+        </div>
+        <button class="btn bp bsm" style="margin-top:8px" onclick="addWORow()">+ Add Row</button>
+      </div>
+    </div>
+    <div class="aact" id="woAct" style="display:none">
+      <button class="btn bo" onclick="resetWO()">Clear</button>
+      <button class="btn bp" onclick="submitWO()">💾 Submit WO / PO / RO</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><h3>WO/PO/RO Records</h3>
+      <select id="woFilter" onchange="renderWORec()" style="padding:5px 8px;font-size:12px;border:1px solid var(--bdr);border-radius:4px">
+        <option value="">All</option><option value="Initiated">Initiated</option><option value="Released">Released</option>
+        <option value="WO">Work Order</option><option value="PO">Purchase Order</option><option value="RO">Release Order</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="blist-tbl" style="width:100%">
+        <thead><tr><th>Ref</th><th>Type</th><th>Order No.</th><th>Budget Ref</th><th>GL</th><th>Value(₹)</th><th>Stage</th><th>Vendor</th><th>Date</th><th>By</th><th></th></tr></thead>
+        <tbody id="woRecTb"><tr><td colspan="11" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- IMPLEMENTATION MODULE -->
+<div id="page-implModule" class="page">
+  <!-- Provision Booking -->
+  <div class="card">
+    <div class="card-hdr"><h3>🔧 Implementation — Provision Booking</h3></div>
+    <div class="cbody">
+      <div class="ibox">Enter GL-wise provision booking. Upon submission, F&A Team will review and approve the entry.</div>
+      <div class="fgrid2">
+        <div class="fg"><label>Select Project <span class="req">*</span></label>
+          <select id="provReqSel" onchange="onProvSel()"><option value="">— Select —</option></select>
+        </div>
+        <div class="fg"><label>Provision Date</label><input type="date" id="provDate"/></div>
+      </div>
+      <div id="provDetails" style="display:none">
+        <div class="fgrid2" style="margin-bottom:10px">
+          <div class="fg"><label>GL</label><input id="provGL" readonly class="auto-field" style="font-size:11px"/></div>
+          <div class="fg"><label>Budget Ref</label><input id="provBudRef" readonly class="auto-field"/></div>
+          <div class="fg"><label>Budget Amount(₹)</label><input id="provBudAmt" readonly class="auto-field"/></div>
+          <div class="fg"><label>Provision Amount(₹) <span class="req">*</span></label><input type="number" id="provAmt" placeholder="₹"/></div>
+        </div>
+        <div class="fg"><label>Description / Remarks</label><textarea id="provDesc" style="min-height:60px" placeholder="Enter provision details..."></textarea></div>
+      </div>
+    </div>
+    <div class="aact" id="provAct" style="display:none">
+      <button class="btn bo" onclick="resetProv()">Clear</button>
+      <button class="btn bp" onclick="submitProv()">📤 Submit Provision Booking</button>
+    </div>
+  </div>
+  <!-- F&A Provisioning Approval -->
+  <div class="card" id="provApprovalCard" style="display:none">
+    <div class="card-hdr"><h3>✅ F&A — Provisioning Approval</h3></div>
+    <div class="cbody">
+      <table class="blist-tbl" style="width:100%">
+        <thead><tr><th>Prov Ref</th><th>Budget Ref</th><th>GL</th><th>Amount(₹)</th><th>By</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="provPendingTb"><tr><td colspan="8" style="text-align:center;padding:14px;color:var(--muted)">No pending provisions.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Final Billing -->
+  <div class="card">
+    <div class="card-hdr"><h3>🧾 Final Billing — GRN / SES</h3></div>
+    <div class="cbody">
+      <div class="fgrid2">
+        <div class="fg"><label>Select Approved Provision <span class="req">*</span></label>
+          <select id="billProvSel" onchange="onBillProv()"><option value="">— Select —</option></select>
+        </div>
+        <div class="fg"><label>Bill Type <span class="req">*</span></label>
+          <select id="billType"><option value="">— Select —</option><option value="GRN">GRN (Goods Receipt Note)</option><option value="SES">SES (Service Entry Sheet)</option></select>
+        </div>
+        <div class="fg"><label>Bill Number <span class="req">*</span></label><input type="text" id="billNo" placeholder="Bill/GRN/SES number"/></div>
+        <div class="fg"><label>Bill Amount (₹) <span class="req">*</span></label><input type="number" id="billAmt" placeholder="₹"/></div>
+        <div class="fg"><label>Bill Date</label><input type="date" id="billDate"/></div>
+        <div class="fg"><label>Vendor Name</label><input type="text" id="billVendor" placeholder="Vendor name"/></div>
+      </div>
+    </div>
+    <div class="aact">
+      <button class="btn bp" onclick="submitBill()">💾 Submit Bill</button>
+    </div>
+  </div>
+  <!-- F&A Payment & Intimation -->
+  <div class="card" id="paymentCard" style="display:none">
+    <div class="card-hdr"><h3>💳 F&A — Payment & Intimation</h3></div>
+    <div class="cbody">
+      <table class="blist-tbl" style="width:100%">
+        <thead><tr><th>Bill Ref</th><th>Budget Ref</th><th>GL</th><th>Bill Type</th><th>Bill No.</th><th>Amount(₹)</th><th>Payment</th><th>Intimation</th><th>Action</th></tr></thead>
+        <tbody id="billPendingTb"><tr><td colspan="9" style="text-align:center;padding:14px;color:var(--muted)">No pending bills.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Implementation Records -->
+  <div class="card">
+    <div class="card-hdr"><h3>Implementation Records (All)</h3></div>
+    <div style="overflow-x:auto">
+      <table class="blist-tbl" style="width:100%">
+        <thead><tr><th>Ref</th><th>Budget Ref</th><th>GL</th><th>Type</th><th>Amount(₹)</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody id="implRecTb"><tr><td colspan="7" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CLOSURE MODULE -->
+<div id="page-closureModule" class="page">
+  <div class="card">
+    <div class="card-hdr"><h3>✅ Closure — Project Finalization</h3></div>
+    <div class="cbody">
+      <div class="ibox">Complete the project finalization process — upload Geo Tagging details, Handover Records, Documentation, and MIS Documents.</div>
+      <div class="fg">
+        <label>Select Project for Closure <span class="req">*</span></label>
+        <select id="closureReqSel" onchange="onClosureSel()"><option value="">— Select —</option></select>
+      </div>
+      <div id="closureDetails" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:10px">
+          <div class="card" style="margin:0">
+            <div class="card-hdr"><h3>📍 Geo Tagging</h3></div>
+            <div class="cbody">
+              <div class="fg"><label>Latitude</label><input type="text" id="closGeoLat" placeholder="e.g. 22.5726"/></div>
+              <div class="fg"><label>Longitude</label><input type="text" id="closGeoLng" placeholder="e.g. 88.3639"/></div>
+              <div class="fg"><label>Location Name</label><input type="text" id="closGeoName" placeholder="Site location name"/></div>
+              <div class="fg"><label>Photos Upload</label>
+                <div class="upload-box" onclick="document.getElementById('closGeoFile').click()">
+                  <div style="font-size:20px">📸</div><div class="tmuted">Upload Site Photos</div>
+                  <div id="closGeoFileChip"></div>
+                </div>
+                <input type="file" id="closGeoFile" style="display:none" multiple accept="image/*" onchange="showFileChip(this,'closGeoFileChip')"/>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="margin:0">
+            <div class="card-hdr"><h3>🤝 Handover Records</h3></div>
+            <div class="cbody">
+              <div class="fg"><label>Handover Date</label><input type="date" id="closHandDate"/></div>
+              <div class="fg"><label>Handover To (Name/Dept)</label><input type="text" id="closHandTo" placeholder="Handover recipient"/></div>
+              <div class="fg"><label>Handover Document</label>
+                <div class="upload-box" onclick="document.getElementById('closHandFile').click()">
+                  <div style="font-size:20px">📄</div><div class="tmuted">Upload Handover Document</div>
+                  <div id="closHandFileChip"></div>
+                </div>
+                <input type="file" id="closHandFile" style="display:none" accept=".pdf,.doc,.docx" onchange="showFileChip(this,'closHandFileChip')"/>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="margin:0">
+            <div class="card-hdr"><h3>📁 Documentation</h3></div>
+            <div class="cbody">
+              <div class="fg"><label>Documentation Type</label>
+                <select id="closDocType">
+                  <option>Project Completion Report</option>
+                  <option>Impact Assessment Report</option>
+                  <option>Final Audit Report</option>
+                  <option>Beneficiary Documents</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="fg"><label>Upload Document</label>
+                <div class="upload-box" onclick="document.getElementById('closDocFile').click()">
+                  <div style="font-size:20px">📂</div><div class="tmuted">Upload Document</div>
+                  <div id="closDocFileChip"></div>
+                </div>
+                <input type="file" id="closDocFile" style="display:none" accept=".pdf,.doc,.docx,.xls,.xlsx" onchange="showFileChip(this,'closDocFileChip')"/>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="margin:0">
+            <div class="card-hdr"><h3>📊 MIS Documents</h3></div>
+            <div class="cbody">
+              <div class="fg"><label>MIS Report Period</label><input type="text" id="closMISPeriod" placeholder="e.g. Q4 FY27 / March 2027"/></div>
+              <div class="fg"><label>Upload MIS Document</label>
+                <div class="upload-box" onclick="document.getElementById('closMISFile').click()">
+                  <div style="font-size:20px">📈</div><div class="tmuted">Upload MIS File (Excel / PDF)</div>
+                  <div id="closMISFileChip"></div>
+                </div>
+                <input type="file" id="closMISFile" style="display:none" accept=".pdf,.xls,.xlsx" onchange="showFileChip(this,'closMISFileChip')"/>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="fg" style="margin-top:10px">
+          <label>Closure Remarks / Notes</label>
+          <textarea id="closRemarks" style="min-height:60px" placeholder="Enter remarks or notes about project closure..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="aact" id="closureAct" style="display:none">
+      <button class="btn bo" onclick="resetClosure()">Clear</button>
+      <button class="btn bs" onclick="submitClosure()">✅ Mark as Closed</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><h3>Closure Records</h3></div>
+    <div style="overflow-x:auto">
+      <table class="blist-tbl" style="width:100%">
+        <thead><tr><th>Budget Ref</th><th>Project</th><th>GL</th><th>Closure Date</th><th>Geo Tag</th><th>Handover</th><th>Doc</th><th>MIS</th><th>By</th></tr></thead>
+        <tbody id="closureRecTb"><tr><td colspan="9" style="text-align:center;padding:14px;color:var(--muted)">No closure records.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- SAVING MODULE -->
+<div id="page-savingModule" class="page">
+  <div class="stats-g">
+    <div class="stat"><div class="s-ico">💼</div><div class="s-val" id="savBudTot">₹0</div><div class="s-lbl">Total Budget</div></div>
+    <div class="stat"><div class="s-ico">📋</div><div class="s-val" id="savSRTot">₹0</div><div class="s-lbl">Total SR</div></div>
+    <div class="stat"><div class="s-ico">🔧</div><div class="s-val" id="savImplTot">₹0</div><div class="s-lbl">Total Booked</div></div>
+    <div class="stat"><div class="s-ico">💰</div><div class="s-val" id="savTotal">₹0</div><div class="s-lbl">Total Saving</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><h3>💰 Savings Summary — 3 Types</h3></div>
+    <div class="cbody">
+      <table class="stbl" style="width:100%;margin-bottom:15px">
+        <thead><tr><th>Project / GL</th><th>Budget(₹)</th><th>SR(₹)</th><th>WO/PO/RO(₹)</th><th>Final Booking(₹)</th><th>Budget vs SR Saving</th><th>SR vs WO/PO/RO Saving</th><th>WO/PO/RO vs Final Booking Saving</th></tr></thead>
+        <tbody id="savingTb"><tr><td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">No records available.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <!-- ADMIN PANEL -->
 <div id="adminScreen">
   <div class="admin-sidebar">
@@ -926,13 +1432,13 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
     </div>
     <div class="admin-nav nav-sec" style="padding:8px 0">
       <div class="nav-lbl">Administration</div>
-      <div class="ni active" onclick="adminNav('admin-dashboard',this)"><span class="ico">🏠</span> Dashboard</div>
-      <div class="ni" onclick="adminNav('admin-users',this)"><span class="ico">👥</span> User Management</div>
-      <div class="ni" onclick="adminNav('admin-campaign',this)"><span class="ico">⚙️</span> Campaign Control</div>
-      <div class="ni" onclick="adminNav('admin-logs',this)"><span class="ico">📜</span> Activity Logs</div>
-      <div class="ni" onclick="adminNav('admin-requests',this)"><span class="ico">📋</span> All Requests</div>
+      <div class="ni active" onclick="adminNav('admin-dashboard',this)"><span class="ico">🏠</span><span class="ni-label">Dashboard</span></div>
+      <div class="ni" onclick="adminNav('admin-users',this)"><span class="ico">👥</span><span class="ni-label">User Management</span></div>
+      <div class="ni" onclick="adminNav('admin-campaign',this)"><span class="ico">⚙️</span><span class="ni-label">Campaign Control</span></div>
+      <div class="ni" onclick="adminNav('admin-logs',this)"><span class="ico">📜</span><span class="ni-label">Activity Logs</span></div>
+      <div class="ni" onclick="adminNav('admin-requests',this)"><span class="ico">📋</span><span class="ni-label">All Requests</span></div>
     </div>
-    <div class="sb-ftr"><button class="btn-lo" onclick="adminLogout()">⎋ Sign Out</button></div>
+    <div class="sb-ftr"><button class="btn-lo" onclick="adminLogout()"><span class="lo-icon">⎋</span><span class="lo-label"> Sign Out</span></button></div>
   </div>
   <div class="admin-main">
     <div class="admin-topbar">
@@ -1087,6 +1593,7 @@ const FU={
   pateam1:  {name:'Rajkumar M', email:'rajkumar@tsf.org',  role:'P&A Team',    level:6, location:'Head Office', pwd:'pa@123'},
   coo1:     {name:'Sourav Roy',  email:'sourav@tsf.org',   role:'COO/CEO',     level:7, location:'Head Office', pwd:'coo@123'},
   fa1:      {name:'Pancham Kumar', email:'pancham@tsf.org',  role:'F&A Staff',   level:8, location:'Head Office', pwd:'fa@123'},
+  sc1:      {name:'Ramesh Gupta',  email:'ramesh@tsf.org',    role:'Supply Chain',level:10,location:'Head Office', pwd:'sc@123'},
   admin:    {name:'Administrator',email:'admin@tsf.org',   role:'Admin',       level:9, location:'Head Office', pwd:'Admin@2027'},
 };
 let UP=JSON.parse(localStorage.getItem('bps_up')||'{}');
@@ -1519,7 +2026,7 @@ function renderApprovals(){
   const extra=CU.level>=6?'<div class="cnote">Use Consolidated View for bulk approval.</div>':'';
   document.getElementById('appList').innerHTML='<div style="padding:11px">'+extra+mine.map(r=>{
     const vb=r.version>1?`<span class="vbadge">v${r.version}</span>`:'';
-    return `<div class="card" style="margin-bottom:8px"><div class="cbody" style="padding:10px"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><div><strong style="color:var(--pri)">${r.ref}</strong>${vb} <strong style="margin-left:5px">${r.projName}</strong><span class="tmuted" style="margin-left:5px">${r.gl.substring(0,30)}</span></div><div style="display:flex;gap:5px"><strong style="font-family:'IBM Plex Mono',monospace;color:var(--suc)">₹ ${fmt(r.bud)}</strong><button class="btn bs bxs" onclick="openApproveWithComment('${r.ref}')">✅ Approve</button><button class="btn br bxs" onclick="openRetMod('${r.ref}')">↩</button><button class="btn bd bxs" onclick="openRejMod('${r.ref}')">❌</button><button class="btn bo bxs" onclick="viewReq('${r.ref}')">👁</button></div></div><div class="tmuted" style="margin-top:4px">${r.byName} | ${r.at} | ${r.loc}</div></div></div>`;
+    return `<div class="card" style="margin-bottom:8px"><div class="cbody" style="padding:10px"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><div><strong style="color:var(--pri)">${r.ref}</strong>${vb} <strong style="margin-left:5px">${r.projName}</strong><span class="tmuted" style="margin-left:5px">${r.gl.substring(0,30)}</span></div><div style="display:flex;gap:5px"><strong style="font-family:'IBM Plex Mono',monospace;color:var(--suc)">₹ ${fmt(r.bud)}</strong><button class="btn bs bxs" onclick="openApproveWithComment('${r.ref}')">✅ Approve Provision</button><button class="btn br bxs" onclick="openRetMod('${r.ref}')">↩</button><button class="btn bd bxs" onclick="openRejMod('${r.ref}')">❌</button><button class="btn bo bxs" onclick="viewReq('${r.ref}')">👁</button></div></div><div class="tmuted" style="margin-top:4px">${r.byName} | ${r.at} | ${r.loc}</div></div></div>`;
   }).join('')+'</div>';
 }
 function _approveRCore(ref,rmk='Approved'){
@@ -1630,7 +2137,10 @@ function viewReq(ref){
     <div style="margin-bottom:8px"><strong style="font-size:11px;color:var(--muted);text-transform:uppercase">Approval Path</strong><div style="margin-top:5px">${arows}</div></div>
     <div><strong style="font-size:11px;color:var(--muted);text-transform:uppercase">Activity History</strong><div style="margin-top:5px;border:1px solid var(--bdr);border-radius:6px;padding:3px 8px">${hist}</div></div>`;
   const canA=r.curLvl===CU.level&&r.status==='pending',canE=r.status==='returned'&&r.by===CU.id;
-  document.getElementById('mFtr').innerHTML=`<button class="btn bo" onclick="closeMod()">Close</button>${canE?`<button class="btn br" onclick="closeMod();openEdit('${r.ref}')">✏️ Edit</button>`:''}${canA?`<button class="btn bs" onclick="approveR('${r.ref}')">✅</button><button class="btn br" onclick="closeMod();openRetMod('${r.ref}')">↩ Return</button><button class="btn bd" onclick="openRejMod('${r.ref}')">❌</button>`:''}`;
+  var mFtrHtml='<button class="btn bo" onclick="closeMod()">Close</button>';
+  if(canE) mFtrHtml+='<button class="btn br" onclick="closeMod();openEdit(\''+r.ref+'\')">✏️ Edit</button>';
+  if(canA) mFtrHtml+='<button class="btn bs" onclick="approveR(\''+r.ref+'\')">✅</button><button class="btn br" onclick="closeMod();openRetMod(\''+r.ref+'\')">↩ Return</button><button class="btn bd" onclick="openRejMod(\''+r.ref+'\')">❌</button>';
+  document.getElementById('mFtr').innerHTML=mFtrHtml;
   openMod();
 }
 
@@ -1638,7 +2148,7 @@ function viewReq(ref){
 function renderCon(by){
   const tb=document.getElementById('conTb');const grp={};
   REQS.forEach(r=>{const k=by==='theme'?r.theme:by==='dept'?r.dept:by==='gl'?r.gl:r.loc;if(!grp[k])grp[k]={cnt:0,tot:0,app:0,pnd:0,act:0};grp[k].cnt++;grp[k].tot+=r.bud;if(r.status==='approved')grp[k].app+=r.bud;if(r.status==='pending')grp[k].pnd++;const ioIds=IO_R.filter(i=>i.budRef===r.ref).map(i=>i.id);grp[k].act+=AC_R.filter(a=>ioIds.includes(a.ioId)).reduce((s,x)=>s+x.amount,0);});
-  if(!Object.keys(grp).length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:14px;color:var(--muted)">No data.</td></tr>';return;}
+  if(!Object.keys(grp).length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:14px;color:var(--muted)">No records available.</td></tr>';return;}
   let gt=0,ga=0,gc=0,gact=0;
   tb.innerHTML=Object.entries(grp).map(([k,v])=>{gt+=v.tot;ga+=v.app;gc+=v.cnt;gact+=v.act;return `<tr><td>${k}</td><td>${v.cnt}</td><td class="amt">₹ ${fmt(v.tot)}</td><td class="amt">₹ ${fmt(v.app)}</td><td class="amt">₹ ${fmt(v.act)}</td><td>${v.pnd}</td></tr>`;}).join('')+`<tr><td><strong>TOTAL</strong></td><td>${gc}</td><td class="amt"><strong>₹ ${fmt(gt)}</strong></td><td class="amt"><strong>₹ ${fmt(ga)}</strong></td><td class="amt"><strong>₹ ${fmt(gact)}</strong></td><td>—</td></tr>`;
   document.getElementById('conAppSec').style.display=(CU.level>=6&&getMyApprovals().length>0)?'block':'none';
@@ -1739,9 +2249,9 @@ function renderActRec(){
 }
 // BULK
 function parseCSV(text){const lines=text.trim().split('\n');const hdrs=lines[0].split(',').map(h=>h.replace(/"/g,'').trim());return lines.slice(1).map(l=>{const vals=l.split(',').map(v=>v.replace(/"/g,'').trim());const o={};hdrs.forEach((h,i)=>o[h]=vals[i]||'');return o;});}
-function bulkSR(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const rows=parseCSV(e.target.result);let s=0;rows.forEach(row=>{const ref=row['Budget Ref'],rq=REQS.find(x=>x.ref===ref);if(!rq)return;const srNo=row['SR Number'],srVal=parseFloat(row['SR Value'])||0;if(!srNo||!srVal)return;SR_R.push({id:'SR-'+FAC++,budRef:ref,projName:rq.projName,gl:rq.gl,theme:rq.theme,dept:rq.dept,pt:rq.pt,da:row['Delivery Arm']||rq.da,bt:row['Budget Type']||rq.bt,loc:rq.loc,srNo,srVal,date:row['Date']||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});s++;});if(s>0){saveFAD();toast(s+' SRs imported.','success');renderSRRec();renderFAStat();}else toast('No valid rows found.','error');};r.readAsText(f);inp.value='';}
-function bulkIO(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const rows=parseCSV(e.target.result);let s=0;rows.forEach(row=>{const ref=row['Budget Ref'],rq=REQS.find(x=>x.ref===ref);if(!rq)return;const ioNo=row['IO Number'],ioVal=parseFloat(row['IO Value'])||0;if(!ioNo||!ioVal)return;IO_R.push({id:'IO-'+FAC++,budRef:ref,projName:rq.projName,gl:rq.gl,theme:rq.theme,dept:rq.dept,pt:rq.pt,da:row['Delivery Arm']||rq.da,bt:row['Budget Type']||rq.bt,loc:rq.loc,ioNo,ioVal,date:row['Date']||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});s++;});if(s>0){saveFAD();toast(s+' IOs imported.','success');renderIORec();renderFAStat();loadFASels();}else toast('No valid rows found.','error');};r.readAsText(f);inp.value='';}
-function bulkAct(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const rows=parseCSV(e.target.result);let s=0;rows.forEach(row=>{const ioNo=row['IO Number'],io=IO_R.find(x=>x.ioNo===ioNo);if(!io)return;const amount=parseFloat(row['Spend Amount'])||0;if(!amount)return;AC_R.push({id:'ACT-'+FAC++,ioId:io.id,ioNo:io.ioNo,budRef:io.budRef,projName:io.projName,gl:io.gl,loc:io.loc,amount,date:row['Date']||new Date().toLocaleDateString('en-IN'),voucher:row['Voucher']||'',desc:row['Description']||'',by:CU.name,at:new Date().toLocaleDateString('en-IN')});s++;});if(s>0){saveFAD();toast(s+' spends imported.','success');renderActRec();renderFAStat();}else toast('No valid rows found.','error');};r.readAsText(f);inp.value='';}
+function bulkSR(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const rows=parseCSV(e.target.result);let s=0;rows.forEach(row=>{const ref=row['Budget Ref'],rq=REQS.find(x=>x.ref===ref);if(!rq)return;const srNo=row['SR Number'],srVal=parseFloat(row['SR Value'])||0;if(!srNo||!srVal)return;SR_R.push({id:'SR-'+FAC++,budRef:ref,projName:rq.projName,gl:rq.gl,theme:rq.theme,dept:rq.dept,pt:rq.pt,da:row['Delivery Arm']||rq.da,bt:row['Budget Type']||rq.bt,loc:rq.loc,srNo,srVal,date:row['Date']||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});s++;});if(s>0){saveFAD();toast(s+' SR record(s) imported successfully.','success');renderSRRec();renderFAStat();}else toast('No valid rows found. Please check the template format.','error');};r.readAsText(f);inp.value='';}
+function bulkIO(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const rows=parseCSV(e.target.result);let s=0;rows.forEach(row=>{const ref=row['Budget Ref'],rq=REQS.find(x=>x.ref===ref);if(!rq)return;const ioNo=row['IO Number'],ioVal=parseFloat(row['IO Value'])||0;if(!ioNo||!ioVal)return;IO_R.push({id:'IO-'+FAC++,budRef:ref,projName:rq.projName,gl:rq.gl,theme:rq.theme,dept:rq.dept,pt:rq.pt,da:row['Delivery Arm']||rq.da,bt:row['Budget Type']||rq.bt,loc:rq.loc,ioNo,ioVal,date:row['Date']||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});s++;});if(s>0){saveFAD();toast(s+' IOs imported.','success');renderIORec();renderFAStat();loadFASels();}else toast('No valid rows found. Please check the template format.','error');};r.readAsText(f);inp.value='';}
+function bulkAct(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const rows=parseCSV(e.target.result);let s=0;rows.forEach(row=>{const ioNo=row['IO Number'],io=IO_R.find(x=>x.ioNo===ioNo);if(!io)return;const amount=parseFloat(row['Spend Amount'])||0;if(!amount)return;AC_R.push({id:'ACT-'+FAC++,ioId:io.id,ioNo:io.ioNo,budRef:io.budRef,projName:io.projName,gl:io.gl,loc:io.loc,amount,date:row['Date']||new Date().toLocaleDateString('en-IN'),voucher:row['Voucher']||'',desc:row['Description']||'',by:CU.name,at:new Date().toLocaleDateString('en-IN')});s++;});if(s>0){saveFAD();toast(s+' spends imported.','success');renderActRec();renderFAStat();}else toast('No valid rows found. Please check the template format.','error');};r.readAsText(f);inp.value='';}
 function dlTpl(headers,filename){const csv=headers.join(',')+',Notes\n'+','.repeat(headers.length-1)+',(sample row)';const blob=new Blob(['\uFEFF'+csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
 
 // ── REPORT ────────────────────────────────────────────────────────
@@ -1757,10 +2267,10 @@ function prevReport(){
     const srV=SR_R.filter(s=>s.budRef===r.ref).reduce((s,x)=>s+x.srVal,0);const ioV=IO_R.filter(i=>i.budRef===r.ref).reduce((s,x)=>s+x.ioVal,0);const ioIds=IO_R.filter(i=>i.budRef===r.ref).map(i=>i.id);const act=AC_R.filter(a=>ioIds.includes(a.ioId)).reduce((s,x)=>s+x.amount,0);
     const sc=r.status==='returned'?'sp-ret':r.status==='approved'?'sp-a':r.status==='rejected'?'sp-r':'sp-p';
     return `<tr><td>${r.ref}</td><td>v${r.version||1}</td><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis">${r.projName}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis" title="${r.gl}">${r.gl.substring(0,15)}…</td><td>${r.theme}</td><td>${r.dept}</td><td>${r.loc}</td><td>${r.founder||'—'}</td><td class="amt">${fmt(r.bud)}</td>${vCells}<td class="amt">${fmt(srV)}</td><td class="amt">${fmt(ioV)}</td><td class="amt">${fmt(act)}</td><td><span class="spill ${sc}">${r.status}</span></td><td>${r.byName}</td><td>${r.at}</td></tr>`;
-  }).join(''):'<tr><td colspan="30" style="text-align:center;padding:14px;color:var(--muted)">No data.</td></tr>'}</tbody>`;
+  }).join(''):'<tr><td colspan="30" style="text-align:center;padding:14px;color:var(--muted)">No records available.</td></tr>'}</tbody>`;
 }
 function genReport(){
-  const data=getFilt();if(!data.length){toast('No data.','error');return;}
+  const data=getFilt();if(!data.length){toast('No records available.','error');return;}
   const maxVer=data.reduce((m,r)=>Math.max(m,r.version||1),1);
   const vHdrs=Array.from({length:maxVer},(_,i)=>`V${i+1} Budget(₹)`);
   const hdr=['Ref #','Version','Project Name','GL','Theme','Department','Location','Cluster','Unit','Founder','Budget(₹)',...vHdrs,'SR Value(₹)','IO Value(₹)','Actual Spend(₹)','Balance(₹)','Status','Submitted By','Date'];
@@ -1784,7 +2294,7 @@ function updBadge(){const cnt=getMyApprovals().length;const b=document.getElemen
 
 // ── MODAL & TOAST ─────────────────────────────────────────────────
 function openApproveWithComment(ref){
-  document.getElementById('mTitle').textContent='✅ Approve — '+ref;
+  document.getElementById('mTitle').textContent='✅ Approve Provision — '+ref;
   const r=REQS.find(x=>x.ref===ref);if(!r)return;
   document.getElementById('mBody').innerHTML=`
     <div style="padding:10px;background:var(--scl);border:1px solid var(--suc);border-radius:6px;margin-bottom:12px;font-size:13px">
@@ -2093,6 +2603,634 @@ function resubmit(){
   addAdminLog('Resubmitted',CU?.name||'—','Edited and resubmitted',ref);
   return _resubmitCore();
 }
+
+
+
+// ════════════════════════════════════════════════════════
+//  NEW MODULES JAVASCRIPT — Added by Modification v2
+// ════════════════════════════════════════════════════════
+
+// ── NEW DATA STORES ───────────────────────────────────
+let SR_USER=JSON.parse(localStorage.getItem('bps_sr_user')||'[]');
+let IO_REQ=JSON.parse(localStorage.getItem('bps_io_req')||'[]');
+let PR_R=JSON.parse(localStorage.getItem('bps_pr')||'[]');
+let WO_R=JSON.parse(localStorage.getItem('bps_wo')||'[]');
+let PROV_R=JSON.parse(localStorage.getItem('bps_prov')||'[]');
+let BILL_R=JSON.parse(localStorage.getItem('bps_bill')||'[]');
+let CLOSURE_R=JSON.parse(localStorage.getItem('bps_closure')||'[]');
+let NEWRC=parseInt(localStorage.getItem('bps_newrc')||'5001');
+
+
+// ── SUPABASE SYNC FOR NEW TABLES ─────────────────────
+async function saveSRUser(r){
+  localStorage.setItem('bps_sr_user',JSON.stringify(SR_USER));
+  if(!isSBConfigured())return;
+  await dbUpsert('sr_user_records',{id:r.id,bud_ref:r.budRef,proj_name:r.projName,gl:r.gl,theme:r.theme,dept:r.dept,pt:r.pt,da:r.da,bt:r.bt,loc:r.loc,sr_no:r.srNo,sr_val:r.srVal,date:r.date,added_by:r.by});
+}
+async function saveIOReq(r){
+  localStorage.setItem('bps_io_req',JSON.stringify(IO_REQ));
+  if(!isSBConfigured())return;
+  await dbUpsert('io_requests',{id:r.id,sr_id:r.srId,bud_ref:r.budRef,proj_name:r.projName,gl:r.gl,sr_no:r.srNo,sr_val:r.srVal,description:r.desc,amt:r.amt,date:r.date,added_by:r.by,added_by_role:r.byRole,status:r.status,io_no:r.ioNo,issued_by:r.issuedBy||null,issued_at:r.issuedAt||null});
+}
+async function savePR(r){
+  localStorage.setItem('bps_pr',JSON.stringify(PR_R));
+  if(!isSBConfigured())return;
+  await dbUpsert('pr_mrf_records',{id:r.id,type:r.type,no:r.no,bud_ref:r.budRef,proj_name:r.projName,gl:r.gl,description:r.desc,amt:r.amt,vendor:r.vendor,date:r.date,added_by:r.by});
+}
+async function saveWO(r){
+  localStorage.setItem('bps_wo',JSON.stringify(WO_R));
+  if(!isSBConfigured())return;
+  await dbUpsert('wo_po_ro_records',{id:r.id,type:r.type,no:r.no,bud_ref:r.budRef,proj_name:r.projName,gl:r.gl,val:r.val,stage:r.stage,vendor:r.vendor,date:r.date,added_by:r.by});
+}
+async function saveProv(r){
+  localStorage.setItem('bps_prov',JSON.stringify(PROV_R));
+  if(!isSBConfigured())return;
+  await dbUpsert('provision_records',{id:r.id,bud_ref:r.budRef,proj_name:r.projName,gl:r.gl,amt:r.amt,description:r.desc,date:r.date,added_by:r.by,fa_approved:r.faApproved,fa_by:r.faBy||null,fa_at:r.faAt||null});
+}
+async function saveBill(r){
+  localStorage.setItem('bps_bill',JSON.stringify(BILL_R));
+  if(!isSBConfigured())return;
+  await dbUpsert('bill_records',{id:r.id,prov_id:r.provId,bud_ref:r.budRef,proj_name:r.projName,gl:r.gl,bill_type:r.billType,bill_no:r.billNo,amt:r.amt,vendor:r.vendor,date:r.date,added_by:r.by,payment_done:r.paymentDone,pay_by:r.payBy||null,pay_at:r.payAt||null,intimation_done:r.intimationDone,inti_by:r.intiBy||null,inti_at:r.intiAt||null});
+}
+async function saveClos(r){
+  localStorage.setItem('bps_closure',JSON.stringify(CLOSURE_R));
+  if(!isSBConfigured())return;
+  await dbUpsert('closure_records',{bud_ref:r.budRef,proj_name:r.projName,gl:r.gl,geo_lat:r.geoLat,geo_lng:r.geoLng,geo_name:r.geoName,hand_date:r.handDate,hand_to:r.handTo,doc_type:r.docType,mis_period:r.misperiod,remarks:r.remarks,closure_date:r.date,added_by:r.by});
+}
+
+async function loadAllNewData(){
+  if(!isSBConfigured())return;
+  try{
+    const [srus,ioreqs,prs,wos,provs,bills,closures]=await Promise.all([
+      dbGet('sr_user_records'),dbGet('io_requests'),dbGet('pr_mrf_records'),
+      dbGet('wo_po_ro_records'),dbGet('provision_records'),dbGet('bill_records'),dbGet('closure_records')
+    ]);
+    if(srus&&srus.length)SR_USER=srus.map(r=>({id:r.id,budRef:r.bud_ref,projName:r.proj_name,gl:r.gl,theme:r.theme,dept:r.dept,pt:r.pt,da:r.da,bt:r.bt,loc:r.loc,srNo:r.sr_no,srVal:parseFloat(r.sr_val)||0,date:r.date,by:r.added_by}));
+    if(ioreqs&&ioreqs.length)IO_REQ=ioreqs.map(r=>({id:r.id,srId:r.sr_id,budRef:r.bud_ref,projName:r.proj_name,gl:r.gl,srNo:r.sr_no,srVal:parseFloat(r.sr_val)||0,desc:r.description,amt:parseFloat(r.amt)||0,date:r.date,by:r.added_by,byRole:r.added_by_role,status:r.status,ioNo:r.io_no,issuedBy:r.issued_by,issuedAt:r.issued_at}));
+    if(prs&&prs.length)PR_R=prs.map(r=>({id:r.id,type:r.type,no:r.no,budRef:r.bud_ref,projName:r.proj_name,gl:r.gl,desc:r.description,amt:parseFloat(r.amt)||0,vendor:r.vendor,date:r.date,by:r.added_by}));
+    if(wos&&wos.length)WO_R=wos.map(r=>({id:r.id,type:r.type,no:r.no,budRef:r.bud_ref,projName:r.proj_name,gl:r.gl,val:parseFloat(r.val)||0,stage:r.stage,vendor:r.vendor,date:r.date,by:r.added_by}));
+    if(provs&&provs.length)PROV_R=provs.map(r=>({id:r.id,budRef:r.bud_ref,projName:r.proj_name,gl:r.gl,amt:parseFloat(r.amt)||0,desc:r.description,date:r.date,by:r.added_by,faApproved:r.fa_approved,faBy:r.fa_by,faAt:r.fa_at}));
+    if(bills&&bills.length)BILL_R=bills.map(r=>({id:r.id,provId:r.prov_id,budRef:r.bud_ref,projName:r.proj_name,gl:r.gl,billType:r.bill_type,billNo:r.bill_no,amt:parseFloat(r.amt)||0,vendor:r.vendor,date:r.date,by:r.added_by,paymentDone:r.payment_done,payBy:r.pay_by,payAt:r.pay_at,intimationDone:r.intimation_done,intiBy:r.inti_by,intiAt:r.inti_at}));
+    if(closures&&closures.length)CLOSURE_R=closures.map(r=>({budRef:r.bud_ref,projName:r.proj_name,gl:r.gl,geoLat:r.geo_lat,geoLng:r.geo_lng,geoName:r.geo_name,handDate:r.hand_date,handTo:r.hand_to,docType:r.doc_type,misperiod:r.mis_period,remarks:r.remarks,date:r.closure_date,by:r.added_by}));
+    console.log('New module data loaded from Supabase');
+  }catch(e){console.error('loadAllNewData error:',e);}
+}
+
+function saveNewData(){
+  localStorage.setItem('bps_sr_user',JSON.stringify(SR_USER));
+  localStorage.setItem('bps_io_req',JSON.stringify(IO_REQ));
+  localStorage.setItem('bps_pr',JSON.stringify(PR_R));
+  localStorage.setItem('bps_wo',JSON.stringify(WO_R));
+  localStorage.setItem('bps_prov',JSON.stringify(PROV_R));
+  localStorage.setItem('bps_bill',JSON.stringify(BILL_R));
+  localStorage.setItem('bps_closure',JSON.stringify(CLOSURE_R));
+  localStorage.setItem('bps_newrc',NEWRC);
+}
+
+// ── SHOW APP EXTENSION — show/hide menus by role ─────
+const _origShowApp=showApp;
+showApp=function(){
+  _origShowApp();
+  const u=CU;
+  const isProgTeam=u.role==='Initiator'||u.role==='Unit P&A'||u.role==='Unit Lead'||u.role==='Programme Team';
+  const isFA=u.role==='F&A Staff';
+  const isSC=u.role==='Supply Chain';
+  const isAnyUser=u.level>=1;
+  // SR Menu — Programme Team + F&A
+  const navSR=document.getElementById('navSR');
+  if(navSR)navSR.style.display=isAnyUser?'flex':'none';
+  // IO Module
+  const navIO=document.getElementById('navIO');
+  if(navIO)navIO.style.display=isAnyUser?'flex':'none';
+  // PR/MRF - User
+  const navPR=document.getElementById('navPR');
+  if(navPR)navPR.style.display=isAnyUser?'flex':'none';
+  // WO/PO/RO - Supply Chain + F&A
+  const navWO=document.getElementById('navWO');
+  if(navWO)navWO.style.display=(isSC||isFA)?'flex':'none';
+  // Implementation
+  const navImpl=document.getElementById('navImpl');
+  if(navImpl)navImpl.style.display=isAnyUser?'flex':'none';
+  // Closure
+  const navClosure=document.getElementById('navClosure');
+  if(navClosure)navClosure.style.display=isAnyUser?'flex':'none';
+  // Saving
+  const navSaving=document.getElementById('navSaving');
+  if(navSaving)navSaving.style.display='flex';
+  // IO Issue card - only F&A
+  const ioIssueCard=document.getElementById('ioIssueCard');
+  if(ioIssueCard)ioIssueCard.style.display=isFA?'block':'none';
+  // Prov approval card - only F&A
+  const provApprovalCard=document.getElementById('provApprovalCard');
+  if(provApprovalCard)provApprovalCard.style.display=isFA?'block':'none';
+  // Payment card - only F&A
+  const paymentCard=document.getElementById('paymentCard');
+  if(paymentCard)paymentCard.style.display=isFA?'block':'none';
+};
+
+// ── DASHBOARD 8-CARD REFRESH ─────────────────────────
+const _origRefreshDash=refreshDash;
+refreshDash=function(){
+  _origRefreshDash();
+  refreshDashCards();
+};
+function refreshDashCards(){
+  const totBud=REQS.filter(r=>r.status==='approved').reduce((s,r)=>s+r.bud,0);
+  const totSR=SR_R.reduce((s,x)=>s+x.srVal,0)+SR_USER.reduce((s,x)=>s+x.srVal,0);
+  const totIO=IO_R.reduce((s,x)=>s+x.ioVal,0);
+  const totPR=PR_R.reduce((s,x)=>s+x.amt,0);
+  const totWO=WO_R.reduce((s,x)=>s+x.val,0);
+  const totImpl=BILL_R.filter(b=>b.paymentDone).reduce((s,x)=>s+x.amt,0);
+  const totClosed=CLOSURE_R.length;
+  const totalApproved=REQS.filter(r=>r.status==='approved').length;
+  const totSaving=totBud-totImpl;
+
+  const pct=v=>totBud>0?Math.min(100,Math.round(v/totBud*100)):0;
+  
+  const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val;};
+  const setW=(id,w)=>{const e=document.getElementById(id);if(e)e.style.width=w+'%';};
+  
+  set('dBud','₹'+fmt(totBud));
+  set('dBudP','Total Approved Budget');
+  
+  set('dSR','₹'+fmt(totSR));set('dSRP',pct(totSR)+'% of Budget');setW('dSRF',pct(totSR));
+  set('dIO','₹'+fmt(totIO));set('dIOP',pct(totIO)+'% of Budget');setW('dIOF',pct(totIO));
+  set('dPR','₹'+fmt(totPR));set('dPRP',pct(totPR)+'% of Budget');setW('dPRF',pct(totPR));
+  set('dWO','₹'+fmt(totWO));set('dWOP',pct(totWO)+'% of Budget');setW('dWOF',pct(totWO));
+  set('dImpl','₹'+fmt(totImpl));set('dImplP',pct(totImpl)+'% of Budget');setW('dImplF',pct(totImpl));
+  
+  const closPct=totalApproved>0?Math.round(totClosed/totalApproved*100):0;
+  set('dClos',totClosed+' Projects');set('dClosP',closPct+'% Closed');setW('dClosF',closPct);
+  
+  set('dSav','₹'+fmt(Math.max(0,totSaving)));
+  set('dSavP','Budget vs Final Booking Saving');setW('dSavF',pct(Math.max(0,totSaving)));
+}
+
+// ── DASHBOARD DETAIL MODAL ───────────────────────────
+function openDashDetail(type){
+  const labels={budget:'Budget Details',sr:'SR Details',io:'IO Details',pr:'PR/MRF Details',wo:'WO/PO/RO Details',impl:'Implementation Details',closure:'Closure Details',saving:'Savings Details'};
+  document.getElementById('mTitle').textContent=labels[type]||type;
+  let html='';
+  if(type==='budget'){
+    const reqs=REQS.filter(r=>r.status==='approved');
+    if(!reqs.length){html='<p style="color:var(--muted);padding:20px;text-align:center">No approved budgets found.</p>';}
+    else{html=`<table class="blist-tbl" style="width:100%"><thead><tr><th>Ref</th><th>Project</th><th>GL</th><th>Location</th><th>Budget(₹)</th></tr></thead><tbody>${reqs.map(r=>`<tr><td>${r.ref}</td><td>${r.projName}</td><td style="font-size:11px">${r.gl.substring(0,25)}…</td><td>${r.loc}</td><td class="amt">₹ ${fmt(r.bud)}</td></tr>`).join('')}</tbody></table>`;}
+  }else if(type==='sr'){
+    const all=[...SR_R,...SR_USER];
+    if(!all.length){html='<p style="color:var(--muted);padding:20px;text-align:center">No SR records found.</p>';}
+    else{html=`<table class="blist-tbl" style="width:100%"><thead><tr><th>SR Ref</th><th>Budget Ref</th><th>SR Number</th><th>GL</th><th>SR Value(₹)</th><th>Date</th></tr></thead><tbody>${all.reverse().map(s=>`<tr><td>${s.id}</td><td>${s.budRef}</td><td>${s.srNo}</td><td style="font-size:11px">${(s.gl||'').substring(0,20)}…</td><td class="amt">₹ ${fmt(s.srVal)}</td><td>${s.date||s.at||''}</td></tr>`).join('')}</tbody></table>`;}
+  }else if(type==='io'){
+    if(!IO_R.length){html='<p style="color:var(--muted);padding:20px;text-align:center">No IO records found.</p>';}
+    else{html=`<table class="blist-tbl" style="width:100%"><thead><tr><th>IO Ref</th><th>Budget Ref</th><th>IO Number</th><th>IO Value(₹)</th><th>Date</th></tr></thead><tbody>${[...IO_R].reverse().map(i=>`<tr><td>${i.id}</td><td>${i.budRef}</td><td>${i.ioNo}</td><td class="amt">₹ ${fmt(i.ioVal)}</td><td>${i.date||''}</td></tr>`).join('')}</tbody></table>`;}
+  }else if(type==='pr'){
+    if(!PR_R.length){html='<p style="color:var(--muted);padding:20px;text-align:center">No PR/MRF records found.</p>';}
+    else{html=`<table class="blist-tbl" style="width:100%"><thead><tr><th>Ref</th><th>Type</th><th>No.</th><th>Budget Ref</th><th>Amount(₹)</th><th>Vendor</th><th>Date</th></tr></thead><tbody>${[...PR_R].reverse().map(p=>`<tr><td>${p.id}</td><td>${p.type}</td><td>${p.no}</td><td>${p.budRef}</td><td class="amt">₹ ${fmt(p.amt)}</td><td>${p.vendor||'—'}</td><td>${p.date||''}</td></tr>`).join('')}</tbody></table>`;}
+  }else if(type==='wo'){
+    if(!WO_R.length){html='<p style="color:var(--muted);padding:20px;text-align:center">No WO/PO/RO records found.</p>';}
+    else{html=`<table class="blist-tbl" style="width:100%"><thead><tr><th>Ref</th><th>Type</th><th>Order No.</th><th>Budget Ref</th><th>GL</th><th>Value(₹)</th><th>Stage</th><th>Date</th></tr></thead><tbody>${[...WO_R].reverse().map(w=>`<tr><td>${w.id}</td><td>${w.type}</td><td>${w.no}</td><td>${w.budRef}</td><td style="font-size:11px">${(w.gl||'').substring(0,15)}…</td><td class="amt">₹ ${fmt(w.val)}</td><td><span class="spill ${w.stage==='Released'?'sp-a':'sp-p'}">${w.stage}</span></td><td>${w.date||''}</td></tr>`).join('')}</tbody></table>`;}
+  }else if(type==='impl'){
+    if(!BILL_R.length){html='<p style="color:var(--muted);padding:20px;text-align:center">No billing records found.</p>';}
+    else{html=`<table class="blist-tbl" style="width:100%"><thead><tr><th>Ref</th><th>Budget Ref</th><th>Bill Type</th><th>Bill No.</th><th>Amount(₹)</th><th>Payment</th><th>Date</th></tr></thead><tbody>${[...BILL_R].reverse().map(b=>`<tr><td>${b.id}</td><td>${b.budRef}</td><td>${b.billType}</td><td>${b.billNo}</td><td class="amt">₹ ${fmt(b.amt)}</td><td>${b.paymentDone?'✅':'⏳'}</td><td>${b.date||''}</td></tr>`).join('')}</tbody></table>`;}
+  }else if(type==='closure'){
+    if(!CLOSURE_R.length){html='<p style="color:var(--muted);padding:20px;text-align:center">No closure records found.</p>';}
+    else{html=`<table class="blist-tbl" style="width:100%"><thead><tr><th>Budget Ref</th><th>Project</th><th>Closure Date</th><th>By</th></tr></thead><tbody>${CLOSURE_R.map(c=>`<tr><td>${c.budRef}</td><td>${c.projName}</td><td>${c.date}</td><td>${c.by}</td></tr>`).join('')}</tbody></table>`;}
+  }else if(type==='saving'){
+    renderSavingTb();return openMod();
+  }
+  document.getElementById('mBody').innerHTML=html;
+  document.getElementById('mFtr').innerHTML='<button class="btn bo" onclick="closeMod()">Close</button>';
+  openMod();
+}
+
+// ── SR MODULE (User side) ────────────────────────────
+let srUserRC=0;
+function loadSRUserSels(){
+  const sel=document.getElementById('srUserReqSel');
+  if(!sel)return;
+  sel.innerHTML='<option value="">— Select —</option>';
+  REQS.filter(r=>r.status==='approved').forEach(r=>sel.innerHTML+=`<option value="${r.ref}">${r.ref} — ${r.projName} — ₹${fmt(r.bud)}</option>`);
+  const d=new Date().toISOString().split('T')[0];
+  const sd=document.getElementById('srUserDate');if(sd)sd.value=d;
+}
+function onSRUserSel(){
+  const ref=document.getElementById('srUserReqSel').value;
+  document.getElementById('srUserTableWrap').style.display=ref?'block':'none';
+  document.getElementById('srUserAct').style.display=ref?'flex':'none';
+  if(!ref){document.getElementById('srUserTBody').innerHTML='';return;}
+  const r=REQS.find(x=>x.ref===ref);
+  document.getElementById('srUserTBody').innerHTML='';srUserRC=0;addSRUserRowData(r);
+}
+function addSRUserRow(){const ref=document.getElementById('srUserReqSel').value;if(!ref)return;addSRUserRowData(REQS.find(x=>x.ref===ref));}
+function addSRUserRowData(r){
+  srUserRC++;const id='sru-'+srUserRC;
+  const tr=document.createElement('tr');tr.id=id;
+  tr.innerHTML=`<td><input class="fa-inp ro" value="${r.gl.substring(0,20)}" readonly style="width:110px"/></td><td><input class="fa-inp ro" value="${r.theme}" readonly style="width:80px"/></td><td><input class="fa-inp ro" value="${r.dept}" readonly style="width:85px"/></td><td><input class="fa-inp ro" value="${r.pt}" readonly style="width:75px"/></td><td><select class="fa-sel" style="width:75px">${MD.delivery_arms.map(d=>`<option${d===r.da?' selected':''}>${d}</option>`).join('')}</select></td><td><select class="fa-sel" style="width:80px">${MD.budget_types.map(b=>`<option${b===r.bt?' selected':''}>${b}</option>`).join('')}</select></td><td><input class="fa-inp ro" value="${r.loc}" readonly style="width:80px"/></td><td><input class="fa-inp sr-no" type="text" placeholder="SR No." style="width:90px"/></td><td><input class="fa-inp sr-val" type="number" placeholder="₹" style="width:90px"/></td><td><button class="btn bd bxs" onclick="document.getElementById('${id}').remove()">✕</button></td>`;
+  document.getElementById('srUserTBody').appendChild(tr);
+}
+function submitSRUser(){
+  const ref=document.getElementById('srUserReqSel').value;if(!ref){toast('Please select a request.','error');return;}
+  const rows=document.querySelectorAll('#srUserTBody tr');let saved=0;
+  rows.forEach(tr=>{
+    const srNo=tr.querySelector('.sr-no').value.trim(),srVal=parseFloat(tr.querySelector('.sr-val').value)||0;
+    if(!srNo||!srVal){toast('SR Number and Value are required.','error');return;}
+    const r=REQS.find(x=>x.ref===ref);
+    SR_USER.push({id:'SRU-'+NEWRC++,budRef:ref,projName:r.projName,gl:r.gl,theme:r.theme,dept:r.dept,pt:r.pt,da:tr.querySelectorAll('select')[0].value,bt:tr.querySelectorAll('select')[1].value,loc:r.loc,srNo,srVal,date:document.getElementById('srUserDate').value||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});
+    saved++;
+  });
+  if(saved>0){Promise.all(SR_USER.slice(-saved).map(s=>saveSRUser(s))).then(()=>{saveNewData();toast(saved+' SR record(s) submitted successfully.','success');resetSRUser();renderSRUserRec();refreshDashCards();});}
+}
+function resetSRUser(){document.getElementById('srUserReqSel').value='';document.getElementById('srUserTBody').innerHTML='';document.getElementById('srUserTableWrap').style.display='none';document.getElementById('srUserAct').style.display='none';srUserRC=0;}
+function renderSRUserRec(){
+  const tb=document.getElementById('srUserRecTb');if(!tb)return;
+  const recs=CU.role==='F&A Staff'?SR_USER:SR_USER.filter(s=>s.by===CU.name);
+  if(!recs.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;padding:12px;color:var(--muted)">No records.</td></tr>';return;}
+  tb.innerHTML=[...recs].reverse().map(s=>`<tr><td><strong>${s.id}</strong></td><td>${s.budRef}</td><td>${s.projName}</td><td style="font-size:11px">${s.gl.substring(0,20)}…</td><td>${s.loc}</td><td>${s.srNo}</td><td class="amt">₹ ${fmt(s.srVal)}</td><td>${s.date}</td><td>${s.by}</td><td><button class="btn bd bxs" onclick="delSRUser('${s.id}')">✕</button></td></tr>`).join('');
+}
+function delSRUser(id){SR_USER=SR_USER.filter(s=>s.id!==id);saveNewData();renderSRUserRec();refreshDashCards();}
+function bulkSRUser(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();r.onload=e=>{
+    const rows=parseCSV(e.target.result);let s=0;
+    rows.forEach(row=>{const ref=row['Budget Ref'],rq=REQS.find(x=>x.ref===ref);if(!rq)return;const srNo=row['SR Number'],srVal=parseFloat(row['SR Value'])||0;if(!srNo||!srVal)return;SR_USER.push({id:'SRU-'+NEWRC++,budRef:ref,projName:rq.projName,gl:rq.gl,theme:rq.theme,dept:rq.dept,pt:rq.pt,da:row['Delivery Arm']||rq.da,bt:row['Budget Type']||rq.bt,loc:rq.loc,srNo,srVal,date:row['Date']||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});s++;});
+    if(s>0){saveNewData();toast(s+' SR record(s) imported successfully.','success');renderSRUserRec();refreshDashCards();}else toast('No valid rows found. Please check the template format.','error');
+  };r.readAsText(f);inp.value='';
+}
+
+// ── IO MODULE (User Request + F&A Issue) ─────────────
+function loadIOModuleSels(){
+  // IO Req SR Selector
+  const sel=document.getElementById('ioReqSRSel');
+  if(!sel)return;
+  sel.innerHTML='<option value="">— Select SR —</option>';
+  const allSRs=[...SR_R,...SR_USER];
+  allSRs.forEach(s=>sel.innerHTML+=`<option value="${s.id}">${s.id} | ${s.budRef} | SR:${s.srNo} | ₹${fmt(s.srVal)}</option>`);
+  const d=new Date().toISOString().split('T')[0];
+  const rd=document.getElementById('ioReqDate');if(rd)rd.value=d;
+}
+function onIOReqSRSel(){
+  const id=document.getElementById('ioReqSRSel').value;
+  document.getElementById('ioReqDetails').style.display=id?'block':'none';
+  document.getElementById('ioReqAct').style.display=id?'flex':'none';
+  if(!id)return;
+  const allSRs=[...SR_R,...SR_USER];
+  const sr=allSRs.find(s=>s.id===id);if(!sr)return;
+  const set=(eid,v)=>{const e=document.getElementById(eid);if(e)e.value=v;};
+  set('ioReqBudRef',sr.budRef);set('ioReqSRNo',sr.srNo);set('ioReqSRVal','₹'+fmt(sr.srVal));set('ioReqGL',sr.gl||'');
+  document.getElementById('ioReqAmt').value=sr.srVal||'';
+}
+function submitIOReq(){
+  const srId=document.getElementById('ioReqSRSel').value;if(!srId){toast('Please select an SR record.','error');return;}
+  const desc=document.getElementById('ioReqDesc').value.trim();if(!desc){toast('Please enter IO description.','error');return;}
+  const amt=parseFloat(document.getElementById('ioReqAmt').value)||0;if(!amt){toast('Please enter the amount.','error');return;}
+  const allSRs=[...SR_R,...SR_USER];const sr=allSRs.find(s=>s.id===srId);
+  IO_REQ.push({id:'IOR-'+NEWRC++,srId,budRef:sr.budRef,projName:sr.projName||'',gl:sr.gl||'',srNo:sr.srNo,srVal:sr.srVal,desc,amt,date:document.getElementById('ioReqDate').value||new Date().toLocaleDateString('en-IN'),by:CU.name,byRole:CU.role,at:new Date().toLocaleDateString('en-IN'),status:'Pending',ioNo:'—'});
+  const lastReq=IO_REQ[IO_REQ.length-1];saveIOReq(lastReq).then(()=>{saveNewData();toast('IO Request submitted successfully! F&A Team will issue the IO Number.','success');resetIOReq();renderIOModuleTb();});
+}
+function resetIOReq(){document.getElementById('ioReqSRSel').value='';document.getElementById('ioReqDetails').style.display='none';document.getElementById('ioReqAct').style.display='none';['ioReqDesc','ioReqAmt'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});}
+function renderIOModuleTb(){
+  // User's requests
+  const userTb=document.getElementById('ioUserReqTb');
+  if(userTb){
+    const myReqs=CU.role==='F&A Staff'?IO_REQ:IO_REQ.filter(r=>r.by===CU.name);
+    userTb.innerHTML=!myReqs.length?'<tr><td colspan="9" style="text-align:center;padding:14px;color:var(--muted)">No requests.</td></tr>':
+    [...myReqs].reverse().map(r=>`<tr><td><strong>${r.id}</strong></td><td>${r.budRef}</td><td>${r.srNo}</td><td style="font-size:11px">${(r.gl||'').substring(0,20)}…</td><td style="max-width:150px">${r.desc.substring(0,60)}…</td><td class="amt">₹ ${fmt(r.amt)}</td><td>${r.date}</td><td><span class="spill ${r.status==='Issued'?'sp-a':'sp-p'}">${r.status}</span></td><td><strong style="color:var(--suc)">${r.ioNo||'—'}</strong></td></tr>`).join('');
+  }
+  // F&A pending
+  const pendTb=document.getElementById('ioPendingTb');
+  if(pendTb){
+    const pending=IO_REQ.filter(r=>r.status==='Pending');
+    pendTb.innerHTML=!pending.length?'<tr><td colspan="10" style="text-align:center;padding:14px;color:var(--muted)">No pending requests.</td></tr>':
+    pending.map(r=>`<tr><td><strong>${r.id}</strong></td><td>${r.budRef}</td><td>${r.srNo}</td><td style="font-size:11px">${(r.gl||'').substring(0,15)}…</td><td>${r.desc.substring(0,40)}…</td><td class="amt">₹ ${fmt(r.amt)}</td><td>${r.by}</td><td>${r.date}</td><td><input class="fa-inp io-issue-no" type="text" placeholder="IO No." style="width:100px" id="ionum-${r.id}"/></td><td><button class="btn bs bxs" onclick="issueIONo('${r.id}')">Issue IO</button></td></tr>`).join('');
+  }
+  // All IO records
+  const allTb=document.getElementById('ioAllRecTb');
+  if(allTb){
+    const issued=IO_REQ.filter(r=>r.status==='Issued');
+    if(!issued.length&&!IO_R.length){allTb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr>';return;}
+    const combined=[...IO_R.map(i=>({id:i.id,budRef:i.budRef,projName:i.projName,gl:i.gl,ioNo:i.ioNo,ioVal:i.ioVal,desc:'—',date:i.date,by:i.by})),...issued.map(r=>({id:r.id,budRef:r.budRef,projName:r.projName,gl:r.gl,ioNo:r.ioNo,ioVal:r.amt,desc:r.desc,date:r.date,by:r.by}))];
+    allTb.innerHTML=combined.reverse().map(i=>`<tr><td><strong>${i.id}</strong></td><td>${i.budRef}</td><td>${i.projName||'—'}</td><td style="font-size:11px">${(i.gl||'').substring(0,18)}…</td><td><strong>${i.ioNo}</strong></td><td class="amt">₹ ${fmt(i.ioVal)}</td><td>${(i.desc||'—').substring(0,40)}</td><td>${i.date}</td><td>${i.by}</td></tr>`).join('');
+  }
+}
+function issueIONo(reqId){
+  const el=document.getElementById('ionum-'+reqId);if(!el)return;
+  const ioNo=el.value.trim();if(!ioNo){toast('Please enter the IO Number.','error');return;}
+  const req=IO_REQ.find(r=>r.id===reqId);if(!req)return;
+  req.status='Issued';req.ioNo=ioNo;req.issuedBy=CU.name;req.issuedAt=new Date().toLocaleDateString('en-IN');
+  // Also add to IO_R for backward compatibility
+  IO_R.push({id:'IO-'+FAC++,budRef:req.budRef,projName:req.projName||'',gl:req.gl||'',theme:'',dept:'',pt:'',da:'',bt:'',loc:'',ioNo,ioVal:req.amt,date:req.date,by:CU.name,at:new Date().toLocaleDateString('en-IN')});
+  saveNewData();saveFAD();toast('IO Number '+ioNo+' issued successfully!','success');renderIOModuleTb();refreshDashCards();
+}
+
+// ── PR/MRF MODULE ────────────────────────────────────
+let prRC=0;
+function loadPRSels(){
+  const sel=document.getElementById('prReqSel');if(!sel)return;
+  sel.innerHTML='<option value="">— Select —</option>';
+  REQS.filter(r=>r.status==='approved').forEach(r=>sel.innerHTML+=`<option value="${r.ref}">${r.ref} — ${r.projName}</option>`);
+  const d=new Date().toISOString().split('T')[0];const pd=document.getElementById('prDate');if(pd)pd.value=d;
+}
+function onPRSel(){
+  const ref=document.getElementById('prReqSel').value;
+  document.getElementById('prTableWrap').style.display=ref?'block':'none';
+  document.getElementById('prAct').style.display=ref?'flex':'none';
+  if(!ref){document.getElementById('prTBody').innerHTML='';prRC=0;return;}
+  document.getElementById('prTBody').innerHTML='';prRC=0;addPRMRFRow();
+}
+function addPRMRFRow(){
+  const ref=document.getElementById('prReqSel').value;
+  const r=ref?REQS.find(x=>x.ref===ref):null;
+  prRC++;const id='prr-'+prRC;
+  const tr=document.createElement('tr');tr.id=id;
+  const glOpts=r?'<option value="'+r.gl+'">'+r.gl.substring(0,20)+' </option>':MD.gl_list.slice(0,5).map(g=>'<option>'+g.substring(0,20)+' </option>').join('');
+  tr.innerHTML=`<td><select class="fa-sel" style="width:60px"><option value="PR">PR</option><option value="MRF">MRF</option></select></td><td><input class="fa-inp" type="text" placeholder="PR/MRF No." style="width:110px"/></td><td><input class="fa-inp" type="text" placeholder="Description" style="width:140px"/></td><td><select class="fa-sel" style="width:90px">${glOpts}</select></td><td><input class="fa-inp" type="number" placeholder="₹" style="width:90px"/></td><td><input class="fa-inp" type="text" placeholder="Vendor" style="width:100px"/></td><td><button class="btn bd bxs" onclick="document.getElementById('${id}').remove()">✕</button></td>`;
+  document.getElementById('prTBody').appendChild(tr);
+}
+function submitPR(){
+  const ref=document.getElementById('prReqSel').value;if(!ref){toast('Please select a project.','error');return;}
+  const rows=document.querySelectorAll('#prTBody tr');let saved=0;
+  rows.forEach(tr=>{
+    const cells=tr.querySelectorAll('select,input');
+    const type=cells[0].value,no=cells[1].value.trim(),desc=cells[2].value.trim(),gl=cells[3].value,amt=parseFloat(cells[4].value)||0,vendor=cells[5].value.trim();
+    if(!no||!amt){toast('Number and Amount are required.','error');return;}
+    const r=REQS.find(x=>x.ref===ref);
+    PR_R.push({id:(type==='PR'?'PR-':'MRF-')+NEWRC++,type,no,budRef:ref,projName:r.projName,gl,desc,amt,vendor,date:document.getElementById('prDate').value||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});
+    saved++;
+  });
+  if(saved>0){Promise.all(PR_R.slice(-saved).map(r=>savePR(r))).then(()=>{saveNewData();toast(saved+' PR/MRF record(s) saved successfully.','success');resetPR();renderPRRec();refreshDashCards();});}
+}
+function resetPR(){document.getElementById('prReqSel').value='';document.getElementById('prTBody').innerHTML='';document.getElementById('prTableWrap').style.display='none';document.getElementById('prAct').style.display='none';prRC=0;}
+function renderPRRec(){
+  const tb=document.getElementById('prRecTb');if(!tb)return;
+  const recs=CU.role==='F&A Staff'?PR_R:PR_R.filter(p=>p.by===CU.name);
+  if(!recs.length){tb.innerHTML='<tr><td colspan="11" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr>';return;}
+  tb.innerHTML=[...recs].reverse().map(p=>`<tr><td><strong>${p.id}</strong></td><td><span class="spill sp-p">${p.type}</span></td><td>${p.no}</td><td>${p.budRef}</td><td style="font-size:11px">${(p.gl||'').substring(0,15)}…</td><td>${p.desc||'—'}</td><td class="amt">₹ ${fmt(p.amt)}</td><td>${p.vendor||'—'}</td><td>${p.date}</td><td>${p.by}</td><td><button class="btn bd bxs" onclick="delPR('${p.id}')">✕</button></td></tr>`).join('');
+}
+function delPR(id){PR_R=PR_R.filter(p=>p.id!==id);saveNewData();renderPRRec();refreshDashCards();}
+
+// ── WO/PO/RO MODULE ──────────────────────────────────
+let woRC=0;
+function loadWOSels(){
+  const sel=document.getElementById('woReqSel');if(!sel)return;
+  sel.innerHTML='<option value="">— Select —</option>';
+  REQS.filter(r=>r.status==='approved').forEach(r=>sel.innerHTML+=`<option value="${r.ref}">${r.ref} — ${r.projName}</option>`);
+  const d=new Date().toISOString().split('T')[0];const wd=document.getElementById('woDate');if(wd)wd.value=d;
+}
+function onWOSel(){
+  const ref=document.getElementById('woReqSel').value;
+  document.getElementById('woTableWrap').style.display=ref?'block':'none';
+  document.getElementById('woAct').style.display=ref?'flex':'none';
+  if(!ref){document.getElementById('woTBody').innerHTML='';woRC=0;return;}
+  document.getElementById('woTBody').innerHTML='';woRC=0;addWORow();
+}
+function addWORow(){
+  const ref=document.getElementById('woReqSel').value;
+  const r=ref?REQS.find(x=>x.ref===ref):null;
+  woRC++;const id='wor-'+woRC;
+  const tr=document.createElement('tr');tr.id=id;
+  const glOpts=r?'<option value="'+r.gl+'">'+r.gl.substring(0,25)+' </option>':MD.gl_list.slice(0,3).map(g=>'<option>'+g.substring(0,25)+' </option>').join('');
+  tr.innerHTML=`<td><select class="fa-sel" style="width:60px"><option value="WO">WO</option><option value="PO">PO</option><option value="RO">RO</option></select></td><td><input class="fa-inp" type="text" placeholder="Order No." style="width:100px"/></td><td><select class="fa-sel" style="width:110px">${glOpts}</select></td><td><input class="fa-inp" type="number" placeholder="₹" style="width:90px"/></td><td><select class="fa-sel" style="width:90px"><option value="Initiated">Initiated</option><option value="Released">Released</option></select></td><td><input class="fa-inp" type="text" placeholder="Vendor" style="width:100px"/></td><td><button class="btn bd bxs" onclick="document.getElementById('${id}').remove()">✕</button></td>`;
+  document.getElementById('woTBody').appendChild(tr);
+}
+function submitWO(){
+  const ref=document.getElementById('woReqSel').value;if(!ref){toast('Please select a project.','error');return;}
+  const rows=document.querySelectorAll('#woTBody tr');let saved=0;
+  rows.forEach(tr=>{
+    const cells=tr.querySelectorAll('select,input');
+    const type=cells[0].value,no=cells[1].value.trim(),gl=cells[2].value,val=parseFloat(cells[3].value)||0,stage=cells[4].value,vendor=cells[5].value.trim();
+    if(!no||!val){toast('Order Number and Value are required.','error');return;}
+    const r=REQS.find(x=>x.ref===ref);
+    WO_R.push({id:(type+'-')+NEWRC++,type,no,budRef:ref,projName:r.projName,gl,val,stage,vendor,date:document.getElementById('woDate').value||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});
+    saved++;
+  });
+  if(saved>0){Promise.all(WO_R.slice(-saved).map(w=>saveWO(w))).then(()=>{saveNewData();toast(saved+' WO/PO/RO record(s) saved successfully.','success');resetWO();renderWORec();refreshDashCards();});}
+}
+function resetWO(){document.getElementById('woReqSel').value='';document.getElementById('woTBody').innerHTML='';document.getElementById('woTableWrap').style.display='none';document.getElementById('woAct').style.display='none';woRC=0;}
+function renderWORec(){
+  const tb=document.getElementById('woRecTb');if(!tb)return;
+  const filter=document.getElementById('woFilter')?.value||'';
+  let recs=WO_R;
+  if(filter==='Initiated'||filter==='Released')recs=recs.filter(w=>w.stage===filter);
+  else if(filter)recs=recs.filter(w=>w.type===filter);
+  if(!recs.length){tb.innerHTML='<tr><td colspan="11" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr>';return;}
+  tb.innerHTML=[...recs].reverse().map(w=>`<tr><td><strong>${w.id}</strong></td><td><span class="spill sp-p">${w.type}</span></td><td>${w.no}</td><td>${w.budRef}</td><td style="font-size:11px">${(w.gl||'').substring(0,15)}…</td><td class="amt">₹ ${fmt(w.val)}</td><td><span class="spill ${w.stage==='Released'?'sp-a':'sp-p'}">${w.stage}</span></td><td>${w.vendor||'—'}</td><td>${w.date}</td><td>${w.by}</td><td><button class="btn bd bxs" onclick="delWO('${w.id}')">✕</button></td></tr>`).join('');
+}
+function delWO(id){WO_R=WO_R.filter(w=>w.id!==id);saveNewData();renderWORec();refreshDashCards();}
+function bulkWO(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();r.onload=e=>{
+    const rows=parseCSV(e.target.result);let s=0;
+    rows.forEach(row=>{const ref=row['Budget Ref'],rq=REQS.find(x=>x.ref===ref);if(!rq)return;const no=row['Order Number'],val=parseFloat(row['Order Value'])||0;if(!no||!val)return;WO_R.push({id:(row['Order Type']||'WO')+'-'+NEWRC++,type:row['Order Type']||'WO',no,budRef:ref,projName:rq.projName,gl:row['GL']||rq.gl||'',val,stage:row['Stage']||'Initiated',vendor:'',date:row['Date']||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});s++;});
+    if(s>0){saveNewData();toast(s+' WO/PO/RO record(s) imported successfully.','success');renderWORec();refreshDashCards();}else toast('No valid rows found. Please check the template format.','error');
+  };r.readAsText(f);inp.value='';
+}
+
+// ── IMPLEMENTATION MODULE ─────────────────────────────
+function loadImplSels(){
+  const ps=document.getElementById('provReqSel');if(!ps)return;
+  ps.innerHTML='<option value="">— Select —</option>';
+  REQS.filter(r=>r.status==='approved').forEach(r=>ps.innerHTML+=`<option value="${r.ref}">${r.ref} — ${r.projName}</option>`);
+  const bs=document.getElementById('billProvSel');if(!bs)return;
+  bs.innerHTML='<option value="">— Select —</option>';
+  PROV_R.filter(p=>p.faApproved).forEach(p=>bs.innerHTML+=`<option value="${p.id}">${p.id} | ${p.budRef} | ₹${fmt(p.amt)}</option>`);
+  const d=new Date().toISOString().split('T')[0];['provDate','billDate'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=d;});
+}
+function onProvSel(){
+  const ref=document.getElementById('provReqSel').value;
+  document.getElementById('provDetails').style.display=ref?'block':'none';
+  document.getElementById('provAct').style.display=ref?'flex':'none';
+  if(!ref)return;
+  const r=REQS.find(x=>x.ref===ref);
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};
+  set('provGL',r.gl||'');set('provBudRef',r.ref);set('provBudAmt','₹'+fmt(r.bud));
+}
+function submitProv(){
+  const ref=document.getElementById('provReqSel').value;if(!ref){toast('Please select a project.','error');return;}
+  const amt=parseFloat(document.getElementById('provAmt').value)||0;if(!amt){toast('Please enter the amount.','error');return;}
+  const r=REQS.find(x=>x.ref===ref);
+  PROV_R.push({id:'PROV-'+NEWRC++,budRef:ref,projName:r.projName,gl:r.gl||'',amt,desc:document.getElementById('provDesc').value.trim(),date:document.getElementById('provDate').value||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN'),faApproved:false,faBy:'—',faAt:'—'});
+  const lp=PROV_R[PROV_R.length-1];saveProv(lp).then(()=>{saveNewData();toast('Provision submitted successfully! F&A Team will review and approve.','success');resetProv();renderImplRec();renderProvPending();});
+}
+function resetProv(){document.getElementById('provReqSel').value='';document.getElementById('provDetails').style.display='none';document.getElementById('provAct').style.display='none';['provAmt','provDesc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});}
+function renderProvPending(){
+  const tb=document.getElementById('provPendingTb');if(!tb)return;
+  const pending=PROV_R.filter(p=>!p.faApproved);
+  tb.innerHTML=!pending.length?'<tr><td colspan="8" style="text-align:center;padding:14px;color:var(--muted)">No pending.</td></tr>':
+  pending.map(p=>`<tr><td><strong>${p.id}</strong></td><td>${p.budRef}</td><td style="font-size:11px">${(p.gl||'').substring(0,18)}…</td><td class="amt">₹ ${fmt(p.amt)}</td><td>${p.by}</td><td>${p.date}</td><td><span class="spill sp-p">Pending</span></td><td><button class="btn bs bxs" onclick="approveProv('${p.id}')">✅ Approve Provision</button></td></tr>`).join('');
+}
+function approveProv(id){
+  const p=PROV_R.find(x=>x.id===id);if(!p)return;
+  p.faApproved=true;p.faBy=CU.name;p.faAt=new Date().toLocaleDateString('en-IN');
+  saveNewData();toast('Provision '+id+' approved!','success');renderProvPending();renderImplRec();loadImplSels();
+}
+function onBillProv(){/* auto-fill if needed */}
+function submitBill(){
+  const provId=document.getElementById('billProvSel').value;if(!provId){toast('Please select a provision.','error');return;}
+  const billType=document.getElementById('billType').value;if(!billType){toast('Please select a bill type.','error');return;}
+  const billNo=document.getElementById('billNo').value.trim();if(!billNo){toast('Please enter the bill number.','error');return;}
+  const amt=parseFloat(document.getElementById('billAmt').value)||0;if(!amt){toast('Please enter the amount.','error');return;}
+  const prov=PROV_R.find(p=>p.id===provId);
+  BILL_R.push({id:'BILL-'+NEWRC++,provId,budRef:prov?.budRef||'',projName:prov?.projName||'',gl:prov?.gl||'',billType,billNo,amt,vendor:document.getElementById('billVendor').value.trim(),date:document.getElementById('billDate').value||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN'),paymentDone:false,intimationDone:false,payBy:'—',intiBy:'—'});
+  const lb=BILL_R[BILL_R.length-1];saveBill(lb).then(()=>{saveNewData();toast('Bill submitted successfully! F&A Team will process payment and intimation.','success');});['billNo','billAmt','billVendor'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});renderImplRec();renderBillPending();refreshDashCards();
+}
+function renderBillPending(){
+  const tb=document.getElementById('billPendingTb');if(!tb)return;
+  const pending=BILL_R.filter(b=>!b.paymentDone||!b.intimationDone);
+  if(!pending.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:14px;color:var(--muted)">No pending bills.</td></tr>';return;}
+  let rows='';
+  pending.forEach(function(b){
+    const pid=b.id;
+    const payCell=b.paymentDone?'<span style="color:var(--suc)">&#10003; Done</span>':'<button class="btn bs bxs" onclick="markPayment(this)" data-id="'+pid+'">&#128179; Payment Done</button>';
+    const intiCell=b.intimationDone?'<span style="color:var(--suc)">&#10003; Done</span>':'<button class="btn bp bxs" onclick="markIntimation(this)" data-id="'+pid+'">&#128226; Intimation Done</button>';
+    const statusCls=b.paymentDone&&b.intimationDone?'sp-a':'sp-p';
+    const statusTxt=b.paymentDone&&b.intimationDone?'Complete':'Pending';
+    const glShort=(b.gl||'').substring(0,15);
+    rows+='<tr><td><strong>'+b.id+'</strong></td><td>'+b.budRef+'</td><td style="font-size:11px">'+glShort+'...</td><td>'+b.billType+'</td><td>'+b.billNo+'</td><td class="amt">&#8377; '+fmt(b.amt)+'</td><td>'+payCell+'</td><td>'+intiCell+'</td><td><span class="spill '+statusCls+'">'+statusTxt+'</span></td></tr>';
+  });
+  tb.innerHTML=rows;
+}
+
+function markPayment(el){const id=typeof el==='string'?el:el.dataset.id;const b=BILL_R.find(x=>x.id===id);if(!b)return;b.paymentDone=true;b.payBy=CU.name;b.payAt=new Date().toLocaleDateString('en-IN');saveNewData();toast('Payment marked as done successfully!','success');renderBillPending();renderImplRec();refreshDashCards();}
+function markIntimation(el){const id=typeof el==='string'?el:el.dataset.id;const b=BILL_R.find(x=>x.id===id);if(!b)return;b.intimationDone=true;b.intiBy=CU.name;b.intiAt=new Date().toLocaleDateString('en-IN');saveNewData();toast('Intimation marked as done successfully!','success');renderBillPending();}
+function renderImplRec(){
+  const tb=document.getElementById('implRecTb');if(!tb)return;
+  const allImplRecs=[...PROV_R.map(p=>({id:p.id,budRef:p.budRef,gl:p.gl,type:'Provision',amt:p.amt,status:p.faApproved?'Approved':'Pending',date:p.date})),...BILL_R.map(b=>({id:b.id,budRef:b.budRef,gl:b.gl,type:'Bill ('+b.billType+')',amt:b.amt,status:b.paymentDone&&b.intimationDone?'Complete':b.paymentDone?'Payment Done':'Pending',date:b.date}))];
+  if(!allImplRecs.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr>';return;}
+  tb.innerHTML=[...allImplRecs].reverse().map(r=>`<tr><td><strong>${r.id}</strong></td><td>${r.budRef}</td><td style="font-size:11px">${(r.gl||'').substring(0,18)}…</td><td>${r.type}</td><td class="amt">₹ ${fmt(r.amt)}</td><td><span class="spill ${r.status==='Complete'||r.status==='Approved'?'sp-a':r.status==='Payment Done'?'sp-ret':'sp-p'}">${r.status}</span></td><td>${r.date}</td></tr>`).join('');
+}
+
+// ── CLOSURE MODULE ───────────────────────────────────
+function loadClosureSels(){
+  const sel=document.getElementById('closureReqSel');if(!sel)return;
+  sel.innerHTML='<option value="">— Select —</option>';
+  REQS.filter(r=>r.status==='approved').forEach(r=>sel.innerHTML+=`<option value="${r.ref}">${r.ref} — ${r.projName}</option>`);
+}
+function onClosureSel(){
+  const ref=document.getElementById('closureReqSel').value;
+  document.getElementById('closureDetails').style.display=ref?'block':'none';
+  document.getElementById('closureAct').style.display=ref?'flex':'none';
+}
+function showFileChip(inp,chipId){const chip=document.getElementById(chipId);if(!chip)return;const files=inp.files;chip.innerHTML=`<div style="font-size:11px;color:var(--suc);margin-top:4px">${files.length} file(s) selected</div>`;}
+function submitClosure(){
+  const ref=document.getElementById('closureReqSel').value;if(!ref){toast('Please select a project.','error');return;}
+  const r=REQS.find(x=>x.ref===ref);
+  if(CLOSURE_R.find(c=>c.budRef===ref)){toast('This project is already marked as closed.','warn');return;}
+  CLOSURE_R.push({budRef:ref,projName:r.projName,gl:r.gl||'',geoLat:document.getElementById('closGeoLat')?.value||'',geoLng:document.getElementById('closGeoLng')?.value||'',geoName:document.getElementById('closGeoName')?.value||'',handDate:document.getElementById('closHandDate')?.value||'',handTo:document.getElementById('closHandTo')?.value||'',docType:document.getElementById('closDocType')?.value||'',misperiod:document.getElementById('closMISPeriod')?.value||'',remarks:document.getElementById('closRemarks')?.value||'',date:new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});
+  const lc=CLOSURE_R[CLOSURE_R.length-1];saveClos(lc).then(()=>{saveNewData();toast('Project '+ref+' has been marked as closed successfully!','success');resetClosure();renderClosureRec();refreshDashCards();});
+}
+function resetClosure(){document.getElementById('closureReqSel').value='';document.getElementById('closureDetails').style.display='none';document.getElementById('closureAct').style.display='none';}
+function renderClosureRec(){
+  const tb=document.getElementById('closureRecTb');if(!tb)return;
+  if(!CLOSURE_R.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:14px;color:var(--muted)">No closure records.</td></tr>';return;}
+  tb.innerHTML=[...CLOSURE_R].reverse().map(c=>`<tr><td><strong>${c.budRef}</strong></td><td>${c.projName}</td><td style="font-size:11px">${(c.gl||'').substring(0,15)}…</td><td>${c.date}</td><td>${c.geoLat&&c.geoLng?'✅ Done':'❌'}</td><td>${c.handTo?'✅ To: '+c.handTo:'❌'}</td><td>${c.docType?'✅ '+c.docType:'❌'}</td><td>${c.misperiod?'✅ '+c.misperiod:'❌'}</td><td>${c.by}</td></tr>`).join('');
+}
+
+// ── SAVING MODULE ─────────────────────────────────────
+function renderSavingTb(){
+  const tb=document.getElementById('savingTb');if(!tb)return;
+  const approved=REQS.filter(r=>r.status==='approved');
+  if(!approved.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">No approved budgets found.</td></tr>';return;}
+  
+  let totBud=0,totSR=0,totWO=0,totImpl=0;
+  const allSRs=[...SR_R,...SR_USER];
+  
+  tb.innerHTML=approved.map(r=>{
+    const srV=allSRs.filter(s=>s.budRef===r.ref).reduce((s,x)=>s+x.srVal,0);
+    const ioIds=IO_R.filter(i=>i.budRef===r.ref).map(i=>i.id);
+    const woV=WO_R.filter(w=>w.budRef===r.ref).reduce((s,x)=>s+x.val,0);
+    const implV=BILL_R.filter(b=>b.budRef===r.ref&&b.paymentDone).reduce((s,x)=>s+x.amt,0);
+    const sav1=r.bud-srV,sav2=srV-woV,sav3=woV-implV;
+    totBud+=r.bud;totSR+=srV;totWO+=woV;totImpl+=implV;
+    return `<tr>
+      <td><strong>${r.ref}</strong><br><span class="tmuted">${r.projName.substring(0,30)}</span></td>
+      <td class="amt">₹ ${fmt(r.bud)}</td>
+      <td class="amt">₹ ${fmt(srV)}</td>
+      <td class="amt">₹ ${fmt(woV)}</td>
+      <td class="amt">₹ ${fmt(implV)}</td>
+      <td class="amt" style="color:${sav1>=0?'var(--suc)':'var(--dan)'}">₹ ${fmt(sav1)}</td>
+      <td class="amt" style="color:${sav2>=0?'var(--suc)':'var(--dan)'}">₹ ${fmt(sav2)}</td>
+      <td class="amt" style="color:${sav3>=0?'var(--suc)':'var(--dan)'}">₹ ${fmt(sav3)}</td>
+    </tr>`;
+  }).join('')+`<tr style="font-weight:700;background:var(--acl)">
+    <td>TOTAL</td><td class="amt">₹ ${fmt(totBud)}</td><td class="amt">₹ ${fmt(totSR)}</td><td class="amt">₹ ${fmt(totWO)}</td><td class="amt">₹ ${fmt(totImpl)}</td>
+    <td class="amt" style="color:var(--suc)">₹ ${fmt(totBud-totSR)}</td>
+    <td class="amt" style="color:var(--suc)">₹ ${fmt(totSR-totWO)}</td>
+    <td class="amt" style="color:var(--suc)">₹ ${fmt(totWO-totImpl)}</td>
+  </tr>`;
+  
+  // Update saving summary cards
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('savBudTot','₹'+fmt(totBud));set('savSRTot','₹'+fmt(totSR));set('savImplTot','₹'+fmt(totImpl));set('savTotal','₹'+fmt(Math.max(0,totBud-totImpl)));
+}
+
+// ── NAV EXTENSION ─────────────────────────────────────
+const _origNav=nav;
+nav=function(page, el){
+  _origNav(page, el);
+  const d=new Date().toISOString().split('T')[0];
+  if(page==='srModule'){loadSRUserSels();renderSRUserRec();}
+  if(page==='ioModule'){loadIOModuleSels();renderIOModuleTb();}
+  if(page==='prModule'){loadPRSels();renderPRRec();}
+  if(page==='woModule'){loadWOSels();renderWORec();}
+  if(page==='implModule'){
+    loadImplSels();renderImplRec();
+    if(CU&&CU.role==='F&A Staff'){renderProvPending();renderBillPending();}
+  }
+  if(page==='closureModule'){loadClosureSels();renderClosureRec();}
+  if(page==='savingModule'){renderSavingTb();}
+};
+
+// ── VARIANCE GL MANAGEMENT ───────────────────────────
+window.addEventListener('load',()=>{
+  SR_USER=JSON.parse(localStorage.getItem('bps_sr_user')||'[]');
+  IO_REQ=JSON.parse(localStorage.getItem('bps_io_req')||'[]');
+  PR_R=JSON.parse(localStorage.getItem('bps_pr')||'[]');
+  WO_R=JSON.parse(localStorage.getItem('bps_wo')||'[]');
+  PROV_R=JSON.parse(localStorage.getItem('bps_prov')||'[]');
+  BILL_R=JSON.parse(localStorage.getItem('bps_bill')||'[]');
+  CLOSURE_R=JSON.parse(localStorage.getItem('bps_closure')||'[]');
+  NEWRC=parseInt(localStorage.getItem('bps_newrc')||'5001');
+  
+  // Populate chgVarianceGL
+  const glSel=document.getElementById('chgVarianceGL');
+  if(glSel)MD.gl_list.forEach(g=>glSel.innerHTML+=`<option value="${g}">${g}</option>`);
+  
+  // Variance management toggle
+  const varMgmt=document.getElementById('chgVarianceMgmt');
+  if(varMgmt){
+    varMgmt.addEventListener('change',function(){
+      const wrap=document.getElementById('chgVarianceGLWrap');
+      if(wrap)wrap.style.display=this.value==='gl_manage'?'block':'none';
+    });
+  }
+});
+
+// Refresh dashboard cards on page load
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    if(typeof refreshDashCards==='function')refreshDashCards();
+  },100);
+});
+
+
+
+// ── SIDEBAR COLLAPSE ──────────────────────────────────────────────
+function toggleSidebar(){
+  const sb=document.getElementById('mainSidebar');
+  const btn=document.getElementById('sbToggle');
+  const collapsed=sb.classList.toggle('collapsed');
+  btn.textContent=collapsed?'▶':'◀';
+  try{localStorage.setItem('bps_sb_collapsed',collapsed?'1':'0');}catch(e){}
+}
+window.addEventListener('load',function(){
+  try{
+    if(localStorage.getItem('bps_sb_collapsed')==='1'){
+      const sb=document.getElementById('mainSidebar');
+      const btn=document.getElementById('sbToggle');
+      if(sb)sb.classList.add('collapsed');
+      if(btn){btn.textContent='▶';}
+    }
+  }catch(e){}
+});
 
 </script>
 </body>
