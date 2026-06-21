@@ -39,9 +39,9 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt
 .fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 .fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
 .fgrid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
-#appScreen{display:none;min-height:100vh}#appScreen.active{display:flex;flex-direction:row;align-items:flex-start;min-height:100vh}
-.sidebar{width:var(--sw);min-width:var(--sw);background:var(--side);min-height:100vh;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;z-index:200;transition:width .25s cubic-bezier(.4,0,.2,1),min-width .25s cubic-bezier(.4,0,.2,1);overflow:hidden;flex-shrink:0;overflow-y:auto}
-.sidebar.collapsed{width:var(--sw-collapsed);min-width:var(--sw-collapsed)}
+#appScreen{display:none}#appScreen.active{display:block}
+.sidebar{width:var(--sw);background:var(--side);height:100vh;display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:200;transition:width .25s cubic-bezier(.4,0,.2,1);overflow:hidden;overflow-y:auto}
+.sidebar.collapsed{width:var(--sw-collapsed)}
 .sidebar.collapsed .brand,.sidebar.collapsed .uinfo,.sidebar.collapsed .nav-lbl,.sidebar.collapsed .ni .ni-label,.sidebar.collapsed .sb-ftr .lo-label{display:none!important}
 .sidebar.collapsed .sb-logo{justify-content:center;padding:0}
 .sidebar.collapsed .ucard{justify-content:center;padding:10px 0}
@@ -51,7 +51,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt
 .sidebar.collapsed .sb-ftr{padding:8px 4px}
 .sidebar.collapsed .btn-lo{width:38px;padding:0;justify-content:center;border-radius:50%}
 .sidebar.collapsed .btn-lo .lo-icon{margin:0}
-.sb-toggle{position:absolute;right:-13px;top:22px;z-index:300;width:26px;height:26px;border-radius:50%;background:var(--pri);border:2px solid #fff;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25);flex-shrink:0}
+.sb-toggle{position:fixed;left:calc(var(--sw) - 13px);top:20px;z-index:400;width:26px;height:26px;border-radius:50%;background:var(--pri);border:2.5px solid #fff;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:left .25s cubic-bezier(.4,0,.2,1)}
 .ni .ni-label{flex:1}
 .ni .ico{min-width:20px;text-align:center;font-size:15px}
 .sidebar.collapsed .ni[title]:hover::after{content:attr(title);position:fixed;left:70px;background:#1a3a5c;color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;white-space:nowrap;z-index:999;pointer-events:none}
@@ -71,10 +71,11 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt
 .sb-ftr{margin-top:auto;padding:11px;border-top:1px solid rgba(255,255,255,.08)}
 .btn-lo{width:100%;padding:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;color:rgba(255,255,255,.6);font-family:inherit;font-size:12px;cursor:pointer;transition:all .15s}
 .btn-lo:hover{background:rgba(255,255,255,.12);color:#fff}
-.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
-.topbar{height:var(--hh);background:#fff;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:50;box-shadow:var(--sh)}
+.main{margin-left:var(--sw);display:flex;flex-direction:column;min-height:100vh;transition:margin-left .25s cubic-bezier(.4,0,.2,1);overflow-x:hidden}
+.main.collapsed{margin-left:var(--sw-collapsed)}
+.topbar{height:var(--hh);background:#fff;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:50;box-shadow:var(--sh);flex-shrink:0}
 .tb-title{font-size:14px;font-weight:700;color:var(--pri)}.tb-sub{font-size:11px;color:var(--muted);margin-top:1px}
-.page{display:none;padding:18px}.page.active{display:block}
+.page{display:none;padding:16px 20px}.page.active{display:block}
 .card{background:var(--card);border-radius:var(--rad);border:1px solid var(--bdr);box-shadow:var(--sh);margin-bottom:15px}
 .card-hdr{padding:10px 15px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#f8fafc,#fff);border-radius:var(--rad) var(--rad) 0 0}
 .card-hdr h3{font-size:11px;font-weight:700;color:var(--pri);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
@@ -495,8 +496,7 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
 
 <!-- APP -->
 <div id="appScreen">
-  <div class="sidebar" id="mainSidebar" style="position:relative">
-    <button class="sb-toggle" id="sbToggle" onclick="toggleSidebar()" title="Toggle sidebar">◀</button>
+  <div class="sidebar" id="mainSidebar">
     <div class="sb-hdr"><div class="sb-logo"><div class="icon">📊</div><div class="brand">BudgetMS <small>FY 2026-27</small></div></div></div>
     <div class="ucard">
       <div class="uav" id="sbAv">U</div>
@@ -520,7 +520,8 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
     <div class="sb-ftr"><button class="btn-lo" onclick="doLogout()"><span class="lo-icon">⎋</span><span class="lo-label"> Sign Out</span></button></div>
   </div>
 
-  <div class="main" id="mainContent" style="position:relative">
+  <button class="sb-toggle" id="sbToggle" onclick="toggleSidebar()" title="Toggle sidebar">◀</button>
+  <div class="main" id="mainContent">
     <div class="topbar">
       <div><div class="tb-title" id="pgTitle">Dashboard</div><div class="tb-sub">Budget Management System v2 — FY 2026-27</div></div>
       <span class="tmuted" id="topUser">—</span>
@@ -1105,7 +1106,7 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
     <div class="card-hdr"><h3>IO Request History</h3></div>
     <div style="overflow-x:auto">
       <table class="blist-tbl" style="width:100%">
-        <thead><tr><th>IO Req Ref</th><th>Budget Ref</th><th>SR No.</th><th>GL</th><th>Description</th><th>Amount(₹)</th><th>Date</th><th>Status</th><th>IO No. (F&A)</th></tr></thead>
+        <thead><tr><th>IO Req Ref</th><th>Budget Ref</th><th>SR No.</th><th>GL</th><th>Description</th><th>Amount(₹)</th><th>Date</th><th>Status</th><th>IO No. (F&A)</th><th></th></tr></thead>
         <tbody id="ioUserReqTb"><tr><td colspan="9" style="text-align:center;padding:14px;color:var(--muted)">No requests.</td></tr></tbody>
       </table>
     </div>
@@ -1164,12 +1165,25 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
       <button class="btn bp" onclick="submitPR()">💾 Submit PR / MRF</button>
     </div>
   </div>
+  <!-- SC Approval Card -->
+  <div class="card" id="prSCApprovalCard" style="display:none">
+    <div class="card-hdr"><h3>🔍 Supply Chain — PR/MRF Approval</h3></div>
+    <div class="cbody">
+      <div class="ibox">Review and approve pending PR/MRF requests from Programme Team.</div>
+      <div style="overflow-x:auto">
+        <table class="blist-tbl" style="width:100%">
+          <thead><tr><th>Ref</th><th>Type</th><th>PR/MRF No.</th><th>Budget Ref</th><th>GL</th><th>IO Balance(₹)</th><th>Amount(₹)</th><th>Vendor</th><th>By</th><th>Action</th></tr></thead>
+          <tbody id="prPendingSCTb"><tr><td colspan="10" style="text-align:center;padding:14px;color:var(--muted)">No pending requests.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
   <div class="card">
     <div class="card-hdr"><h3>PR/MRF Records</h3></div>
     <div style="overflow-x:auto">
       <table class="blist-tbl" style="width:100%">
-        <thead><tr><th>Ref</th><th>Type</th><th>PR/MRF No.</th><th>Budget Ref</th><th>GL</th><th>Description</th><th>Amount(₹)</th><th>Vendor</th><th>Date</th><th>By</th><th></th></tr></thead>
-        <tbody id="prRecTb"><tr><td colspan="11" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr></tbody>
+        <thead><tr><th>Ref</th><th>Type</th><th>PR/MRF No.</th><th>Budget Ref</th><th>GL</th><th>Description</th><th>Amount(₹)</th><th>Vendor</th><th>Date</th><th>Status</th><th>By</th><th></th></tr></thead>
+        <tbody id="prRecTb"><tr><td colspan="12" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr></tbody>
       </table>
     </div>
   </div>
@@ -1298,7 +1312,7 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
     <div class="card-hdr"><h3>Implementation Records (All)</h3></div>
     <div style="overflow-x:auto">
       <table class="blist-tbl" style="width:100%">
-        <thead><tr><th>Ref</th><th>Budget Ref</th><th>GL</th><th>Type</th><th>Amount(₹)</th><th>Status</th><th>Date</th></tr></thead>
+        <thead><tr><th>Ref</th><th>Budget Ref</th><th>GL</th><th>Type</th><th>Amount(₹)</th><th>Status</th><th>Date</th><th></th></tr></thead>
         <tbody id="implRecTb"><tr><td colspan="7" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr></tbody>
       </table>
     </div>
@@ -1396,7 +1410,7 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
     <div class="card-hdr"><h3>Closure Records</h3></div>
     <div style="overflow-x:auto">
       <table class="blist-tbl" style="width:100%">
-        <thead><tr><th>Budget Ref</th><th>Project</th><th>GL</th><th>Closure Date</th><th>Geo Tag</th><th>Handover</th><th>Doc</th><th>MIS</th><th>By</th></tr></thead>
+        <thead><tr><th>Budget Ref</th><th>Project</th><th>GL</th><th>Closure Date</th><th>Geo Tag</th><th>Handover</th><th>Doc</th><th>MIS</th><th>By</th><th></th></tr></thead>
         <tbody id="closureRecTb"><tr><td colspan="9" style="text-align:center;padding:14px;color:var(--muted)">No closure records.</td></tr></tbody>
       </table>
     </div>
@@ -2035,7 +2049,7 @@ function _approveRCore(ref,rmk='Approved'){
   r.hist.push({v:r.version||1,act:'Approved',by:CU.name,role:CU.role,at:new Date().toLocaleDateString('en-IN'),note:rmk});
   if(CU.level>=7)r.status='approved';else r.curLvl=CU.level+1;
   showLoader('Saving approval...');
-  saveReq(r).then(()=>{hideLoader();toast(ref+' approved.','success');renderApprovals();refreshDash();updBadge();closeMod();renderBMSummary();});
+  saveReq(r).then(()=>{hideLoader();closeMod();toast(ref+' approved successfully.','success');renderApprovals();refreshDash();updBadge();renderBMSummary();});
 }
 function openRetMod(ref){
   document.getElementById('mTitle').textContent='↩ Return to Initiator — '+ref;
@@ -2290,7 +2304,13 @@ function refreshDash(){
   const tb=document.getElementById('dashTb');if(!REQS.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">No requests yet.</td></tr>';return;}
   tb.innerHTML=[...REQS].reverse().slice(0,8).map(r=>{const vb=r.version>1?`<span class="vbadge">v${r.version}</span>`:'';const sc=r.status==='returned'?'sp-ret':r.status==='approved'?'sp-a':r.status==='rejected'?'sp-r':'sp-p';return `<tr><td><strong style="font-family:'IBM Plex Mono',monospace">${r.ref}</strong>${vb}</td><td>v${r.version||1}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.projName}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.gl}">${r.gl.substring(0,18)}…</td><td>${r.loc}</td><td class="amt">₹ ${fmt(r.bud)}</td><td><span class="spill ${sc}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td><td><button class="btn bo bxs" onclick="viewReq('${r.ref}')">👁</button></td></tr>`;}).join('');
 }
-function updBadge(){const cnt=getMyApprovals().length;const b=document.getElementById('aBadge');b.textContent=cnt;b.style.display=cnt>0?'inline-block':'none';}
+function updBadge(){
+  const cnt=getMyApprovals().length;
+  const b=document.getElementById('aBadge');
+  if(b){b.textContent=cnt>0?cnt:'';b.style.display=cnt>0?'inline-block':'none';}
+  const sp=document.getElementById('stPnd');
+  if(sp)sp.textContent=cnt;
+}
 
 // ── MODAL & TOAST ─────────────────────────────────────────────────
 function openApproveWithComment(ref){
@@ -2692,41 +2712,42 @@ const _origShowApp=showApp;
 showApp=function(){
   _origShowApp();
   const u=CU;
-  const isProgTeam=u.role==='Initiator'||u.role==='Unit P&A'||u.role==='Unit Lead'||u.role==='Programme Team';
-  const isFA=u.role==='F&A Staff';
-  const isSC=u.role==='Supply Chain';
-  const isAnyUser=u.level>=1;
-  // SR Menu — Programme Team + F&A
-  const navSR=document.getElementById('navSR');
-  if(navSR)navSR.style.display=isAnyUser?'flex':'none';
-  // IO Module
-  const navIO=document.getElementById('navIO');
-  if(navIO)navIO.style.display=isAnyUser?'flex':'none';
-  // PR/MRF - User
-  const navPR=document.getElementById('navPR');
-  if(navPR)navPR.style.display=isAnyUser?'flex':'none';
-  // WO/PO/RO - Supply Chain + F&A
-  const navWO=document.getElementById('navWO');
-  if(navWO)navWO.style.display=(isSC||isFA)?'flex':'none';
-  // Implementation
-  const navImpl=document.getElementById('navImpl');
-  if(navImpl)navImpl.style.display=isAnyUser?'flex':'none';
-  // Closure
-  const navClosure=document.getElementById('navClosure');
-  if(navClosure)navClosure.style.display=isAnyUser?'flex':'none';
-  // Saving
-  const navSaving=document.getElementById('navSaving');
-  if(navSaving)navSaving.style.display='flex';
-  // IO Issue card - only F&A
-  const ioIssueCard=document.getElementById('ioIssueCard');
-  if(ioIssueCard)ioIssueCard.style.display=isFA?'block':'none';
-  // Prov approval card - only F&A
-  const provApprovalCard=document.getElementById('provApprovalCard');
-  if(provApprovalCard)provApprovalCard.style.display=isFA?'block':'none';
-  // Payment card - only F&A
-  const paymentCard=document.getElementById('paymentCard');
-  if(paymentCard)paymentCard.style.display=isFA?'block':'none';
-};
+  const isInitiator = u.role==='Initiator';
+  const isFA        = u.role==='F&A Staff';
+  const isSC        = u.role==='Supply Chain';
+  const isAdmin     = u.role==='Admin';
+  const isApprover  = !isInitiator && !isFA && !isSC && !isAdmin && u.level>=2 && u.level<=7;
+
+  const show = (id,vis) => { const el=document.getElementById(id); if(el) el.style.display=vis?'flex':'none'; };
+  const showB= (id,vis) => { const el=document.getElementById(id); if(el) el.style.display=vis?'block':'none'; };
+
+  // SR: Initiator only
+  show('navSR', isInitiator);
+  // IO: Initiator + F&A
+  show('navIO', isInitiator || isFA);
+  // PR/MRF: Initiator + SC
+  show('navPR', isInitiator || isSC);
+  // WO/PO/RO: SC only
+  show('navWO', isSC);
+  // Implementation: Initiator + F&A + SC
+  show('navImpl', isInitiator || isFA || isSC);
+  // Closure: Initiator only
+  show('navClosure', isInitiator);
+  // Savings: not approvers
+  show('navSaving', !isApprover);
+  // F&A old module: hidden always
+  show('navFA', false);
+  // Approvers: hide all transactional menus
+  if(isApprover){
+    ['navSR','navIO','navPR','navWO','navImpl','navClosure','navSaving','navFA'].forEach(id=>show(id,false));
+  }
+  // Cards inside modules
+  showB('ioIssueCard', isFA);
+  showB('ioRequestCard', isInitiator);
+  showB('prSCApprovalCard', isSC);
+  showB('provApprovalCard', isFA);
+  showB('paymentCard', isFA);
+}
 
 // ── DASHBOARD 8-CARD REFRESH ─────────────────────────
 const _origRefreshDash=refreshDash;
@@ -2846,7 +2867,14 @@ function renderSRUserRec(){
   if(!recs.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;padding:12px;color:var(--muted)">No records.</td></tr>';return;}
   tb.innerHTML=[...recs].reverse().map(s=>`<tr><td><strong>${s.id}</strong></td><td>${s.budRef}</td><td>${s.projName}</td><td style="font-size:11px">${s.gl.substring(0,20)}…</td><td>${s.loc}</td><td>${s.srNo}</td><td class="amt">₹ ${fmt(s.srVal)}</td><td>${s.date}</td><td>${s.by}</td><td><button class="btn bd bxs" onclick="delSRUser('${s.id}')">✕</button></td></tr>`).join('');
 }
-function delSRUser(id){SR_USER=SR_USER.filter(s=>s.id!==id);saveNewData();renderSRUserRec();refreshDashCards();}
+async function delSRUser(id){
+  if(!confirm('Delete this SR entry? This cannot be undone.'))return;
+  SR_USER=SR_USER.filter(s=>s.id!==id);
+  saveNewData();
+  if(isSBConfigured()) await dbDelete('sr_user_records','id',id);
+  renderSRUserRec();refreshDashCards();
+  toast('SR entry deleted.','success');
+}
 function bulkSRUser(inp){
   const f=inp.files[0];if(!f)return;
   const r=new FileReader();r.onload=e=>{
@@ -2888,12 +2916,15 @@ function submitIOReq(){
 }
 function resetIOReq(){document.getElementById('ioReqSRSel').value='';document.getElementById('ioReqDetails').style.display='none';document.getElementById('ioReqAct').style.display='none';['ioReqDesc','ioReqAmt'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});}
 function renderIOModuleTb(){
+  try{const fr=JSON.parse(localStorage.getItem('bps_io_req')||'[]');if(fr.length>=IO_REQ.length)IO_REQ=fr;}catch(e){}
+  // Reload from localStorage to get latest issued IO numbers
+  try{const fresh=JSON.parse(localStorage.getItem('bps_io_req')||'[]');if(fresh.length>=IO_REQ.length)IO_REQ=fresh;}catch(e){}
   // User's requests
   const userTb=document.getElementById('ioUserReqTb');
   if(userTb){
-    const myReqs=CU.role==='F&A Staff'?IO_REQ:IO_REQ.filter(r=>r.by===CU.name);
+    const myReqs=(CU.role==='F&A Staff'||CU.role==='Admin')?IO_REQ:IO_REQ.filter(r=>r.by===CU.name||r.by===CU.email);
     userTb.innerHTML=!myReqs.length?'<tr><td colspan="9" style="text-align:center;padding:14px;color:var(--muted)">No requests.</td></tr>':
-    [...myReqs].reverse().map(r=>`<tr><td><strong>${r.id}</strong></td><td>${r.budRef}</td><td>${r.srNo}</td><td style="font-size:11px">${(r.gl||'').substring(0,20)}…</td><td style="max-width:150px">${r.desc.substring(0,60)}…</td><td class="amt">₹ ${fmt(r.amt)}</td><td>${r.date}</td><td><span class="spill ${r.status==='Issued'?'sp-a':'sp-p'}">${r.status}</span></td><td><strong style="color:var(--suc)">${r.ioNo||'—'}</strong></td></tr>`).join('');
+    [...myReqs].reverse().map(r=>'<tr><td><strong>'+r.id+'</strong></td><td>'+r.budRef+'</td><td>'+r.srNo+'</td><td style="font-size:11px">'+(r.gl||'').substring(0,20)+'…</td><td style="max-width:150px">'+r.desc.substring(0,60)+'…</td><td class="amt">₹ '+fmt(r.amt)+'</td><td>'+r.date+'</td><td><span class="spill '+(r.status==='Issued'?'sp-a':'sp-p')+'">'+r.status+'</span></td><td><strong style="color:var(--suc)">'+( r.ioNo||'—')+'</strong></td><td>'+(r.status==='Pending'?'<button class="btn bd bxs" onclick="delIOReq(\''+r.id+'\')" title="Delete">✕</button>':'')+'</td></tr>').join('');
   }
   // F&A pending
   const pendTb=document.getElementById('ioPendingTb');
@@ -2953,7 +2984,10 @@ function submitPR(){
     const type=cells[0].value,no=cells[1].value.trim(),desc=cells[2].value.trim(),gl=cells[3].value,amt=parseFloat(cells[4].value)||0,vendor=cells[5].value.trim();
     if(!no||!amt){toast('Number and Amount are required.','error');return;}
     const r=REQS.find(x=>x.ref===ref);
-    PR_R.push({id:(type==='PR'?'PR-':'MRF-')+NEWRC++,type,no,budRef:ref,projName:r.projName,gl,desc,amt,vendor,date:document.getElementById('prDate').value||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});
+    // Check IO balance
+    const ioBalance=getIOBalance(ref,gl);
+    if(amt>ioBalance&&ioBalance>=0){toast('Amount ₹'+fmt(amt)+' exceeds IO balance ₹'+fmt(ioBalance)+' for this GL.','error');return;}
+    PR_R.push({id:(type==='PR'?'PR-':'MRF-')+NEWRC++,type,no,budRef:ref,projName:r.projName,gl,desc,amt,vendor,date:document.getElementById('prDate').value||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN'),status:'Pending SC',scBy:'—',scAt:'—'});
     saved++;
   });
   if(saved>0){Promise.all(PR_R.slice(-saved).map(r=>savePR(r))).then(()=>{saveNewData();toast(saved+' PR/MRF record(s) saved successfully.','success');resetPR();renderPRRec();refreshDashCards();});}
@@ -2963,9 +2997,16 @@ function renderPRRec(){
   const tb=document.getElementById('prRecTb');if(!tb)return;
   const recs=CU.role==='F&A Staff'?PR_R:PR_R.filter(p=>p.by===CU.name);
   if(!recs.length){tb.innerHTML='<tr><td colspan="11" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr>';return;}
-  tb.innerHTML=[...recs].reverse().map(p=>`<tr><td><strong>${p.id}</strong></td><td><span class="spill sp-p">${p.type}</span></td><td>${p.no}</td><td>${p.budRef}</td><td style="font-size:11px">${(p.gl||'').substring(0,15)}…</td><td>${p.desc||'—'}</td><td class="amt">₹ ${fmt(p.amt)}</td><td>${p.vendor||'—'}</td><td>${p.date}</td><td>${p.by}</td><td><button class="btn bd bxs" onclick="delPR('${p.id}')">✕</button></td></tr>`).join('');
+  tb.innerHTML=[...recs].reverse().map(p=>'<tr><td><strong>'+p.id+'</strong></td><td><span class="spill sp-p">'+p.type+'</span></td><td>'+p.no+'</td><td>'+p.budRef+'</td><td style="font-size:11px">'+(p.gl||'').substring(0,15)+'…</td><td>'+(p.desc||'—')+'</td><td class="amt">₹ '+fmt(p.amt)+'</td><td>'+(p.vendor||'—')+'</td><td>'+p.date+'</td><td><span class="spill '+(p.status==='SC Approved'?'sp-a':p.status==='Rejected'?'sp-ret':'sp-p')+'">'+( p.status||'Submitted')+'</span></td><td>'+p.by+'</td><td><button class="btn bd bxs" onclick="delPR(\''+p.id+'\')" >✕</button></td></tr>').join('');
 }
-function delPR(id){PR_R=PR_R.filter(p=>p.id!==id);saveNewData();renderPRRec();refreshDashCards();}
+async function delPR(id){
+  if(!confirm('Delete this PR/MRF entry? This cannot be undone.'))return;
+  PR_R=PR_R.filter(p=>p.id!==id);
+  saveNewData();
+  if(isSBConfigured()) await dbDelete('pr_mrf_records','id',id);
+  renderPRRec();refreshDashCards();
+  toast('PR/MRF entry deleted.','success');
+}
 
 // ── WO/PO/RO MODULE ──────────────────────────────────
 let woRC=0;
@@ -2999,6 +3040,10 @@ function submitWO(){
     const type=cells[0].value,no=cells[1].value.trim(),gl=cells[2].value,val=parseFloat(cells[3].value)||0,stage=cells[4].value,vendor=cells[5].value.trim();
     if(!no||!val){toast('Order Number and Value are required.','error');return;}
     const r=REQS.find(x=>x.ref===ref);
+    const ioBalWO=getIOBalance(ref,gl);
+    if(val>ioBalWO&&ioBalWO>=0){toast('WO/PO/RO value ₹'+fmt(val)+' exceeds IO balance ₹'+fmt(ioBalWO)+'.','error');return;}
+    const ioBal2=getIOBalance(ref,gl);
+    if(ioBal2>=0&&val>ioBal2){toast('Order value ₹'+fmt(val)+' exceeds available IO balance ₹'+fmt(ioBal2)+'.','error');return;}
     WO_R.push({id:(type+'-')+NEWRC++,type,no,budRef:ref,projName:r.projName,gl,val,stage,vendor,date:document.getElementById('woDate').value||new Date().toLocaleDateString('en-IN'),by:CU.name,at:new Date().toLocaleDateString('en-IN')});
     saved++;
   });
@@ -3014,7 +3059,14 @@ function renderWORec(){
   if(!recs.length){tb.innerHTML='<tr><td colspan="11" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr>';return;}
   tb.innerHTML=[...recs].reverse().map(w=>`<tr><td><strong>${w.id}</strong></td><td><span class="spill sp-p">${w.type}</span></td><td>${w.no}</td><td>${w.budRef}</td><td style="font-size:11px">${(w.gl||'').substring(0,15)}…</td><td class="amt">₹ ${fmt(w.val)}</td><td><span class="spill ${w.stage==='Released'?'sp-a':'sp-p'}">${w.stage}</span></td><td>${w.vendor||'—'}</td><td>${w.date}</td><td>${w.by}</td><td><button class="btn bd bxs" onclick="delWO('${w.id}')">✕</button></td></tr>`).join('');
 }
-function delWO(id){WO_R=WO_R.filter(w=>w.id!==id);saveNewData();renderWORec();refreshDashCards();}
+async function delWO(id){
+  if(!confirm('Delete this WO/PO/RO entry? This cannot be undone.'))return;
+  WO_R=WO_R.filter(w=>w.id!==id);
+  saveNewData();
+  if(isSBConfigured()) await dbDelete('wo_po_ro_records','id',id);
+  renderWORec();refreshDashCards();
+  toast('WO/PO/RO entry deleted.','success');
+}
 function bulkWO(inp){
   const f=inp.files[0];if(!f)return;
   const r=new FileReader();r.onload=e=>{
@@ -3093,9 +3145,25 @@ function markPayment(el){const id=typeof el==='string'?el:el.dataset.id;const b=
 function markIntimation(el){const id=typeof el==='string'?el:el.dataset.id;const b=BILL_R.find(x=>x.id===id);if(!b)return;b.intimationDone=true;b.intiBy=CU.name;b.intiAt=new Date().toLocaleDateString('en-IN');saveNewData();toast('Intimation marked as done successfully!','success');renderBillPending();}
 function renderImplRec(){
   const tb=document.getElementById('implRecTb');if(!tb)return;
-  const allImplRecs=[...PROV_R.map(p=>({id:p.id,budRef:p.budRef,gl:p.gl,type:'Provision',amt:p.amt,status:p.faApproved?'Approved':'Pending',date:p.date})),...BILL_R.map(b=>({id:b.id,budRef:b.budRef,gl:b.gl,type:'Bill ('+b.billType+')',amt:b.amt,status:b.paymentDone&&b.intimationDone?'Complete':b.paymentDone?'Payment Done':'Pending',date:b.date}))];
-  if(!allImplRecs.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr>';return;}
-  tb.innerHTML=[...allImplRecs].reverse().map(r=>`<tr><td><strong>${r.id}</strong></td><td>${r.budRef}</td><td style="font-size:11px">${(r.gl||'').substring(0,18)}…</td><td>${r.type}</td><td class="amt">₹ ${fmt(r.amt)}</td><td><span class="spill ${r.status==='Complete'||r.status==='Approved'?'sp-a':r.status==='Payment Done'?'sp-ret':'sp-p'}">${r.status}</span></td><td>${r.date}</td></tr>`).join('');
+  const allImplRecs=[...PROV_R.map(p=>({id:p.id,budRef:p.budRef,gl:p.gl,type:'Provision',amt:p.amt,status:p.faApproved?'Approved':'Pending',date:p.date,dtype:'prov'})),...BILL_R.map(b=>({id:b.id,budRef:b.budRef,gl:b.gl,type:'Bill ('+b.billType+')',amt:b.amt,status:b.paymentDone&&b.intimationDone?'Complete':b.paymentDone?'Payment Done':'Pending',date:b.date,dtype:'bill'}))];
+  if(!allImplRecs.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:14px;color:var(--muted)">No records.</td></tr>';return;}
+  (function(){
+    var rows='';
+    [...allImplRecs].reverse().forEach(function(r){
+      var sc=r.status==='Complete'||r.status==='Approved'?'sp-a':r.status==='Payment Done'?'sp-ret':'sp-p';
+      rows+='<tr>'+
+        '<td><strong>'+r.id+'</strong></td>'+
+        '<td>'+r.budRef+'</td>'+
+        '<td style="font-size:11px">'+(r.gl||'').substring(0,18)+'…</td>'+
+        '<td>'+r.type+'</td>'+
+        '<td class="amt">&#8377; '+fmt(r.amt)+'</td>'+
+        '<td><span class="spill '+sc+'">'+r.status+'</span></td>'+
+        '<td>'+r.date+'</td>'+
+        '<td><button class="btn bd bxs" data-id="'+r.id+'" data-dt="'+(r.dtype||'')+'" onclick="delImplRec(this.dataset.id,this.dataset.dt)">&#x2715;</button></td>'+
+      '</tr>';
+    });
+    tb.innerHTML=rows;
+  })();
 }
 
 // ── CLOSURE MODULE ───────────────────────────────────
@@ -3121,7 +3189,7 @@ function resetClosure(){document.getElementById('closureReqSel').value='';docume
 function renderClosureRec(){
   const tb=document.getElementById('closureRecTb');if(!tb)return;
   if(!CLOSURE_R.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:14px;color:var(--muted)">No closure records.</td></tr>';return;}
-  tb.innerHTML=[...CLOSURE_R].reverse().map(c=>`<tr><td><strong>${c.budRef}</strong></td><td>${c.projName}</td><td style="font-size:11px">${(c.gl||'').substring(0,15)}…</td><td>${c.date}</td><td>${c.geoLat&&c.geoLng?'✅ Done':'❌'}</td><td>${c.handTo?'✅ To: '+c.handTo:'❌'}</td><td>${c.docType?'✅ '+c.docType:'❌'}</td><td>${c.misperiod?'✅ '+c.misperiod:'❌'}</td><td>${c.by}</td></tr>`).join('');
+  tb.innerHTML=[...CLOSURE_R].reverse().map(c=>'<tr><td><strong>'+c.budRef+'</strong></td><td>'+c.projName+'</td><td style="font-size:11px">'+(c.gl||'').substring(0,15)+'…</td><td>'+c.date+'</td><td>'+(c.geoLat&&c.geoLng?'✅ Done':'❌')+'</td><td>'+(c.handTo?'✅ To: '+c.handTo:'❌')+'</td><td>'+(c.docType?'✅ '+c.docType:'❌')+'</td><td>'+(c.misperiod?'✅ '+c.misperiod:'❌')+'</td><td>'+c.by+'</td><td><button class="btn bd bxs" onclick="delClosure(\''+c.budRef+'\')" title="Remove closure">✕</button></td></tr>').join('');
 }
 
 // ── SAVING MODULE ─────────────────────────────────────
@@ -3169,7 +3237,7 @@ nav=function(page, el){
   const d=new Date().toISOString().split('T')[0];
   if(page==='srModule'){loadSRUserSels();renderSRUserRec();}
   if(page==='ioModule'){loadIOModuleSels();renderIOModuleTb();}
-  if(page==='prModule'){loadPRSels();renderPRRec();}
+  if(page==='prModule'){loadPRSels();renderPRRec();if(CU&&CU.role==='Supply Chain')renderPRSCPending();}
   if(page==='woModule'){loadWOSels();renderWORec();}
   if(page==='implModule'){
     loadImplSels();renderImplRec();
@@ -3177,6 +3245,7 @@ nav=function(page, el){
   }
   if(page==='closureModule'){loadClosureSels();renderClosureRec();}
   if(page==='savingModule'){renderSavingTb();}
+  if(page==='report'){renderReport();}
 };
 
 // ── VARIANCE GL MANAGEMENT ───────────────────────────
@@ -3213,24 +3282,151 @@ window.addEventListener('load',()=>{
 
 
 
+
+// ── IO BALANCE HELPER ─────────────────────────────────────────
+function getIOBalance(budRef, gl){
+  const allIOs=[...IO_R,...IO_REQ.filter(r=>r.status==='Issued')];
+  const ioTotal=allIOs.filter(i=>i.budRef===budRef&&(!gl||i.gl===gl)).reduce((s,i)=>s+(i.ioVal||i.amt||0),0);
+  if(ioTotal<=0) return -1;
+  const prUsed=PR_R.filter(p=>p.budRef===budRef&&(!gl||p.gl===gl)&&p.status!=='Rejected').reduce((s,p)=>s+p.amt,0);
+  const woUsed=WO_R.filter(w=>w.budRef===budRef&&(!gl||w.gl===gl)).reduce((s,w)=>s+w.val,0);
+  return Math.max(0, ioTotal - Math.max(prUsed, woUsed));
+}
+function renderPRSCPending(){
+  const tb=document.getElementById('prPendingSCTb');if(!tb)return;
+  const pending=PR_R.filter(p=>p.status==='Pending SC');
+  if(!pending.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;padding:14px;color:var(--muted)">No pending requests.</td></tr>';return;}
+  tb.innerHTML=pending.map(p=>{
+    const bal=getIOBalance(p.budRef,p.gl);
+    return '<tr><td><strong>'+p.id+'</strong></td><td><span class="spill sp-p">'+p.type+'</span></td><td>'+p.no+'</td><td>'+p.budRef+'</td><td style="font-size:11px">'+(p.gl||'').substring(0,15)+'…</td><td class="amt">'+(bal<0?'—':'₹ '+fmt(bal))+'</td><td class="amt">₹ '+fmt(p.amt)+'</td><td>'+(p.vendor||'—')+'</td><td>'+p.by+'</td>'+
+    '<td><button class="btn bs bxs" onclick="approvePRSC(\''+p.id+'\')" style="margin-right:4px">✅ Approve</button><button class="btn bd bxs" onclick="rejectPRSC(\''+p.id+'\')" >❌ Reject</button></td></tr>';
+  }).join('');
+}
+async function approvePRSC(id){
+  const p=PR_R.find(x=>x.id===id);if(!p)return;
+  p.status='SC Approved';p.scBy=CU.name;p.scAt=new Date().toLocaleDateString('en-IN');
+  saveNewData();
+  if(isSBConfigured()) await dbUpsert('pr_mrf_records',{id:p.id,type:p.type,no:p.no,bud_ref:p.budRef,proj_name:p.projName,gl:p.gl,description:p.desc,amt:p.amt,vendor:p.vendor,date:p.date,added_by:p.by,status:p.status});
+  toast(id+' approved by Supply Chain.','success');
+  renderPRSCPending();renderPRRec();
+}
+async function rejectPRSC(id){
+  if(!confirm('Reject this PR/MRF request?'))return;
+  const p=PR_R.find(x=>x.id===id);if(!p)return;
+  p.status='Rejected';p.scBy=CU.name;p.scAt=new Date().toLocaleDateString('en-IN');
+  saveNewData();
+  toast(id+' rejected.','warn');
+  renderPRSCPending();renderPRRec();
+}
+
+
+function renderReport(){
+  const tbody=document.getElementById('rptBody');if(!tbody)return;
+  const fRef=document.getElementById('rptFRef')?.value||'';
+  const fLoc=document.getElementById('rptFLoc')?.value||'';
+  const fTheme=document.getElementById('rptFTheme')?.value||'';
+  const fFY=document.getElementById('rptFFY')?.value||'';
+  let reqs=REQS.filter(r=>r.status==='approved');
+  if(fRef)reqs=reqs.filter(r=>r.ref.toLowerCase().includes(fRef.toLowerCase()));
+  if(fLoc)reqs=reqs.filter(r=>r.loc===fLoc);
+  if(fTheme)reqs=reqs.filter(r=>r.theme===fTheme);
+  if(fFY)reqs=reqs.filter(r=>r.fy===fFY);
+  if(!reqs.length){tbody.innerHTML='<tr><td colspan="11" style="text-align:center;padding:20px;color:var(--muted)">No records.</td></tr>';return;}
+  const allSRs=[...SR_R,...SR_USER];
+  const allIOs=[...IO_R,...IO_REQ.filter(r=>r.status==='Issued')];
+  tbody.innerHTML=reqs.map(r=>{
+    const srT=allSRs.filter(s=>s.budRef===r.ref).reduce((s,x)=>s+(x.srVal||0),0);
+    const ioT=allIOs.filter(i=>i.budRef===r.ref).reduce((s,x)=>s+(x.ioVal||x.amt||0),0);
+    const woT=WO_R.filter(w=>w.budRef===r.ref).reduce((s,x)=>s+x.val,0);
+    const actT=BILL_R.filter(b=>b.budRef===r.ref&&b.paymentDone).reduce((s,x)=>s+x.amt,0);
+    const sav=r.bud-actT;
+    return '<tr>'+
+      '<td><strong>'+r.ref+'</strong></td><td>'+r.projName.substring(0,22)+'</td>'+
+      '<td>'+r.loc+'</td><td>'+r.theme+'</td><td>'+r.fy+'</td>'+
+      '<td class="amt">₹ '+fmt(r.bud)+'</td>'+
+      '<td class="amt">₹ '+fmt(srT)+'</td>'+
+      '<td class="amt">₹ '+fmt(ioT)+'</td>'+
+      '<td class="amt">₹ '+fmt(woT)+'</td>'+
+      '<td class="amt">₹ '+fmt(actT)+'</td>'+
+      '<td class="amt" style="color:'+(sav>=0?'var(--suc)':'var(--dan)')+'">₹ '+fmt(sav)+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
 // ── SIDEBAR COLLAPSE ──────────────────────────────────────────────
 function toggleSidebar(){
   const sb=document.getElementById('mainSidebar');
+  const mc=document.getElementById('mainContent');
   const btn=document.getElementById('sbToggle');
   const collapsed=sb.classList.toggle('collapsed');
-  btn.textContent=collapsed?'▶':'◀';
+  if(mc) mc.classList.toggle('collapsed', collapsed);
+  const sw=collapsed?'var(--sw-collapsed)':'var(--sw)';
+  if(btn){
+    btn.style.left='calc('+sw+' - 13px)';
+    btn.textContent=collapsed?'▶':'◀';
+  }
   try{localStorage.setItem('bps_sb_collapsed',collapsed?'1':'0');}catch(e){}
 }
 window.addEventListener('load',function(){
   try{
-    if(localStorage.getItem('bps_sb_collapsed')==='1'){
+    const collapsed=localStorage.getItem('bps_sb_collapsed')==='1';
+    if(collapsed){
       const sb=document.getElementById('mainSidebar');
+      const mc=document.getElementById('mainContent');
       const btn=document.getElementById('sbToggle');
-      if(sb)sb.classList.add('collapsed');
-      if(btn){btn.textContent='▶';}
+      if(sb) sb.classList.add('collapsed');
+      if(mc) mc.classList.add('collapsed');
+      if(btn){ btn.style.left='calc(var(--sw-collapsed) - 13px)'; btn.textContent='▶'; }
     }
   }catch(e){}
 });
+
+
+
+// ── IO BALANCE CALCULATOR ─────────────────────────────────────
+function getIOBalance(budRef, gl){
+  // Total IO value for this budget ref + gl
+  const allIOs=[...IO_R,...IO_REQ.filter(r=>r.status==='Issued')];
+  const ioTotal=allIOs.filter(i=>i.budRef===budRef&&(!gl||i.gl===gl)).reduce((s,i)=>s+(i.ioVal||i.amt||0),0);
+  // Total already consumed by approved PRs and WOs
+  const prUsed=PR_R.filter(p=>p.budRef===budRef&&(!gl||p.gl===gl)&&p.status!=='Rejected').reduce((s,p)=>s+p.amt,0);
+  const woUsed=WO_R.filter(w=>w.budRef===budRef&&(!gl||w.gl===gl)).reduce((s,w)=>s+w.val,0);
+  if(ioTotal<=0) return -1; // No IO found, allow (no restriction)
+  return Math.max(0, ioTotal - Math.max(prUsed, woUsed));
+}
+
+// ── DELETE FUNCTIONS WITH SUPABASE SYNC ──────────────────────────
+async function delImplRec(id, dtype){
+  if(!confirm('Delete this '+( dtype==='prov'?'Provision':'Bill')+' record? This cannot be undone.'))return;
+  if(dtype==='prov'){
+    PROV_R=PROV_R.filter(p=>p.id!==id);
+    if(isSBConfigured()) await dbDelete('provision_records','id',id);
+  } else {
+    BILL_R=BILL_R.filter(b=>b.id!==id);
+    if(isSBConfigured()) await dbDelete('bill_records','id',id);
+  }
+  saveNewData();
+  renderImplRec();renderProvPending();renderBillPending();refreshDashCards();
+  toast('Record deleted successfully.','success');
+}
+
+async function delIOReq(id){
+  if(!confirm('Delete this IO Request? This cannot be undone.'))return;
+  IO_REQ=IO_REQ.filter(r=>r.id!==id);
+  saveNewData();
+  if(isSBConfigured()) await dbDelete('io_requests','id',id);
+  renderIOModuleTb();refreshDashCards();
+  toast('IO Request deleted.','success');
+}
+
+async function delClosure(budRef){
+  if(!confirm('Remove closure record for '+budRef+'? Project will be marked as open again.'))return;
+  CLOSURE_R=CLOSURE_R.filter(c=>c.budRef!==budRef);
+  saveNewData();
+  if(isSBConfigured()) await dbDelete('closure_records','bud_ref',budRef);
+  renderClosureRec();refreshDashCards();
+  toast('Closure record removed.','success');
+}
 
 </script>
 </body>
