@@ -39,7 +39,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt
 .fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 .fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
 .fgrid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
-#appScreen{display:none}#appScreen.active{display:block}
+#appScreen{display:none}#appScreen.active{display:block;width:100%;min-height:100vh}
 .sidebar{width:var(--sw);background:var(--side);height:100vh;display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:200;transition:width .25s cubic-bezier(.4,0,.2,1);overflow:hidden;overflow-y:auto}
 .sidebar.collapsed{width:var(--sw-collapsed)}
 .sidebar.collapsed .brand,.sidebar.collapsed .uinfo,.sidebar.collapsed .nav-lbl,.sidebar.collapsed .ni .ni-label,.sidebar.collapsed .sb-ftr .lo-label{display:none!important}
@@ -71,11 +71,11 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--txt
 .sb-ftr{margin-top:auto;padding:11px;border-top:1px solid rgba(255,255,255,.08)}
 .btn-lo{width:100%;padding:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:5px;color:rgba(255,255,255,.6);font-family:inherit;font-size:12px;cursor:pointer;transition:all .15s}
 .btn-lo:hover{background:rgba(255,255,255,.12);color:#fff}
-.main{margin-left:var(--sw);display:flex;flex-direction:column;min-height:100vh;transition:margin-left .25s cubic-bezier(.4,0,.2,1);overflow-x:hidden}
-.main.collapsed{margin-left:var(--sw-collapsed)}
+.main{margin-left:var(--sw);width:calc(100vw - var(--sw));display:flex;flex-direction:column;min-height:100vh;transition:margin-left .25s cubic-bezier(.4,0,.2,1),width .25s cubic-bezier(.4,0,.2,1);overflow-x:hidden;box-sizing:border-box}
+.main.collapsed{margin-left:var(--sw-collapsed);width:calc(100vw - var(--sw-collapsed))}
 .topbar{height:var(--hh);background:#fff;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:50;box-shadow:var(--sh);flex-shrink:0}
 .tb-title{font-size:14px;font-weight:700;color:var(--pri)}.tb-sub{font-size:11px;color:var(--muted);margin-top:1px}
-.page{display:none;padding:16px 20px}.page.active{display:block}
+.page{display:none;padding:16px 20px;box-sizing:border-box;width:100%}.page.active{display:block}
 .card{background:var(--card);border-radius:var(--rad);border:1px solid var(--bdr);box-shadow:var(--sh);margin-bottom:15px}
 .card-hdr{padding:10px 15px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#f8fafc,#fff);border-radius:var(--rad) var(--rad) 0 0}
 .card-hdr h3{font-size:11px;font-weight:700;color:var(--pri);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
@@ -2274,9 +2274,18 @@ function prevReport(){
   const maxVer=data.reduce((m,r)=>Math.max(m,r.version||1),1);
   const tbl=document.getElementById('rptTbl');
   const vHdrs=Array.from({length:maxVer},(_,i)=>`<th>V${i+1}(₹)</th>`).join('');
-  tbl.innerHTML=`<thead><tr><th>Ref#</th><th>Ver</th><th>Project Name</th><th>GL</th><th>Theme</th><th>Dept</th><th>Location</th><th>Founder</th><th>Budget(₹)</th>${vHdrs}<th>SR(₹)</th><th>IO(₹)</th><th>Actual(₹)</th><th>Status</th><th>By</th><th>Date</th></tr></thead><tbody>${data.length?data.map(r=>{
+  tbl.innerHTML=`<thead><tr><th>Ref#</th><th>Ver</th><th>Project Name</th><th>GL</th><th>Theme</th><th>Dept</th><th>Location</th><th>Founder</th><th>Budget(₹)</th>${vHdrs}<th>SR(₹)</th><th>IO(₹)</th><th>WO/PO/RO(₹)</th><th>Provision(₹)</th><th>Actual Spend(₹)</th><th>Saving(₹)</th><th>Status</th><th>By</th><th>Date</th></tr></thead><tbody>${data.length?data.map(r=>{
     const vers=r.budVersions||[{v:1,bud:r.bud}];const vCells=Array.from({length:maxVer},(_,i)=>`<td class="amt">${vers[i]?fmt(vers[i].bud):'—'}</td>`).join('');
-    const srV=SR_R.filter(s=>s.budRef===r.ref).reduce((s,x)=>s+x.srVal,0);const ioV=IO_R.filter(i=>i.budRef===r.ref).reduce((s,x)=>s+x.ioVal,0);const ioIds=IO_R.filter(i=>i.budRef===r.ref).map(i=>i.id);const act=AC_R.filter(a=>ioIds.includes(a.ioId)).reduce((s,x)=>s+x.amount,0);
+    const allSRs=[...SR_R,...(SR_USER||[])];
+    const allIOs=[...IO_R,...(IO_REQ||[]).filter(q=>q.status==='Issued')];
+    const srV=allSRs.filter(s=>s.budRef===r.ref).reduce((s,x)=>s+(x.srVal||0),0);
+    const ioV=allIOs.filter(i=>i.budRef===r.ref).reduce((s,x)=>s+(x.ioVal||x.amt||0),0);
+    const woV=(WO_R||[]).filter(w=>w.budRef===r.ref).reduce((s,x)=>s+(x.val||0),0);
+    const provV=(PROV_R||[]).filter(p=>p.budRef===r.ref).reduce((s,x)=>s+(x.amt||0),0);
+    const act=(BILL_R||[]).filter(b=>b.budRef===r.ref&&b.paymentDone).reduce((s,x)=>s+(x.amt||0),0);
+    const oldAct=(AC_R||[]).filter(a=>IO_R.filter(i=>i.budRef===r.ref).map(i=>i.id).includes(a.ioId)).reduce((s,x)=>s+(x.amount||0),0);
+    const totalAct=act+oldAct;
+    const saving=r.bud-totalAct;
     const sc=r.status==='returned'?'sp-ret':r.status==='approved'?'sp-a':r.status==='rejected'?'sp-r':'sp-p';
     return `<tr><td>${r.ref}</td><td>v${r.version||1}</td><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis">${r.projName}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis" title="${r.gl}">${r.gl.substring(0,15)}…</td><td>${r.theme}</td><td>${r.dept}</td><td>${r.loc}</td><td>${r.founder||'—'}</td><td class="amt">${fmt(r.bud)}</td>${vCells}<td class="amt">${fmt(srV)}</td><td class="amt">${fmt(ioV)}</td><td class="amt">${fmt(act)}</td><td><span class="spill ${sc}">${r.status}</span></td><td>${r.byName}</td><td>${r.at}</td></tr>`;
   }).join(''):'<tr><td colspan="30" style="text-align:center;padding:14px;color:var(--muted)">No records available.</td></tr>'}</tbody>`;
@@ -2285,10 +2294,19 @@ function genReport(){
   const data=getFilt();if(!data.length){toast('No records available.','error');return;}
   const maxVer=data.reduce((m,r)=>Math.max(m,r.version||1),1);
   const vHdrs=Array.from({length:maxVer},(_,i)=>`V${i+1} Budget(₹)`);
-  const hdr=['Ref #','Version','Project Name','GL','Theme','Department','Location','Cluster','Unit','Founder','Budget(₹)',...vHdrs,'SR Value(₹)','IO Value(₹)','Actual Spend(₹)','Balance(₹)','Status','Submitted By','Date'];
+  const hdr=['Ref #','Version','Project Name','GL','Theme','Department','Location','Cluster','Unit','Founder','Budget(₹)',...vHdrs,'SR Value(₹)','IO Value(₹)','WO/PO/RO Value(₹)','Provision(₹)','Actual Spend(₹)','Saving(₹)','Balance(₹)','Status','Submitted By','Date'];
   const rows=data.map(r=>{
     const vers=r.budVersions||[{v:1,bud:r.bud}];const vVals=Array.from({length:maxVer},(_,i)=>vers[i]?vers[i].bud:'');
-    const srV=SR_R.filter(s=>s.budRef===r.ref).reduce((s,x)=>s+x.srVal,0);const ioV=IO_R.filter(i=>i.budRef===r.ref).reduce((s,x)=>s+x.ioVal,0);const ioIds=IO_R.filter(i=>i.budRef===r.ref).map(i=>i.id);const act=AC_R.filter(a=>ioIds.includes(a.ioId)).reduce((s,x)=>s+x.amount,0);
+    const allSRs2=[...SR_R,...(SR_USER||[])];
+    const allIOs2=[...IO_R,...(IO_REQ||[]).filter(q=>q.status==='Issued')];
+    const srV=allSRs2.filter(s=>s.budRef===r.ref).reduce((s,x)=>s+(x.srVal||0),0);
+    const ioV=allIOs2.filter(i=>i.budRef===r.ref).reduce((s,x)=>s+(x.ioVal||x.amt||0),0);
+    const woV=(WO_R||[]).filter(w=>w.budRef===r.ref).reduce((s,x)=>s+(x.val||0),0);
+    const provV=(PROV_R||[]).filter(p=>p.budRef===r.ref).reduce((s,x)=>s+(x.amt||0),0);
+    const billAct=(BILL_R||[]).filter(b=>b.budRef===r.ref&&b.paymentDone).reduce((s,x)=>s+(x.amt||0),0);
+    const oldAct2=(AC_R||[]).filter(a=>IO_R.filter(i=>i.budRef===r.ref).map(i=>i.id).includes(a.ioId)).reduce((s,x)=>s+(x.amount||0),0);
+    const act=billAct+oldAct2;
+    const saving=r.bud-act;
     return [r.ref,'v'+(r.version||1),r.projName,r.gl,r.theme,r.dept,r.loc,r.cluster||'',r.unit||'',r.founder||'',r.bud,...vVals,srV,ioV,act,r.bud-act,r.status,r.byName,r.at];
   });
   const csv=[hdr,...rows].map(r=>r.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
