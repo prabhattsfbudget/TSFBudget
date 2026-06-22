@@ -202,6 +202,22 @@ input:checked+.toggle-slider:before{transform:translateX(26px)}
 .status-on{color:var(--suc);font-weight:700;font-size:12px}
 .status-off{color:var(--dan);font-weight:700;font-size:12px}
 
+
+/* PIPELINE TRACKER */
+.pipe-wrap{position:relative;display:inline-flex;align-items:center;gap:1px;cursor:default}
+.pipe-step{width:21px;height:21px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;transition:transform .15s;user-select:none;flex-shrink:0}
+.pipe-step.done{background:#16a34a;color:#fff;box-shadow:0 0 0 2px #bbf7d0}
+.pipe-step.current{background:#f59e0b;color:#fff;box-shadow:0 0 0 2px #fde68a;animation:ppulse .9s ease infinite alternate}
+.pipe-step.pending{background:#e2e8f0;color:#94a3b8;box-shadow:0 0 0 1px #cbd5e1}
+@keyframes ppulse{from{transform:scale(1)}to{transform:scale(1.2)}}
+.pipe-tip{position:fixed;z-index:99999;background:#0f2540;color:#fff;border-radius:10px;padding:12px 16px;min-width:240px;pointer-events:none;display:none;box-shadow:0 10px 30px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.12)}
+.pipe-tip-title{font-weight:700;font-size:13px;margin-bottom:8px;color:#7dd3fc;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:6px}
+.pt-row{display:flex;align-items:center;gap:8px;padding:4px 0}
+.pt-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.pt-dot.done{background:#22c55e}.pt-dot.current{background:#f59e0b}.pt-dot.pending{background:#475569}
+.pt-name{flex:1;font-size:12px;color:rgba(255,255,255,.85)}
+.pt-val{font-size:11px;color:#86efac;font-family:monospace;text-align:right}
+.pipe-wrap:hover .pipe-tip{display:block}
 </style>
   <script>
 // Minimal inline Supabase REST client - no CDN needed
@@ -618,7 +634,7 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
         <div class="card-hdr"><h3>📋 Recent Requests</h3></div>
         <div style="overflow-x:auto">
           <table class="blist-tbl" style="width:100%">
-            <thead><tr><th>Ref #</th><th>Ver</th><th>Project Name</th><th>GL</th><th>Location</th><th>Budget(₹)</th><th>Status</th><th></th></tr></thead>
+            <thead><tr><th>Ref #</th><th>Ver</th><th>Project Name</th><th>GL</th><th>Location</th><th>Budget(₹)</th><th>Pipeline</th><th>Status</th><th></th></tr></thead>
             <tbody id="dashTb"><tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">No requests yet.</td></tr></tbody>
           </table>
         </div>
@@ -640,7 +656,7 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
         </div>
         <div style="overflow-x:auto">
           <table class="blist-tbl" style="width:100%;min-width:900px">
-            <thead><tr><th>Ref #</th><th>Ver</th><th>Project Name</th><th>GL</th><th>Theme</th><th>Dept</th><th>Location</th><th>Budget(₹)</th><th>SR(₹)</th><th>IO(₹)</th><th>Actual(₹)</th><th>Balance(₹)</th><th>Util%</th><th>Status</th><th></th></tr></thead>
+            <thead><tr><th>Ref #</th><th>Ver</th><th>Project Name</th><th>GL</th><th>Theme</th><th>Dept</th><th>Location</th><th>Budget(₹)</th><th>SR(₹)</th><th>IO(₹)</th><th>Actual(₹)</th><th>Balance(₹)</th><th>Util%</th><th>Pipeline</th><th>Status</th><th></th></tr></thead>
             <tbody id="bmSummaryTb"><tr><td colspan="15" style="text-align:center;padding:24px;color:var(--muted)">No requests yet.</td></tr></tbody>
           </table>
         </div>
@@ -828,7 +844,7 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
         <div class="card-hdr"><h3>📋 My Budget Requests</h3></div>
         <div style="overflow-x:auto">
           <table class="blist-tbl" style="width:100%">
-            <thead><tr><th>Ref #</th><th>Ver</th><th>Type</th><th>Project Name</th><th>GL</th><th>Location</th><th>Budget(₹)</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Ref #</th><th>Ver</th><th>Type</th><th>Project Name</th><th>GL</th><th>Location</th><th>Budget(₹)</th><th>Date</th><th>Pipeline</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="mineTb"><tr><td colspan="10" style="text-align:center;padding:24px;color:var(--muted)">No requests yet.</td></tr></tbody>
           </table>
         </div>
@@ -1966,7 +1982,7 @@ function renderBMSummary(){
       <td class="amt" style="color:var(--dan)">${act?'₹ '+fmt(act):'—'}</td>
       <td class="amt" style="color:${bal>=0?'var(--suc)':'var(--dan)'}"><strong>₹ ${fmt(bal)}</strong></td>
       <td><div style="display:flex;align-items:center;gap:5px"><div class="util-bar" style="width:48px"><div class="util-fill" style="width:${Math.min(util,100)}%;background:${uc}"></div></div><span style="font-size:11px;color:${uc}">${util}%</span></div></td>
-      <td><span class="spill ${sc}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td>
+      <td>${getPipeHTML(r.ref)}</td><td><span class="spill ${sc}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td>
       <td><button class="btn bo bxs" onclick="viewReq('${r.ref}')">👁</button></td></tr>`;
   }).join('');
 }
@@ -2015,7 +2031,7 @@ function renderMine(){
     const vb=r.version>1?`<span class="vbadge">v${r.version}</span>`:'';
     const sc=r.status==='returned'?'sp-ret':r.status==='approved'?'sp-a':r.status==='rejected'?'sp-r':'sp-p';
     const eBtn=r.status==='returned'?`<button class="btn br bxs" onclick="openEdit('${r.ref}')">✏️</button>`:'';
-    return `<tr><td><strong style="font-family:'IBM Plex Mono',monospace">${r.ref}</strong>${vb}</td><td>v${r.version||1}</td><td><span class="spill" style="background:#e8f4fd;color:#1565c0">${r.type}</span></td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.projName}</td><td style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.gl}">${r.gl.substring(0,18)}…</td><td>${r.loc}</td><td class="amt">₹ ${fmt(r.bud)}</td><td>${r.at}</td><td><span class="spill ${sc}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td><td style="display:flex;gap:3px">${eBtn}<button class="btn bo bxs" onclick="viewReq('${r.ref}')">👁</button></td></tr>`;
+    return `<tr><td><strong style="font-family:'IBM Plex Mono',monospace">${r.ref}</strong>${vb}</td><td>v${r.version||1}</td><td><span class="spill" style="background:#e8f4fd;color:#1565c0">${r.type}</span></td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.projName}</td><td style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.gl}">${r.gl.substring(0,18)}…</td><td>${r.loc}</td><td class="amt">₹ ${fmt(r.bud)}</td><td>${r.at}</td><td>${getPipeHTML(r.ref)}</td><td><span class="spill ${sc}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td><td style="display:flex;gap:3px">${eBtn}<button class="btn bo bxs" onclick="viewReq('${r.ref}')">👁</button></td></tr>`;
   }).join('');
 }
 
@@ -2318,7 +2334,7 @@ function genReport(){
 function refreshDash(){
   document.getElementById('stTot').textContent=REQS.length;document.getElementById('stPnd').textContent=REQS.filter(r=>r.status==='pending').length;document.getElementById('stRet').textContent=REQS.filter(r=>r.status==='returned').length;document.getElementById('stBud').textContent='₹'+fmt(REQS.reduce((s,r)=>s+r.bud,0));
   const tb=document.getElementById('dashTb');if(!REQS.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">No requests yet.</td></tr>';return;}
-  tb.innerHTML=[...REQS].reverse().slice(0,8).map(r=>{const vb=r.version>1?`<span class="vbadge">v${r.version}</span>`:'';const sc=r.status==='returned'?'sp-ret':r.status==='approved'?'sp-a':r.status==='rejected'?'sp-r':'sp-p';return `<tr><td><strong style="font-family:'IBM Plex Mono',monospace">${r.ref}</strong>${vb}</td><td>v${r.version||1}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.projName}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.gl}">${r.gl.substring(0,18)}…</td><td>${r.loc}</td><td class="amt">₹ ${fmt(r.bud)}</td><td><span class="spill ${sc}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td><td><button class="btn bo bxs" onclick="viewReq('${r.ref}')">👁</button></td></tr>`;}).join('');
+  tb.innerHTML=[...REQS].reverse().slice(0,8).map(r=>{const vb=r.version>1?`<span class="vbadge">v${r.version}</span>`:'';const sc=r.status==='returned'?'sp-ret':r.status==='approved'?'sp-a':r.status==='rejected'?'sp-r':'sp-p';return `<tr><td><strong style="font-family:'IBM Plex Mono',monospace">${r.ref}</strong>${vb}</td><td>v${r.version||1}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.projName}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.gl}">${r.gl.substring(0,18)}…</td><td>${r.loc}</td><td class="amt">₹ ${fmt(r.bud)}</td><td>${getPipeHTML(r.ref)}</td><td><span class="spill ${sc}">${r.status.charAt(0).toUpperCase()+r.status.slice(1)}</span></td><td><button class="btn bo bxs" onclick="viewReq('${r.ref}')">👁</button></td></tr>`;}).join('');
 }
 function updBadge(){
   const cnt=getMyApprovals().length;
@@ -3368,6 +3384,68 @@ function renderReport(){
     '</tr>';
   }).join('');
 }
+
+
+// PIPELINE TRACKER
+function getPipeStage(ref){
+  var r=REQS.find(function(x){return x.ref===ref;})||{};
+  var bud=r.bud||0;
+  var aSRs=SR_R.concat((SR_USER||[]));
+  var aIOs=IO_R.concat((IO_REQ||[]).filter(function(q){return q.status==='Issued';}));
+  var srAmt=aSRs.filter(function(s){return s.budRef===ref;}).reduce(function(s,x){return s+(x.srVal||0);},0);
+  var ioAmt=aIOs.filter(function(i){return i.budRef===ref;}).reduce(function(s,x){return s+(x.ioVal||x.amt||0);},0);
+  var prAmt=(PR_R||[]).filter(function(p){return p.budRef===ref;}).reduce(function(s,x){return s+x.amt;},0);
+  var woAmt=(WO_R||[]).filter(function(w){return w.budRef===ref;}).reduce(function(s,x){return s+x.val;},0);
+  var implAmt=(PROV_R||[]).filter(function(p){return p.budRef===ref;}).reduce(function(s,x){return s+x.amt;},0);
+  var actAmt=(BILL_R||[]).filter(function(b){return b.budRef===ref&&b.paymentDone;}).reduce(function(s,x){return s+x.amt;},0);
+  var closed=(CLOSURE_R||[]).some(function(c){return c.budRef===ref;});
+  var saving=bud-actAmt;
+  var cur=1;
+  if(srAmt>0)cur=2; if(ioAmt>0)cur=3; if(prAmt>0)cur=4;
+  if(woAmt>0)cur=5; if(implAmt>0)cur=6; if(closed)cur=7;
+  if(closed&&actAmt>0)cur=8;
+  return {cur:cur,bud:bud,srAmt:srAmt,ioAmt:ioAmt,prAmt:prAmt,woAmt:woAmt,implAmt:implAmt,actAmt:actAmt,saving:saving,closed:closed};
+}
+function getPipeHTML(ref){
+  var p=getPipeStage(ref);
+  var STAGES=[
+    {n:'\u2460',lbl:'Budget',       val:p.bud>0    ?'\u20b9'+fmt(p.bud)    :''},
+    {n:'\u2461',lbl:'SR',           val:p.srAmt>0  ?'\u20b9'+fmt(p.srAmt)  :''},
+    {n:'\u2462',lbl:'IO',           val:p.ioAmt>0  ?'\u20b9'+fmt(p.ioAmt)  :''},
+    {n:'\u2463',lbl:'PR / MRF',     val:p.prAmt>0  ?'\u20b9'+fmt(p.prAmt)  :''},
+    {n:'\u2464',lbl:'WO/PO/RO',     val:p.woAmt>0  ?'\u20b9'+fmt(p.woAmt)  :''},
+    {n:'\u2465',lbl:'Implementation',val:p.implAmt>0?'\u20b9'+fmt(p.implAmt):''},
+    {n:'\u2466',lbl:'Closure',       val:p.closed   ?'\u2705 Done'           :''},
+    {n:'\u2467',lbl:'Saving',        val:p.actAmt>0 ?'\u20b9'+fmt(p.saving) :''},
+  ];
+  var circles='';
+  var rows='';
+  STAGES.forEach(function(s,i){
+    var sn=i+1;
+    var cls=sn<p.cur?'done':sn===p.cur?'current':'pending';
+    circles+='<span class="pipe-step '+cls+'" title="'+s.lbl+'">'+s.n+'</span>';
+    var lbl=sn<p.cur?'\u2705 Done':sn===p.cur?'\ud83d\udd04 Active':'\u23f3 Pending';
+    rows+='<div class="pt-row"><div class="pt-dot '+cls+'"></div><span class="pt-name">'+s.n+' '+s.lbl+'</span><span class="pt-val">'+(s.val||lbl)+'</span></div>';
+  });
+  var tip='<div class="pipe-tip"><div class="pipe-tip-title">\ud83d\udcca Pipeline \u2014 Stage '+p.cur+' / 8</div>'+rows+'</div>';
+  return '<div class="pipe-wrap">'+circles+tip+'</div>';
+}
+
+
+// Pipeline tooltip follow mouse
+document.addEventListener('mousemove',function(e){
+  var tips=document.querySelectorAll('.pipe-tip');
+  tips.forEach(function(t){
+    var pw=t.parentElement;
+    if(pw&&pw.matches(':hover')){
+      var x=e.clientX+14, y=e.clientY+14;
+      if(x+250>window.innerWidth) x=e.clientX-264;
+      if(y+320>window.innerHeight) y=e.clientY-324;
+      t.style.left=x+'px';
+      t.style.top=y+'px';
+    }
+  });
+});
 
 // ── SIDEBAR COLLAPSE ──────────────────────────────────────────────
 function toggleSidebar(){
