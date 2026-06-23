@@ -522,7 +522,7 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
     <div class="ni active" onclick="nav('dashboard',this)" title="Dashboard"><span class="ico">🏠</span><span class="ni-label">Dashboard</span></div>
     <div class="ni" id="navBM" onclick="nav('budgetMgmt',this)" title="Budget Management"><span class="ico">💼</span><span class="ni-label">Budget Management</span></div>
     <div class="ni" id="navMine" onclick="nav('myReqs',this)" title="My Requests"><span class="ico">📋</span><span class="ni-label">My Requests</span></div>
-    <div class="ni" id="navApp" onclick="nav('approvals',this)" title="Approvals" style="display:none"><span class="ico">✅</span><span class="ni-label">Pending Approvals </span><span class="nbadge" id="aBadge">0</span></div>
+    <div class="ni" id="navApp" onclick="nav('approvals',this)" title="Approvals" style="display:none"><span class="ico">✅</span><span class="ni-label">Pending Approvals </span><span class="nbadge" id="aBadge" style="display:none"></span></div>
     <div class="ni" id="navCon" onclick="nav('consolidated',this)" title="Consolidated View" style="display:none"><span class="ico">📈</span><span class="ni-label">Consolidated View</span></div>
     <div class="ni" id="navFA" onclick="nav('faModule',this)" title="F&A Module" style="display:none"><span class="ico">💰</span><span class="ni-label">F&amp;A Module</span></div>
     <div class="ni" id="navSR" onclick="nav('srModule',this)" title="SR Management" style="display:none"><span class="ico">📋</span><span class="ni-label">SR Management</span></div>
@@ -1843,13 +1843,13 @@ function doLogin(){
       // Admin goes to main app (showApp) with full access
       CU={...u,id};hideAll();showApp();toast('Welcome, Administrator!','success');return;
     }
-    CU={...u,id};hideAll();showApp();toast('Welcome, '+u.name+'!','success');return;
+    CU={...u,id};hideAll();showApp();setTimeout(function(){updBadge();},150);toast('Welcome, '+u.name+'!','success');return;
   }
   if(UP[id]){
     const u=UP[id];
     const storedPwd=u.pwd||'';
     if(storedPwd && pw!==storedPwd){toast('Incorrect password. Please try again.','error');return;}
-    CU={...u,id};hideAll();showApp();toast('Welcome back, '+CU.name+'!','success');return;
+    CU={...u,id};hideAll();showApp();setTimeout(function(){updBadge();},150);toast('Welcome back, '+CU.name+'!','success');return;
   }
   document.getElementById('loginScreen').classList.remove('active');
   document.getElementById('profileScreen').classList.add('active');
@@ -1869,7 +1869,7 @@ function saveCtx(){
   const val=document.getElementById('cxSel').value;if(!val){toast('Please select.','error');return;}
   const u=window._pu,type=document.getElementById('contextScreen').dataset.ctype;
   if(type==='unit')u.unit=val;else if(type==='cluster')u.cluster=val;else u.theme=val;
-  CU=u;window._pu=null;hideAll();showApp();toast('Welcome '+u.name+'. Context: '+val,'success');
+  CU=u;window._pu=null;hideAll();showApp();setTimeout(function(){updBadge();},150);toast('Welcome '+u.name+'. Context: '+val,'success');
 }
 function onProfLoc(){const l=document.getElementById('pLoc').value;document.getElementById('pUnit').value=OD.loc_unit[l]||'';document.getElementById('pCluster').value=OD.loc_cluster[l]||'';}
 async function saveProfile(){
@@ -2963,6 +2963,8 @@ showApp=function(){
   showB('prSCApprovalCard', isSC);
   showB('provApprovalCard', isFA);
   showB('paymentCard', isFA);
+  // Always update badge after showing app
+  setTimeout(function(){ updBadge(); }, 100);
 }
 
 // ── DASHBOARD 8-CARD REFRESH ─────────────────────────
@@ -3828,67 +3830,126 @@ function filterAdminTbl(tbId, q){
 }
 
 // Admin Delete functions — confirm + localStorage + Supabase
+
+// ── SAVE ALL DATA TO LOCALSTORAGE (used after admin deletes) ─────
+function saveAllLS(){
+  localStorage.setItem('bps_reqs',    JSON.stringify(REQS));
+  localStorage.setItem('bps_sr',      JSON.stringify(SR_R));
+  localStorage.setItem('bps_io',      JSON.stringify(IO_R));
+  localStorage.setItem('bps_act',     JSON.stringify(AC_R));
+  localStorage.setItem('bps_sr_user', JSON.stringify(SR_USER||[]));
+  localStorage.setItem('bps_io_req',  JSON.stringify(IO_REQ||[]));
+  localStorage.setItem('bps_pr',      JSON.stringify(PR_R||[]));
+  localStorage.setItem('bps_wo',      JSON.stringify(WO_R||[]));
+  localStorage.setItem('bps_prov',    JSON.stringify(PROV_R||[]));
+  localStorage.setItem('bps_bill',    JSON.stringify(BILL_R||[]));
+  localStorage.setItem('bps_closure', JSON.stringify(CLOSURE_R||[]));
+}
+
 async function adminDelBudget(ref){
-  if(!confirm('DELETE Budget Request '+ref+' permanently? This will also affect all related SR, IO, PR, WO, Implementation records.'))return;
+  if(!confirm('DELETE Budget Request '+ref+' permanently?\nAll related SR, IO, PR, WO, Implementation records will also be deleted.'))return;
+  // Remove from memory
   REQS=REQS.filter(r=>r.ref!==ref);
-  saveReqs();
-  if(isSBConfigured()) await dbDelete('budget_requests','ref',ref);
-  toast('Budget '+ref+' deleted.','success');
+  // Also clean related records
+  SR_R=(SR_R||[]).filter(s=>s.budRef!==ref);
+  SR_USER=(SR_USER||[]).filter(s=>s.budRef!==ref);
+  IO_R=(IO_R||[]).filter(i=>i.budRef!==ref);
+  IO_REQ=(IO_REQ||[]).filter(i=>i.budRef!==ref);
+  PR_R=(PR_R||[]).filter(p=>p.budRef!==ref);
+  WO_R=(WO_R||[]).filter(w=>w.budRef!==ref);
+  PROV_R=(PROV_R||[]).filter(p=>p.budRef!==ref);
+  BILL_R=(BILL_R||[]).filter(b=>b.budRef!==ref);
+  CLOSURE_R=(CLOSURE_R||[]).filter(c=>c.budRef!==ref);
+  // Save ALL to localStorage immediately
+  saveAllLS();
+  // Delete from Supabase
+  if(isSBConfigured()){
+    await dbDelete('budget_requests','ref',ref);
+    await dbDelete('sr_records','bud_ref',ref);
+    await dbDelete('sr_user_records','bud_ref',ref);
+    await dbDelete('io_records','bud_ref',ref);
+    await dbDelete('io_requests','bud_ref',ref);
+    await dbDelete('pr_mrf_records','bud_ref',ref);
+    await dbDelete('wo_po_ro_records','bud_ref',ref);
+    await dbDelete('provision_records','bud_ref',ref);
+    await dbDelete('bill_records','bud_ref',ref);
+    await dbDelete('closure_records','bud_ref',ref);
+  }
+  toast('Budget '+ref+' and all related records deleted permanently.','success');
   renderAdminDB(); refreshDash(); refreshDashCards();
 }
+
 async function adminDelSR(idSrc){
   const [id,src]=idSrc.split(':');
   if(!confirm('DELETE SR record '+id+'?'))return;
-  if(src==='fa'){SR_R=SR_R.filter(s=>s.id!==id);localStorage.setItem('bps_sr',JSON.stringify(SR_R));if(isSBConfigured())await dbDelete('sr_records','id',id);}
-  else{SR_USER=(SR_USER||[]).filter(s=>s.id!==id);localStorage.setItem('bps_sr_user',JSON.stringify(SR_USER));if(isSBConfigured())await dbDelete('sr_user_records','id',id);}
+  if(src==='fa'){
+    SR_R=SR_R.filter(s=>s.id!==id);
+    if(isSBConfigured()) await dbDelete('sr_records','id',id);
+  } else {
+    SR_USER=(SR_USER||[]).filter(s=>s.id!==id);
+    if(isSBConfigured()) await dbDelete('sr_user_records','id',id);
+  }
+  saveAllLS();
   toast('SR '+id+' deleted.','success');
   renderAdminDB(); refreshDashCards();
 }
+
 async function adminDelIO(idSrc){
   const [id,src]=idSrc.split(':');
   if(!confirm('DELETE IO record '+id+'?'))return;
-  if(src==='fa'){IO_R=IO_R.filter(i=>i.id!==id);localStorage.setItem('bps_io',JSON.stringify(IO_R));if(isSBConfigured())await dbDelete('io_records','id',id);}
-  else{IO_REQ=(IO_REQ||[]).filter(i=>i.id!==id);localStorage.setItem('bps_io_req',JSON.stringify(IO_REQ));if(isSBConfigured())await dbDelete('io_requests','id',id);}
+  if(src==='fa'){
+    IO_R=IO_R.filter(i=>i.id!==id);
+    if(isSBConfigured()) await dbDelete('io_records','id',id);
+  } else {
+    IO_REQ=(IO_REQ||[]).filter(i=>i.id!==id);
+    if(isSBConfigured()) await dbDelete('io_requests','id',id);
+  }
+  saveAllLS();
   toast('IO '+id+' deleted.','success');
   renderAdminDB(); refreshDashCards();
 }
+
 async function adminDelPR(id){
   if(!confirm('DELETE PR/MRF record '+id+'?'))return;
   PR_R=(PR_R||[]).filter(p=>p.id!==id);
-  saveNewData();
-  if(isSBConfigured())await dbDelete('pr_mrf_records','id',id);
+  saveAllLS();
+  if(isSBConfigured()) await dbDelete('pr_mrf_records','id',id);
   toast('PR/MRF '+id+' deleted.','success');
   renderAdminDB(); refreshDashCards();
 }
+
 async function adminDelWO(id){
   if(!confirm('DELETE WO/PO/RO record '+id+'?'))return;
   WO_R=(WO_R||[]).filter(w=>w.id!==id);
-  saveNewData();
-  if(isSBConfigured())await dbDelete('wo_po_ro_records','id',id);
+  saveAllLS();
+  if(isSBConfigured()) await dbDelete('wo_po_ro_records','id',id);
   toast('WO/PO/RO '+id+' deleted.','success');
   renderAdminDB(); refreshDashCards();
 }
+
 async function adminDelProv(id){
   if(!confirm('DELETE Provision record '+id+'?'))return;
   PROV_R=(PROV_R||[]).filter(p=>p.id!==id);
-  saveNewData();
-  if(isSBConfigured())await dbDelete('provision_records','id',id);
+  saveAllLS();
+  if(isSBConfigured()) await dbDelete('provision_records','id',id);
   toast('Provision '+id+' deleted.','success');
   renderAdminDB(); refreshDashCards();
 }
+
 async function adminDelBill(id){
   if(!confirm('DELETE Bill record '+id+'?'))return;
   BILL_R=(BILL_R||[]).filter(b=>b.id!==id);
-  saveNewData();
-  if(isSBConfigured())await dbDelete('bill_records','id',id);
+  saveAllLS();
+  if(isSBConfigured()) await dbDelete('bill_records','id',id);
   toast('Bill '+id+' deleted.','success');
   renderAdminDB(); refreshDashCards();
 }
+
 async function adminDelClosure(budRef){
-  if(!confirm('REMOVE Closure record for '+budRef+'? Project will be open again.'))return;
+  if(!confirm('REMOVE Closure for '+budRef+'? Project will be marked as open again.'))return;
   CLOSURE_R=(CLOSURE_R||[]).filter(c=>c.budRef!==budRef);
-  saveNewData();
-  if(isSBConfigured())await dbDelete('closure_records','bud_ref',budRef);
+  saveAllLS();
+  if(isSBConfigured()) await dbDelete('closure_records','bud_ref',budRef);
   toast('Closure for '+budRef+' removed.','success');
   renderAdminDB(); refreshDashCards();
 }
