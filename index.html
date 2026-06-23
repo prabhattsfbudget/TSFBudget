@@ -533,6 +533,7 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
     <div class="ni" id="navClosure" onclick="nav('closureModule',this)" title="Closure" style="display:none"><span class="ico">✅</span><span class="ni-label">Closure</span></div>
     <div class="ni" id="navSaving" onclick="nav('savingModule',this)" title="Savings" style="display:none"><span class="ico">💰</span><span class="ni-label">Savings</span></div>
     <div class="ni" onclick="nav('report',this)" title="Export Report"><span class="ico">📥</span><span class="ni-label">Export Report</span></div>
+    <div class="ni" id="navAdminDB" onclick="nav('adminDB',this)" style="display:none"><span class="ico">🛠️</span><span class="ni-label">Admin Panel</span></div>
     <div class="sb-ftr"><button class="btn-lo" onclick="doLogout()"><span class="lo-icon">⎋</span><span class="lo-label"> Sign Out</span></button></div>
   </div>
 
@@ -1448,6 +1449,173 @@ function hideLoader(){const el=document.getElementById('sbLoader');if(el)el.styl
   </div>
 </div>
 
+
+<!-- ADMIN BACKEND PANEL -->
+<div id="page-adminDB" class="page">
+  <style>
+    .admin-section{background:#fff;border-radius:8px;border:1px solid var(--bdr);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden}
+    .admin-section-hdr{background:#1a3a5c;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:space-between}
+    .admin-section-hdr span{font-size:11px;opacity:.7;font-weight:400}
+    .admin-tbl{width:100%;border-collapse:collapse;font-size:12px}
+    .admin-tbl th{background:#f1f5f9;padding:8px 10px;text-align:left;font-weight:600;color:#475569;border-bottom:2px solid var(--bdr);white-space:nowrap}
+    .admin-tbl td{padding:7px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+    .admin-tbl tr:last-child td{border:none}
+    .admin-tbl tr:hover td{background:#fafbfc}
+    .del-btn{background:#dc2626;color:#fff;border:none;border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;font-weight:600}
+    .del-btn:hover{background:#b91c1c}
+    .admin-search{padding:6px 10px;border:1px solid var(--bdr);border-radius:4px;font-size:12px;width:220px}
+    .admin-badge{display:inline-block;background:#e0f2fe;color:#0369a1;border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700}
+  </style>
+
+  <div class="ibox" style="margin-bottom:12px">
+    ⚠️ <strong>Admin Backend Panel</strong> — Direct database management. All deletions are permanent and sync to Supabase.
+  </div>
+
+  <!-- Clear Data Section -->
+  <div class="admin-section" style="border:2px solid #dc2626">
+    <div class="admin-section-hdr" style="background:#dc2626">
+      🧹 Clear Application Data <span>Use with caution — irreversible</span>
+    </div>
+    <div style="padding:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+      <button class="btn" style="background:#f59e0b;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600" onclick="clearModuleData()">
+        🗑️ Clear New Module Data
+      </button>
+      <button class="btn" style="background:#dc2626;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600" onclick="clearAllLocalStorage()">
+        💣 Clear ALL LocalStorage
+      </button>
+      <button class="btn" style="background:#7c3aed;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600" onclick="clearCacheAndReload()">
+        🔄 Clear Cache & Reload
+      </button>
+      <span style="font-size:11px;color:#dc2626;font-weight:600">⚠️ These actions cannot be undone. Data will be lost from this device.</span>
+    </div>
+    <div style="padding:0 14px 12px;display:flex;flex-wrap:wrap;gap:8px">
+      <span style="font-size:11px;color:#64748b">Individual clear:</span>
+      <button onclick="clearKey('bps_sr_user','SR User Records')"   style="font-size:11px;padding:3px 10px;border:1px solid #dc2626;border-radius:4px;cursor:pointer;background:#fff;color:#dc2626">SR (User)</button>
+      <button onclick="clearKey('bps_io_req','IO Requests')"        style="font-size:11px;padding:3px 10px;border:1px solid #dc2626;border-radius:4px;cursor:pointer;background:#fff;color:#dc2626">IO Requests</button>
+      <button onclick="clearKey('bps_pr','PR/MRF Records')"         style="font-size:11px;padding:3px 10px;border:1px solid #dc2626;border-radius:4px;cursor:pointer;background:#fff;color:#dc2626">PR/MRF</button>
+      <button onclick="clearKey('bps_wo','WO/PO/RO Records')"       style="font-size:11px;padding:3px 10px;border:1px solid #dc2626;border-radius:4px;cursor:pointer;background:#fff;color:#dc2626">WO/PO/RO</button>
+      <button onclick="clearKey('bps_prov','Provision Records')"    style="font-size:11px;padding:3px 10px;border:1px solid #dc2626;border-radius:4px;cursor:pointer;background:#fff;color:#dc2626">Provisions</button>
+      <button onclick="clearKey('bps_bill','Bill Records')"         style="font-size:11px;padding:3px 10px;border:1px solid #dc2626;border-radius:4px;cursor:pointer;background:#fff;color:#dc2626">Bills</button>
+      <button onclick="clearKey('bps_closure','Closure Records')"   style="font-size:11px;padding:3px 10px;border:1px solid #dc2626;border-radius:4px;cursor:pointer;background:#fff;color:#dc2626">Closures</button>
+      <button onclick="clearKey('bps_sr','SR F&A Records')"         style="font-size:11px;padding:3px 10px;border:1px solid #dc2626;border-radius:4px;cursor:pointer;background:#fff;color:#dc2626">SR (F&A)</button>
+      <button onclick="clearKey('bps_io','IO F&A Records')"         style="font-size:11px;padding:3px 10px;border:1px solid #dc2626;border-radius:4px;cursor:pointer;background:#fff;color:#dc2626">IO (F&A)</button>
+      <button onclick="clearKey('bps_reqs','Budget Requests')"      style="font-size:11px;padding:3px 10px;border:1px solid #dc2626;border-radius:4px;cursor:pointer;background:#fff;color:#dc2626">Budget Requests</button>
+    </div>
+  </div>
+
+  <!-- Budget Requests -->
+  <div class="admin-section">
+    <div class="admin-section-hdr">
+      📋 Budget Requests <span id="adb-bud-count"></span>
+      <input class="admin-search" placeholder="Search ref / project..." oninput="filterAdminTbl('adb-bud-tb',this.value)"/>
+    </div>
+    <div style="overflow-x:auto;max-height:280px;overflow-y:auto">
+      <table class="admin-tbl" id="adb-bud-tb">
+        <thead><tr><th>Ref</th><th>Project Name</th><th>GL</th><th>Location</th><th>Budget(₹)</th><th>Status</th><th>By</th><th>Action</th></tr></thead>
+        <tbody id="adb-bud-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SR Records -->
+  <div class="admin-section">
+    <div class="admin-section-hdr">
+      📋 SR Records (All) <span id="adb-sr-count"></span>
+      <input class="admin-search" placeholder="Search..." oninput="filterAdminTbl('adb-sr-tb',this.value)"/>
+    </div>
+    <div style="overflow-x:auto;max-height:220px;overflow-y:auto">
+      <table class="admin-tbl" id="adb-sr-tb">
+        <thead><tr><th>ID</th><th>Budget Ref</th><th>SR No.</th><th>GL</th><th>SR Value(₹)</th><th>Date</th><th>By</th><th>Action</th></tr></thead>
+        <tbody id="adb-sr-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- IO Requests -->
+  <div class="admin-section">
+    <div class="admin-section-hdr">
+      📄 IO Records (All) <span id="adb-io-count"></span>
+      <input class="admin-search" placeholder="Search..." oninput="filterAdminTbl('adb-io-tb',this.value)"/>
+    </div>
+    <div style="overflow-x:auto;max-height:220px;overflow-y:auto">
+      <table class="admin-tbl" id="adb-io-tb">
+        <thead><tr><th>ID</th><th>Budget Ref</th><th>SR No.</th><th>IO No.</th><th>Amount(₹)</th><th>Status</th><th>By</th><th>Action</th></tr></thead>
+        <tbody id="adb-io-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PR/MRF -->
+  <div class="admin-section">
+    <div class="admin-section-hdr">
+      🛒 PR/MRF Records <span id="adb-pr-count"></span>
+      <input class="admin-search" placeholder="Search..." oninput="filterAdminTbl('adb-pr-tb',this.value)"/>
+    </div>
+    <div style="overflow-x:auto;max-height:220px;overflow-y:auto">
+      <table class="admin-tbl" id="adb-pr-tb">
+        <thead><tr><th>ID</th><th>Type</th><th>No.</th><th>Budget Ref</th><th>GL</th><th>Amount(₹)</th><th>Status</th><th>By</th><th>Action</th></tr></thead>
+        <tbody id="adb-pr-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- WO/PO/RO -->
+  <div class="admin-section">
+    <div class="admin-section-hdr">
+      📦 WO/PO/RO Records <span id="adb-wo-count"></span>
+      <input class="admin-search" placeholder="Search..." oninput="filterAdminTbl('adb-wo-tb',this.value)"/>
+    </div>
+    <div style="overflow-x:auto;max-height:220px;overflow-y:auto">
+      <table class="admin-tbl" id="adb-wo-tb">
+        <thead><tr><th>ID</th><th>Type</th><th>No.</th><th>Budget Ref</th><th>GL</th><th>Value(₹)</th><th>Stage</th><th>By</th><th>Action</th></tr></thead>
+        <tbody id="adb-wo-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Provision Records -->
+  <div class="admin-section">
+    <div class="admin-section-hdr">
+      🔧 Provision Records <span id="adb-prov-count"></span>
+      <input class="admin-search" placeholder="Search..." oninput="filterAdminTbl('adb-prov-tb',this.value)"/>
+    </div>
+    <div style="overflow-x:auto;max-height:220px;overflow-y:auto">
+      <table class="admin-tbl" id="adb-prov-tb">
+        <thead><tr><th>ID</th><th>Budget Ref</th><th>GL</th><th>Amount(₹)</th><th>FA Approved</th><th>Date</th><th>By</th><th>Action</th></tr></thead>
+        <tbody id="adb-prov-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bill Records -->
+  <div class="admin-section">
+    <div class="admin-section-hdr">
+      🧾 Bill Records <span id="adb-bill-count"></span>
+      <input class="admin-search" placeholder="Search..." oninput="filterAdminTbl('adb-bill-tb',this.value)"/>
+    </div>
+    <div style="overflow-x:auto;max-height:220px;overflow-y:auto">
+      <table class="admin-tbl" id="adb-bill-tb">
+        <thead><tr><th>ID</th><th>Budget Ref</th><th>Bill Type</th><th>Bill No.</th><th>Amount(₹)</th><th>Payment</th><th>Date</th><th>By</th><th>Action</th></tr></thead>
+        <tbody id="adb-bill-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Closure Records -->
+  <div class="admin-section">
+    <div class="admin-section-hdr">
+      ✅ Closure Records <span id="adb-clos-count"></span>
+    </div>
+    <div style="overflow-x:auto;max-height:220px;overflow-y:auto">
+      <table class="admin-tbl" id="adb-clos-tb">
+        <thead><tr><th>Budget Ref</th><th>Project</th><th>Closure Date</th><th>By</th><th>Action</th></tr></thead>
+        <tbody id="adb-clos-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
 </div>
 
 <!-- ADMIN PANEL -->
@@ -1657,7 +1825,13 @@ window.addEventListener('load',()=>{
 });
 
 // ── LOGIN ─────────────────────────────────────────────────────────
-function ql(id){document.getElementById('loginId').value=id;document.getElementById('loginPass').value='demo';doLogin();}
+function ql(id){
+  document.getElementById('loginId').value=id;
+  // Use actual password from FU if available
+  const actualPwd = FU[id] && FU[id].pwd ? FU[id].pwd : 'demo';
+  document.getElementById('loginPass').value=actualPwd;
+  doLogin();
+}
 function doLogin(){
   const id=document.getElementById('loginId').value.trim(),pw=document.getElementById('loginPass').value.trim();
   if(!id||!pw){toast('Enter Login ID and Password.','error');return;}
@@ -1665,7 +1839,10 @@ function doLogin(){
     const u=FU[id];
     if(u.pwd && pw!==u.pwd){toast('Incorrect password.','error');return;}
     if(u.ctx){window._pu={...u,id};showCtx(u.ctx);return;}
-    if(u.level===9){hideAll();showAdmin();toast('Welcome, Administrator!','success');return;}
+    if(u.level===9){
+      // Admin goes to main app (showApp) with full access
+      CU={...u,id};hideAll();showApp();toast('Welcome, Administrator!','success');return;
+    }
     CU={...u,id};hideAll();showApp();toast('Welcome, '+u.name+'!','success');return;
   }
   if(UP[id]){
@@ -1769,7 +1946,7 @@ function nav(name,el){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   const pg=document.getElementById('page-'+name);if(pg)pg.classList.add('active');
   if(el)el.classList.add('active');
-  const T={dashboard:'Dashboard',budgetMgmt:'Budget Management',myReqs:'My Requests',approvals:'Pending Approvals',consolidated:'Consolidated View',faModule:'F&A / Actual Spend',report:'Export Report'};
+  const T={dashboard:'Dashboard',budgetMgmt:'Budget Management',myReqs:'My Requests',approvals:'Pending Approvals',consolidated:'Consolidated View',faModule:'F&A / Actual Spend',report:'Export Report',adminDB:'🛠️ Admin Backend Panel'};
   document.getElementById('pgTitle').textContent=T[name]||name;
   if(name==='approvals')renderApprovals();
   if(name==='myReqs')renderMine();
@@ -2769,9 +2946,16 @@ showApp=function(){
   show('navSaving', !isApprover);
   // F&A old module: hidden always
   show('navFA', false);
+  // Admin Backend Panel — only for Admin
+  show('navAdminDB', isAdmin);
   // Approvers: hide all transactional menus
   if(isApprover){
     ['navSR','navIO','navPR','navWO','navImpl','navClosure','navSaving','navFA'].forEach(id=>show(id,false));
+  }
+  // Admin: show everything
+  if(isAdmin){
+    ['navSR','navIO','navPR','navWO','navImpl','navClosure','navSaving'].forEach(id=>show(id,'flex'));
+    show('navAdminDB','flex');
   }
   // Cards inside modules
   showB('ioIssueCard', isFA);
@@ -2788,35 +2972,84 @@ refreshDash=function(){
   refreshDashCards();
 };
 function refreshDashCards(){
-  const totBud=REQS.filter(r=>r.status==='approved').reduce((s,r)=>s+r.bud,0);
-  const totSR=SR_R.reduce((s,x)=>s+x.srVal,0)+SR_USER.reduce((s,x)=>s+x.srVal,0);
-  const totIO=IO_R.reduce((s,x)=>s+x.ioVal,0);
-  const totPR=PR_R.reduce((s,x)=>s+x.amt,0);
-  const totWO=WO_R.reduce((s,x)=>s+x.val,0);
-  const totImpl=BILL_R.filter(b=>b.paymentDone).reduce((s,x)=>s+x.amt,0);
-  const totClosed=CLOSURE_R.length;
-  const totalApproved=REQS.filter(r=>r.status==='approved').length;
-  const totSaving=totBud-totImpl;
+  // 1. Budget = Total Approved Budget
+  const approvedReqs = REQS.filter(r=>r.status==='approved');
+  const totBud = approvedReqs.reduce((s,r)=>s+r.bud,0);
 
-  const pct=v=>totBud>0?Math.min(100,Math.round(v/totBud*100)):0;
-  
-  const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val;};
-  const setW=(id,w)=>{const e=document.getElementById(id);if(e)e.style.width=w+'%';};
-  
+  // 2. SR = Total SR Amount (F&A SR_R + Programme Team SR_USER)
+  const allSRs = [...SR_R,...(SR_USER||[])];
+  const totSR  = allSRs.reduce((s,x)=>s+(x.srVal||0),0);
+
+  // 3. IO = Total IO Amount approved by F&A (IO_R + IO_REQ where Issued)
+  const allIOs = [...IO_R,...(IO_REQ||[]).filter(q=>q.status==='Issued')];
+  const totIO  = allIOs.reduce((s,x)=>s+(x.ioVal||x.amt||0),0);
+
+  // 4. PR/MRF = Total all PR/MRF entries
+  const totPR = (PR_R||[]).reduce((s,x)=>s+(x.amt||0),0);
+
+  // 5. WO/PO/RO = Only Released orders
+  const totWO = (WO_R||[]).filter(w=>w.stage==='Released').reduce((s,x)=>s+(x.val||0),0);
+
+  // 6. Implementation = Total Payment Done
+  const totImpl = (BILL_R||[]).filter(b=>b.paymentDone).reduce((s,x)=>s+(x.amt||0),0);
+
+  // 7. Closure count
+  const totClosed    = (CLOSURE_R||[]).length;
+  const totalApproved= approvedReqs.length;
+
+  // 8. Saving = Budget - Payment Done, ONLY for closed projects
+  //    For open projects saving = 0
+  let totSaving = 0;
+  (CLOSURE_R||[]).forEach(function(cl){
+    const r = REQS.find(x=>x.ref===cl.budRef);
+    if(!r) return;
+    const paid = (BILL_R||[]).filter(b=>b.budRef===cl.budRef&&b.paymentDone).reduce((s,x)=>s+(x.amt||0),0);
+    totSaving += Math.max(0, r.bud - paid);
+  });
+
+  const pct  = v => totBud>0 ? Math.min(100,Math.round(v/totBud*100)) : 0;
+  const set  = (id,val) => { const e=document.getElementById(id); if(e) e.textContent=val; };
+  const setW = (id,w)   => { const e=document.getElementById(id); if(e) e.style.width=w+'%'; };
+
+  // Budget card
   set('dBud','₹'+fmt(totBud));
-  set('dBudP','Total Approved Budget');
-  
-  set('dSR','₹'+fmt(totSR));set('dSRP',pct(totSR)+'% of Budget');setW('dSRF',pct(totSR));
-  set('dIO','₹'+fmt(totIO));set('dIOP',pct(totIO)+'% of Budget');setW('dIOF',pct(totIO));
-  set('dPR','₹'+fmt(totPR));set('dPRP',pct(totPR)+'% of Budget');setW('dPRF',pct(totPR));
-  set('dWO','₹'+fmt(totWO));set('dWOP',pct(totWO)+'% of Budget');setW('dWOF',pct(totWO));
-  set('dImpl','₹'+fmt(totImpl));set('dImplP',pct(totImpl)+'% of Budget');setW('dImplF',pct(totImpl));
-  
-  const closPct=totalApproved>0?Math.round(totClosed/totalApproved*100):0;
-  set('dClos',totClosed+' Projects');set('dClosP',closPct+'% Closed');setW('dClosF',closPct);
-  
-  set('dSav','₹'+fmt(Math.max(0,totSaving)));
-  set('dSavP','Budget vs Final Booking Saving');setW('dSavF',pct(Math.max(0,totSaving)));
+  set('dBudP','Total Approved Budget ('+totalApproved+' projects)');
+
+  // SR card
+  set('dSR','₹'+fmt(totSR));
+  set('dSRP',pct(totSR)+'% of Budget');
+  setW('dSRF',pct(totSR));
+
+  // IO card
+  set('dIO','₹'+fmt(totIO));
+  set('dIOP',pct(totIO)+'% of Budget');
+  setW('dIOF',pct(totIO));
+
+  // PR/MRF card
+  set('dPR','₹'+fmt(totPR));
+  set('dPRP',pct(totPR)+'% of Budget');
+  setW('dPRF',pct(totPR));
+
+  // WO/PO/RO card — Released only
+  set('dWO','₹'+fmt(totWO));
+  set('dWOP',pct(totWO)+'% of Budget (Released)');
+  setW('dWOF',pct(totWO));
+
+  // Implementation card — Payment Done
+  set('dImpl','₹'+fmt(totImpl));
+  set('dImplP',pct(totImpl)+'% of Budget (Paid)');
+  setW('dImplF',pct(totImpl));
+
+  // Closure card
+  const closPct = totalApproved>0 ? Math.round(totClosed/totalApproved*100) : 0;
+  set('dClos', totClosed+' Projects');
+  set('dClosP', closPct+'% Closed');
+  setW('dClosF', closPct);
+
+  // Saving card — only from closed projects
+  set('dSav','₹'+fmt(totSaving));
+  set('dSavP', totClosed>0 ? 'From '+totClosed+' closed project(s)' : 'Available after project closure');
+  setW('dSavF', pct(totSaving));
 }
 
 // ── DASHBOARD DETAIL MODAL ───────────────────────────
@@ -3278,6 +3511,7 @@ nav=function(page, el){
   if(page==='closureModule'){loadClosureSels();renderClosureRec();}
   if(page==='savingModule'){renderSavingTb();}
   if(page==='report'){renderReport();}
+  if(page==='adminDB'){renderAdminDB();}
 };
 
 // ── VARIANCE GL MANAGEMENT ───────────────────────────
@@ -3446,6 +3680,218 @@ document.addEventListener('mousemove',function(e){
     }
   });
 });
+
+
+
+// ── CLEAR DATA FUNCTIONS ──────────────────────────────────────
+function clearKey(key, label){
+  if(!confirm('Clear "'+label+'" from LocalStorage?\nThis device ka data permanently delete hoga.'))return;
+  localStorage.removeItem(key);
+  // Reset in-memory arrays
+  if(key==='bps_sr_user') SR_USER=[];
+  if(key==='bps_io_req')  IO_REQ=[];
+  if(key==='bps_pr')      PR_R=[];
+  if(key==='bps_wo')      WO_R=[];
+  if(key==='bps_prov')    PROV_R=[];
+  if(key==='bps_bill')    BILL_R=[];
+  if(key==='bps_closure') CLOSURE_R=[];
+  if(key==='bps_sr')      SR_R=[];
+  if(key==='bps_io')      IO_R=[];
+  if(key==='bps_reqs')    REQS=[];
+  toast(label+' cleared successfully.','success');
+  renderAdminDB();
+  refreshDash();
+  refreshDashCards();
+}
+
+function clearModuleData(){
+  if(!confirm('Clear ALL new module data?\n\nThis will delete:\n• SR User Records\n• IO Requests\n• PR/MRF Records\n• WO/PO/RO Records\n• Provision Records\n• Bill Records\n• Closure Records\n\nBudget Requests will be kept.'))return;
+  const keys=['bps_sr_user','bps_io_req','bps_pr','bps_wo','bps_prov','bps_bill','bps_closure','bps_newrc'];
+  keys.forEach(k=>localStorage.removeItem(k));
+  SR_USER=[];IO_REQ=[];PR_R=[];WO_R=[];PROV_R=[];BILL_R=[];CLOSURE_R=[];NEWRC=5001;
+  toast('All module data cleared.','success');
+  renderAdminDB();
+  refreshDash();
+  refreshDashCards();
+}
+
+function clearAllLocalStorage(){
+  if(!confirm('⚠️ WARNING: Clear EVERYTHING from LocalStorage?\n\nYeh sab delete hoga:\n• Budget Requests\n• SR, IO, PR, WO, Implementation, Closure\n• User Profiles\n• All Settings\n\nPage reload hoga. Supabase data safe rahega.'))return;
+  localStorage.clear();
+  toast('All LocalStorage cleared. Reloading...','success');
+  setTimeout(function(){window.location.reload();},1200);
+}
+
+function clearCacheAndReload(){
+  if(!confirm('Clear browser cache and reload?\nPage will refresh.'))return;
+  // Clear caches via Service Worker if available
+  if('caches' in window){
+    caches.keys().then(function(names){
+      names.forEach(function(name){caches.delete(name);});
+    });
+  }
+  // Force hard reload
+  toast('Cache clearing... reloading.','success');
+  setTimeout(function(){
+    window.location.href=window.location.href.split('?')[0]+'?nocache='+Date.now();
+  },800);
+}
+
+// ── ADMIN BACKEND PANEL ───────────────────────────────────────
+function renderAdminDB(){
+  const cnt=(id,n)=>{const e=document.getElementById(id);if(e)e.textContent='('+n+' records)';};
+  const noRow=(cols)=>'<tr><td colspan="'+cols+'" style="text-align:center;padding:12px;color:#94a3b8">No records.</td></tr>';
+  const dBtn=(fn,id)=>'<button class="del-btn" onclick="'+fn+'(\''+id+'\')">🗑 Delete</button>';
+
+  // Budget Requests
+  const budBody=document.getElementById('adb-bud-body');
+  if(budBody){
+    cnt('adb-bud-count',REQS.length);
+    budBody.innerHTML=!REQS.length?noRow(8):[...REQS].reverse().map(r=>
+      '<tr><td><strong>'+r.ref+'</strong></td><td>'+r.projName.substring(0,28)+'</td><td style="font-size:11px">'+(r.gl||'').substring(0,18)+'…</td><td>'+r.loc+'</td><td class="amt">₹'+fmt(r.bud)+'</td><td><span class="admin-badge">'+r.status+'</span></td><td>'+(r.byName||r.by||'—')+'</td><td>'+dBtn('adminDelBudget',r.ref)+'</td></tr>'
+    ).join('');
+  }
+
+  // SR Records (combined)
+  const allSRsComb=[...SR_R.map(s=>({...s,_src:'fa'})),...(SR_USER||[]).map(s=>({...s,_src:'user'}))];
+  const srBody=document.getElementById('adb-sr-body');
+  if(srBody){
+    cnt('adb-sr-count',allSRsComb.length);
+    srBody.innerHTML=!allSRsComb.length?noRow(8):[...allSRsComb].reverse().map(s=>
+      '<tr><td><strong>'+s.id+'</strong></td><td>'+s.budRef+'</td><td>'+(s.srNo||s.sr_no||'—')+'</td><td style="font-size:11px">'+(s.gl||'').substring(0,15)+'…</td><td class="amt">₹'+fmt(s.srVal||s.sr_val||0)+'</td><td>'+s.date+'</td><td>'+(s.by||s.added_by||'—')+'</td><td>'+dBtn('adminDelSR',s.id+':'+s._src)+'</td></tr>'
+    ).join('');
+  }
+
+  // IO Records (combined)
+  const allIOsComb=[...IO_R.map(i=>({...i,_src:'fa'})),...(IO_REQ||[]).map(i=>({...i,_src:'req'}))];
+  const ioBody=document.getElementById('adb-io-body');
+  if(ioBody){
+    cnt('adb-io-count',allIOsComb.length);
+    ioBody.innerHTML=!allIOsComb.length?noRow(8):[...allIOsComb].reverse().map(i=>
+      '<tr><td><strong>'+i.id+'</strong></td><td>'+i.budRef+'</td><td>'+(i.srNo||'—')+'</td><td><strong style="color:var(--suc)">'+(i.ioNo||'—')+'</strong></td><td class="amt">₹'+fmt(i.ioVal||i.amt||0)+'</td><td><span class="admin-badge">'+(i.status||'Issued')+'</span></td><td>'+(i.by||i.added_by||'—')+'</td><td>'+dBtn('adminDelIO',i.id+':'+i._src)+'</td></tr>'
+    ).join('');
+  }
+
+  // PR/MRF
+  const prBody=document.getElementById('adb-pr-body');
+  if(prBody){
+    cnt('adb-pr-count',(PR_R||[]).length);
+    prBody.innerHTML=!(PR_R||[]).length?noRow(9):[...(PR_R||[])].reverse().map(p=>
+      '<tr><td><strong>'+p.id+'</strong></td><td>'+p.type+'</td><td>'+p.no+'</td><td>'+p.budRef+'</td><td style="font-size:11px">'+(p.gl||'').substring(0,15)+'…</td><td class="amt">₹'+fmt(p.amt)+'</td><td><span class="admin-badge">'+(p.status||'Submitted')+'</span></td><td>'+(p.by||'—')+'</td><td>'+dBtn('adminDelPR',p.id)+'</td></tr>'
+    ).join('');
+  }
+
+  // WO/PO/RO
+  const woBody=document.getElementById('adb-wo-body');
+  if(woBody){
+    cnt('adb-wo-count',(WO_R||[]).length);
+    woBody.innerHTML=!(WO_R||[]).length?noRow(9):[...(WO_R||[])].reverse().map(w=>
+      '<tr><td><strong>'+w.id+'</strong></td><td>'+w.type+'</td><td>'+w.no+'</td><td>'+w.budRef+'</td><td style="font-size:11px">'+(w.gl||'').substring(0,15)+'…</td><td class="amt">₹'+fmt(w.val)+'</td><td><span class="admin-badge">'+w.stage+'</span></td><td>'+(w.by||'—')+'</td><td>'+dBtn('adminDelWO',w.id)+'</td></tr>'
+    ).join('');
+  }
+
+  // Provision
+  const provBody=document.getElementById('adb-prov-body');
+  if(provBody){
+    cnt('adb-prov-count',(PROV_R||[]).length);
+    provBody.innerHTML=!(PROV_R||[]).length?noRow(8):[...(PROV_R||[])].reverse().map(p=>
+      '<tr><td><strong>'+p.id+'</strong></td><td>'+p.budRef+'</td><td style="font-size:11px">'+(p.gl||'').substring(0,15)+'…</td><td class="amt">₹'+fmt(p.amt)+'</td><td>'+(p.faApproved?'✅ Yes':'⏳ No')+'</td><td>'+p.date+'</td><td>'+(p.by||'—')+'</td><td>'+dBtn('adminDelProv',p.id)+'</td></tr>'
+    ).join('');
+  }
+
+  // Bills
+  const billBody=document.getElementById('adb-bill-body');
+  if(billBody){
+    cnt('adb-bill-count',(BILL_R||[]).length);
+    billBody.innerHTML=!(BILL_R||[]).length?noRow(9):[...(BILL_R||[])].reverse().map(b=>
+      '<tr><td><strong>'+b.id+'</strong></td><td>'+b.budRef+'</td><td>'+b.billType+'</td><td>'+b.billNo+'</td><td class="amt">₹'+fmt(b.amt)+'</td><td>'+(b.paymentDone?'✅ Paid':'⏳ Pending')+'</td><td>'+b.date+'</td><td>'+(b.by||'—')+'</td><td>'+dBtn('adminDelBill',b.id)+'</td></tr>'
+    ).join('');
+  }
+
+  // Closure
+  const closBody=document.getElementById('adb-clos-body');
+  if(closBody){
+    cnt('adb-clos-count',(CLOSURE_R||[]).length);
+    closBody.innerHTML=!(CLOSURE_R||[]).length?noRow(5):[...(CLOSURE_R||[])].reverse().map(c=>
+      '<tr><td><strong>'+c.budRef+'</strong></td><td>'+(c.projName||'—')+'</td><td>'+c.date+'</td><td>'+(c.by||'—')+'</td><td>'+dBtn('adminDelClosure',c.budRef)+'</td></tr>'
+    ).join('');
+  }
+}
+
+function filterAdminTbl(tbId, q){
+  const tb=document.getElementById(tbId);if(!tb)return;
+  const rows=tb.querySelectorAll('tbody tr');
+  const lq=q.toLowerCase();
+  rows.forEach(function(row){
+    row.style.display=row.textContent.toLowerCase().includes(lq)?'':'none';
+  });
+}
+
+// Admin Delete functions — confirm + localStorage + Supabase
+async function adminDelBudget(ref){
+  if(!confirm('DELETE Budget Request '+ref+' permanently? This will also affect all related SR, IO, PR, WO, Implementation records.'))return;
+  REQS=REQS.filter(r=>r.ref!==ref);
+  saveReqs();
+  if(isSBConfigured()) await dbDelete('budget_requests','ref',ref);
+  toast('Budget '+ref+' deleted.','success');
+  renderAdminDB(); refreshDash(); refreshDashCards();
+}
+async function adminDelSR(idSrc){
+  const [id,src]=idSrc.split(':');
+  if(!confirm('DELETE SR record '+id+'?'))return;
+  if(src==='fa'){SR_R=SR_R.filter(s=>s.id!==id);localStorage.setItem('bps_sr',JSON.stringify(SR_R));if(isSBConfigured())await dbDelete('sr_records','id',id);}
+  else{SR_USER=(SR_USER||[]).filter(s=>s.id!==id);localStorage.setItem('bps_sr_user',JSON.stringify(SR_USER));if(isSBConfigured())await dbDelete('sr_user_records','id',id);}
+  toast('SR '+id+' deleted.','success');
+  renderAdminDB(); refreshDashCards();
+}
+async function adminDelIO(idSrc){
+  const [id,src]=idSrc.split(':');
+  if(!confirm('DELETE IO record '+id+'?'))return;
+  if(src==='fa'){IO_R=IO_R.filter(i=>i.id!==id);localStorage.setItem('bps_io',JSON.stringify(IO_R));if(isSBConfigured())await dbDelete('io_records','id',id);}
+  else{IO_REQ=(IO_REQ||[]).filter(i=>i.id!==id);localStorage.setItem('bps_io_req',JSON.stringify(IO_REQ));if(isSBConfigured())await dbDelete('io_requests','id',id);}
+  toast('IO '+id+' deleted.','success');
+  renderAdminDB(); refreshDashCards();
+}
+async function adminDelPR(id){
+  if(!confirm('DELETE PR/MRF record '+id+'?'))return;
+  PR_R=(PR_R||[]).filter(p=>p.id!==id);
+  saveNewData();
+  if(isSBConfigured())await dbDelete('pr_mrf_records','id',id);
+  toast('PR/MRF '+id+' deleted.','success');
+  renderAdminDB(); refreshDashCards();
+}
+async function adminDelWO(id){
+  if(!confirm('DELETE WO/PO/RO record '+id+'?'))return;
+  WO_R=(WO_R||[]).filter(w=>w.id!==id);
+  saveNewData();
+  if(isSBConfigured())await dbDelete('wo_po_ro_records','id',id);
+  toast('WO/PO/RO '+id+' deleted.','success');
+  renderAdminDB(); refreshDashCards();
+}
+async function adminDelProv(id){
+  if(!confirm('DELETE Provision record '+id+'?'))return;
+  PROV_R=(PROV_R||[]).filter(p=>p.id!==id);
+  saveNewData();
+  if(isSBConfigured())await dbDelete('provision_records','id',id);
+  toast('Provision '+id+' deleted.','success');
+  renderAdminDB(); refreshDashCards();
+}
+async function adminDelBill(id){
+  if(!confirm('DELETE Bill record '+id+'?'))return;
+  BILL_R=(BILL_R||[]).filter(b=>b.id!==id);
+  saveNewData();
+  if(isSBConfigured())await dbDelete('bill_records','id',id);
+  toast('Bill '+id+' deleted.','success');
+  renderAdminDB(); refreshDashCards();
+}
+async function adminDelClosure(budRef){
+  if(!confirm('REMOVE Closure record for '+budRef+'? Project will be open again.'))return;
+  CLOSURE_R=(CLOSURE_R||[]).filter(c=>c.budRef!==budRef);
+  saveNewData();
+  if(isSBConfigured())await dbDelete('closure_records','bud_ref',budRef);
+  toast('Closure for '+budRef+' removed.','success');
+  renderAdminDB(); refreshDashCards();
+}
 
 // ── SIDEBAR COLLAPSE ──────────────────────────────────────────────
 function toggleSidebar(){
